@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">Recipes</string>
+    <string name="Ingredients">Ingredients</string>
+    <string name="by">By</string>
+    <string name="grams">grams</string>
+    <string name="kilograms">kilograms</string>
+</resources>

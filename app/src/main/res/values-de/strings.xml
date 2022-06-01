@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Recipes</string>
+    <string name="Ingredients">Zutaten</string>
+    <string name="by">Von</string>
+    <string name="grams">gramm</string>
+    <string name="kilograms">kilogramm</string>
+</resources>
