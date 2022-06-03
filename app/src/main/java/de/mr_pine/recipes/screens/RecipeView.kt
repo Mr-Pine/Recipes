@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Text
@@ -18,12 +19,14 @@ import de.mr_pine.recipes.models.Recipe
 
 private const val TAG = "RecipeView"
 
+@ExperimentalMaterialApi
 @ExperimentalMaterial3Api
 @Composable
 fun RecipeView(recipe: Recipe) {
     LazyColumn(
         modifier = Modifier.padding(horizontal = 16.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp)
+        verticalArrangement = Arrangement.spacedBy(16.dp),
+        contentPadding = PaddingValues(bottom = 16.dp)
     ) {
         item {
             recipe.metadata.MetaInfo()
