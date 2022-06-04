@@ -12,12 +12,13 @@ data class Recipe(
     companion object {
         fun deserialize(serialized: String): Recipe {
             val metadata =
-                RecipeMetadata.deserialize(serialized.extractData(RecipeMetadata.DataTag))
+                RecipeMetadata.deserialize(
+                    serialized.extractData(RecipeMetadata.DataTag))
             val ingredients = RecipeIngredients(serialized.extractData(RecipeIngredients.DataTag))
             return Recipe(
                 metadata = metadata,
                 ingredients = ingredients,
-                instructions = RecipeInstructions(serialized.extractData(RecipeInstructions.DataTag))
+                instructions = RecipeInstructions(serialized.extractData(RecipeInstructions.DataTag), metadata.title)
             )
         }
     }
