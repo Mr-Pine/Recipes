@@ -5,4 +5,6 @@
     <string name="by">Von</string>
     <string name="grams">gramm</string>
     <string name="kilograms">kilogramm</string>
+    <string name="step_repeat">Schritt wiederholen</string>
+    <string name="step_finish">Schritt abschließen</string>
 </resources>

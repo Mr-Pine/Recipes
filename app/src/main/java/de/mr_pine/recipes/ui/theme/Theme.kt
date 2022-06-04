@@ -3,19 +3,18 @@ package de.mr_pine.recipes.ui.theme
 import android.app.Activity
 import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.darkColorScheme
-import androidx.compose.material3.dynamicDarkColorScheme
-import androidx.compose.material3.dynamicLightColorScheme
-import androidx.compose.material3.lightColorScheme
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.SideEffect
+import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
-import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat
+import com.google.android.material.color.ColorRoles
+import com.google.android.material.color.MaterialColors
 
 private val DarkColorScheme = darkColorScheme(
     primary = Purple80,
@@ -58,7 +57,10 @@ fun RecipesTheme(
     if (!view.isInEditMode) {
         SideEffect {
             (view.context as Activity).window.statusBarColor = colorScheme.surface.toArgb()
-            WindowCompat.getInsetsController((view.context as Activity).window, view).isAppearanceLightStatusBars = !darkTheme
+            WindowCompat.getInsetsController(
+                (view.context as Activity).window,
+                view
+            ).isAppearanceLightStatusBars = !darkTheme
         }
     }
 
@@ -67,4 +69,120 @@ fun RecipesTheme(
         typography = Typography,
         content = content
     )
+}
+
+// Igitt
+
+data class CustomColor(
+    val name: String,
+    val color: Color,
+    val harmonized: Boolean,
+    var roles: ColorRoles
+) {
+    data class ColorRoles(
+        val accent: Color = Color.Unspecified,
+        val onAccent: Color = Color.Unspecified,
+        val accentContainer: Color = Color.Unspecified,
+        val onAccentContainer: Color = Color.Unspecified
+    )
+}
+
+data class ExtendedColors(val colors: Array<CustomColor>)
+
+
+fun setupErrorColors(colorScheme: ColorScheme, isLight: Boolean): ColorScheme {
+    val harmonizedError =
+        MaterialColors.harmonize(error.toArgb(), colorScheme.primary.toArgb())
+    val roles = MaterialColors.getColorRoles(harmonizedError, isLight)
+    //returns a colorScheme with newly harmonized error colors
+    return colorScheme.copy(
+        error = Color(roles.accent),
+        onError = Color(roles.onAccent),
+        errorContainer = Color(roles.accentContainer),
+        onErrorContainer = Color(roles.onAccentContainer)
+    )
+}
+
+val initializeExtended = ExtendedColors(
+    arrayOf(
+        CustomColor("doneGreen", doneGreen, doneGreenHarmonize, CustomColor.ColorRoles()),
+        CustomColor("revertOrange", revertOrange, revertOrangeHarmonize, CustomColor.ColorRoles())
+    )
+)
+
+private fun ColorRoles.toColorRoles(): CustomColor.ColorRoles = CustomColor.ColorRoles(
+    accent = Color(this.accent),
+    onAccent = Color(this.onAccent),
+    accentContainer = Color(this.accentContainer),
+    onAccentContainer = Color(this.onAccentContainer),
+)
+
+fun setupCustomColors(
+    colorScheme: ColorScheme,
+    isLight: Boolean
+): ExtendedColors {
+    initializeExtended.colors.forEach { customColor ->
+        // Retrieve record
+        val shouldHarmonize = customColor.harmonized
+        // Blend or not
+        if (shouldHarmonize) {
+            val blendedColor =
+                MaterialColors.harmonize(customColor.color.toArgb(), colorScheme.primary.toArgb())
+            customColor.roles = MaterialColors.getColorRoles(blendedColor, isLight).toColorRoles()
+        } else {
+            customColor.roles =
+                MaterialColors.getColorRoles(customColor.color.toArgb(), isLight).toColorRoles()
+        }
+    }
+    return initializeExtended
+}
+
+val LocalExtendedColors = staticCompositionLocalOf {
+    initializeExtended
+}
+
+@Composable
+fun HarmonizedTheme(
+    useDarkTheme: Boolean = isSystemInDarkTheme(),
+    isDynamic: Boolean = true,
+    content: @Composable() () -> Unit
+) {
+    val colors = if (isDynamic) {
+        val context = LocalContext.current
+        if (useDarkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
+    } else {
+        if (useDarkTheme) DarkColorScheme else LightColorScheme
+    }
+    val colorsWithHarmonizedError =
+        if (errorHarmonize) setupErrorColors(colors, !useDarkTheme) else colors
+
+    val view = LocalView.current
+    if (!view.isInEditMode) {
+        SideEffect {
+            (view.context as Activity).window.statusBarColor = colors.surface.toArgb()
+            WindowCompat.getInsetsController(
+                (view.context as Activity).window,
+                view
+            ).isAppearanceLightStatusBars = !useDarkTheme
+        }
+    }
+
+    val extendedColors = setupCustomColors(colors, !useDarkTheme)
+    CompositionLocalProvider(LocalExtendedColors provides extendedColors) {
+        MaterialTheme(
+            colorScheme = colorsWithHarmonizedError,
+            typography = Typography,
+            content = content
+        )
+    }
+}
+
+object Extended {
+    val doneGreen: CustomColor.ColorRoles
+        @Composable
+        get() = LocalExtendedColors.current.colors[0].roles
+
+    val revertOrange: CustomColor.ColorRoles
+        @Composable
+        get() = LocalExtendedColors.current.colors[1].roles
 }

@@ -28,7 +28,9 @@ fun Swipeable(
     swipeLeftComposable: (@Composable (offsetAbsolute: Float, offsetRelative: Float) -> Unit)? = null,
     swipeRightComposable: (@Composable (offsetAbsolute: Float, offsetRelative: Float) -> Unit)? = null,
     leftSwiped: (() -> Unit)? = null,
+    leftSwipedDone: () -> Unit = {},
     rightSwiped: (() -> Unit)? = null,
+    rightSwipedDone: () -> Unit = {},
     anchorPositions: ClosedRange<Dp> = (-100).dp..100.dp,
     thresholds: (from: SwipeCardState, to: SwipeCardState) -> ThresholdConfig = { _, _ ->
         FractionalThreshold(
@@ -113,6 +115,7 @@ fun Swipeable(
                     swipeEnabled = false
                     swipeableState.animateTo(SwipeCardState.DEFAULT)
                     swipeEnabled = true
+                    leftSwipedDone()
                 }
             } else if (swipeableState.currentValue == SwipeCardState.RIGHT && !swipeableState.isAnimationRunning) {
                 rightSwiped?.invoke()
@@ -120,6 +123,7 @@ fun Swipeable(
                     swipeEnabled = false
                     swipeableState.animateTo(SwipeCardState.DEFAULT)
                     swipeEnabled = true
+                    rightSwipedDone()
                 }
             }
 

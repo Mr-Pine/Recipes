@@ -4,4 +4,6 @@
     <string name="by">By</string>
     <string name="grams">grams</string>
     <string name="kilograms">kilograms</string>
+    <string name="step_repeat">Repeat step</string>
+    <string name="step_finish">Finish step</string>
 </resources>
