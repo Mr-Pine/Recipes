@@ -6,5 +6,5 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 
 class MainViewModel: ViewModel() {
-    var currentTitle by mutableStateOf("Rezepttitel")
+    var currentTitle by mutableStateOf("")
 }

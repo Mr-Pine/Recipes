@@ -43,10 +43,10 @@ fun String.extractData(dataName: String): String {
     )
 }
 
-fun String.extractString(stringName: String): String {
-    val start = "$stringName\\s*:\\s*\"".toRegex().find(this)
-        ?: throw Exception("$stringName not contained in recipe")
-    val end = "(?<!\\\\)\"".toRegex().find(this, start.range.last + 1)
+fun String.extractString(stringName: String, enclosing: Char = '"'): String {
+    val start = "$stringName\\s*:\\s*$enclosing".toRegex().find(this)
+        ?: throw Exception("$stringName not contained in $this")
+    val end = "(?<!\\\\)$enclosing".toRegex().find(this, start.range.last + 1)
         ?: throw Exception("Missing ending '\"'")
     return this.substring(start.range.last + 1, end.range.first)
 }

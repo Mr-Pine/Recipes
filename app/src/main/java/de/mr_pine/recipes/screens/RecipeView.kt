@@ -17,8 +17,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import de.mr_pine.recipes.models.Recipe
 
-private const val TAG = "RecipeView"
-
 @ExperimentalAnimationApi
 @ExperimentalMaterialApi
 @ExperimentalMaterial3Api
@@ -26,7 +24,6 @@ private const val TAG = "RecipeView"
 @Composable
 fun RecipeView(recipe: Recipe) {
     val lazyListState = rememberLazyListState()
-    val coroutineScope = rememberCoroutineScope()
 
     LazyColumn(
         modifier = Modifier.padding(horizontal = 16.dp),
@@ -65,7 +62,10 @@ fun RecipeView(recipe: Recipe) {
                     if (recipe.instructions.currentlyActiveIndex.value == index) setCurrentlyActiveIndex(
                         recipe.instructions.instructions.size
                     )
-                })
+                },
+                getIngredientAbsolute = recipe.ingredients::getPartialIngredient,
+                getIngredientFraction = recipe.ingredients::getPartialIngredient
+            )
         }
     }
 }
@@ -75,8 +75,8 @@ fun ShowError(errorMessage: String) {
     var shown by remember { mutableStateOf(true) }
     if (shown) AlertDialog(
         onDismissRequest = { shown = false },
-        title = { Text(text = "Error Occured") },
-        text = { Text(text = errorMessage)},
+        title = { Text(text = "Error Occurred") },
+        text = { Text(text = errorMessage) },
         icon = {
             Icon(
                 imageVector = Icons.Default.Error,

@@ -87,7 +87,22 @@ data class CustomColor(
     )
 }
 
-data class ExtendedColors(val colors: Array<CustomColor>)
+data class ExtendedColors(val colors: Array<CustomColor>) {
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as ExtendedColors
+
+        if (!colors.contentEquals(other.colors)) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        return colors.contentHashCode()
+    }
+}
 
 
 fun setupErrorColors(colorScheme: ColorScheme, isLight: Boolean): ColorScheme {
@@ -145,7 +160,7 @@ val LocalExtendedColors = staticCompositionLocalOf {
 fun HarmonizedTheme(
     useDarkTheme: Boolean = isSystemInDarkTheme(),
     isDynamic: Boolean = true,
-    content: @Composable() () -> Unit
+    content: @Composable () -> Unit
 ) {
     val colors = if (isDynamic) {
         val context = LocalContext.current

@@ -1,8 +1,5 @@
 package de.mr_pine.recipes.models
 
-import android.content.Context
-import android.content.Intent
-import android.provider.AlarmClock
 import android.util.Log
 import androidx.compose.animation.*
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -30,11 +27,10 @@ import androidx.compose.ui.unit.dp
 import com.google.android.material.color.MaterialColors
 import de.mr_pine.recipes.R
 import de.mr_pine.recipes.components.swipeabe.Swipeable
+import de.mr_pine.recipes.models.instructions.InstructionSubmodels
 import de.mr_pine.recipes.screens.ShowError
 import de.mr_pine.recipes.ui.theme.Extended
 import kotlin.Unit
-import kotlin.time.Duration
-import kotlin.time.Duration.Companion.seconds
 
 private const val TAG = "RecipeInstructions"
 
@@ -67,9 +63,9 @@ class RecipeInstruction(
     override val serialized: String,
     val index: Int,
     private val recipeTitle: String
-) : RecipeDeserializable {
+) : InstructionSubmodels(), RecipeDeserializable {
 
-    var content: String = serialized
+    private var content: String = serialized
 
     var done by mutableStateOf(false)
 
@@ -81,49 +77,6 @@ class RecipeInstruction(
         return this
     }
 
-    private data class InstructionPart(val content: String, val type: PartType) {
-        enum class PartType(identifier: Int) {
-            TEXT(0), EMBED(1)
-        }
-    }
-
-    private interface PartTypeModel {
-        var content: String
-    }
-
-    class TimerModel(val duration: Duration, override var content: String) : PartTypeModel {
-
-        fun call(title: String, context: Context) {
-            val intent = Intent(AlarmClock.ACTION_SET_TIMER).apply {
-                putExtra(AlarmClock.EXTRA_MESSAGE, title)
-                putExtra(AlarmClock.EXTRA_LENGTH, duration.inWholeSeconds.toInt())
-                putExtra(AlarmClock.EXTRA_SKIP_UI, false)
-            }
-            context.startActivity(intent)
-        }
-
-        companion object {
-            fun fromString(string: String): TimerModel {
-                val duration = string.toInt().seconds
-                return TimerModel(duration, duration.toString())
-            }
-        }
-    }
-
-    private enum class PartType(val getModel: ((String) -> PartTypeModel)?) {
-        INGREDIENT(null), TIMER((TimerModel)::fromString), UNKNOWN(null);
-
-        companion object {
-            operator fun get(type: String): PartType {
-                return when (type.trim().lowercase()) {
-                    "ingredient" -> INGREDIENT
-                    "timer" -> TIMER
-                    else -> throw Exception("Bad type: $type")
-                }
-            }
-        }
-    }
-
 
     @ExperimentalMaterialApi
     @ExperimentalFoundationApi
@@ -132,8 +85,10 @@ class RecipeInstruction(
     @Composable
     fun InstructionCard(
         currentlyActiveIndex: Int,
-        setCurrentlyActiveIndex: (Int) -> kotlin.Unit,
-        setNextActive: () -> kotlin.Unit
+        setCurrentlyActiveIndex: (Int) -> Unit,
+        setNextActive: () -> Unit,
+        getIngredientAbsolute: (String, IngredientAmount, de.mr_pine.recipes.models.Unit) -> RecipeIngredient,
+        getIngredientFraction: (String, Float) -> RecipeIngredient,
     ) {
 
         val active = remember(currentlyActiveIndex) { currentlyActiveIndex == index }
@@ -163,7 +118,7 @@ class RecipeInstruction(
                             val embedType = embedTypeResult.value
 
                             val embedContent = part.content.removeRange(embedTypeResult.range)
-                                .trim() //TODO: Add proper content
+                                .trim()
                             val inlineId = "$embedType \"$embedContent\""
                             appendInlineContent(inlineId, "embed type: $embedType")
                             inlineIds.add(inlineId)
@@ -252,11 +207,15 @@ class RecipeInstruction(
                                     contentResult.value.substring(1, contentResult.value.length - 1)
                                 val parts = it.substring(0, contentResult.range.first).split(" ")
                                 val embedType = try {
-                                    PartType[parts[0].substring(1)]
+                                    EmbedType[parts[0].substring(1)]
                                 } catch (e: Exception) {
-                                    ShowError(errorMessage = e.message ?: ""); PartType.UNKNOWN
+                                    ShowError(errorMessage = e.message ?: ""); EmbedType.UNKNOWN
                                 }
-                                val model = embedType.getModel?.invoke(content)
+                                val model = embedType.constructor?.invoke(content)
+
+                                when (model) {
+                                    is IngredientModel -> model.receiveIngredient(getIngredientFraction, getIngredientAbsolute)
+                                }
 
                                 var enabled by remember { mutableStateOf(true) }
                                 val defaultChipColor = AssistChipDefaults.elevatedAssistChipColors()
@@ -280,8 +239,8 @@ class RecipeInstruction(
                                 ElevatedAssistChip(
                                     onClick = {
                                         when (embedType) {
-                                            PartType.INGREDIENT -> enabled = !enabled
-                                            PartType.TIMER -> (model as TimerModel).call(
+                                            EmbedType.INGREDIENT -> enabled = !enabled
+                                            EmbedType.TIMER -> (model as TimerModel).call(
                                                 recipeTitle,
                                                 context
                                             )
@@ -293,9 +252,9 @@ class RecipeInstruction(
                                     leadingIcon = {
                                         Icon(
                                             imageVector = when (embedType) {
-                                                PartType.INGREDIENT -> Icons.Default.Scale
-                                                PartType.TIMER -> Icons.Default.Timer
-                                                PartType.UNKNOWN -> Icons.Default.QuestionMark
+                                                EmbedType.INGREDIENT -> Icons.Default.Scale
+                                                EmbedType.TIMER -> Icons.Default.Timer
+                                                EmbedType.UNKNOWN -> Icons.Default.QuestionMark
                                             },
                                             contentDescription = embedType.toString(),
                                             modifier = Modifier.size(18.dp)

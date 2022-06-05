@@ -29,6 +29,14 @@ class RecipeIngredients(override val serialized: String) : RecipeDeserializable 
         return this
     }
 
+    fun getPartialIngredient(name: String, amount: IngredientAmount, unit: Unit) =
+        ingredients.find { name == it.name }?.getPartial(amount, unit)
+            ?: throw Exception("Ingredient not found")
+
+    fun getPartialIngredient(name: String, fraction: Float) =
+        ingredients.find { name == it.name }?.getPartial(fraction)
+            ?: throw Exception("Ingredient not found")
+
     companion object {
 
         const val DataTag = "Ingredients"
@@ -56,17 +64,31 @@ class RecipeIngredients(override val serialized: String) : RecipeDeserializable 
 
 class RecipeIngredient(override val serialized: String) : RecipeDeserializable {
     var name: String = ""
-    var amount: Float = 0f
+    var amount: IngredientAmount = 0.amount
     var unit: Unit = Unit.None
 
     init {
         deserialize()
     }
 
+    constructor(
+        name: String,
+        amount: IngredientAmount,
+        unit: Unit
+    ) : this("Name: \"$name\" Amount: \"$amount\" Unit: \"${unit.displayValue()}\"")
+
+    fun getPartial(amount: IngredientAmount, unit: Unit): RecipeIngredient {
+        return RecipeIngredient(name, amount, unit)
+    }
+
+    fun getPartial(fraction: Float): RecipeIngredient {
+        return RecipeIngredient(name, amount * fraction, unit)
+    }
+
     override fun deserialize(): RecipeIngredient {
         name = serialized.extractString("Name")
-        amount = serialized.extractString("Amount").replace(',', '.').toFloat()
-        unit = Unit.values().find { it.identifyers.contains(serialized.extractString("Unit")) }
+        amount = serialized.extractString("Amount").replace(',', '.').toFloat().amount
+        unit = Unit.values().find { it.identifiers.contains(serialized.extractString("Unit")) }
             ?: throw Exception("unknown unit: ${serialized.extractString("Unit")}")
 
         adjustUnit()
@@ -74,8 +96,8 @@ class RecipeIngredient(override val serialized: String) : RecipeDeserializable {
         return this
     }
 
-    fun adjustUnit() {
-        if (amount < 1) {
+    private fun adjustUnit() {
+        if (amount < 1.amount) {
             val relation = unit.unitRelation
             if (relation != null) {
                 amount *= relation.conversionFactor
@@ -84,8 +106,8 @@ class RecipeIngredient(override val serialized: String) : RecipeDeserializable {
         } else {
             Unit.values().map { it.unitRelation }.find { it?.other == unit }
                 ?.let { relation ->
-                    if (amount > relation.conversionFactor && (amount / relation.conversionFactor * 10).let {
-                            it.toInt().toFloat() == it
+                    if (amount > relation.conversionFactor.amount && (amount / relation.conversionFactor * 10).let {
+                            it == it
                         }) {
                         amount /= relation.conversionFactor
                         unit = Unit.values().find { it.unitRelation == relation }!!
@@ -112,24 +134,42 @@ class RecipeIngredient(override val serialized: String) : RecipeDeserializable {
                 modifier = Modifier.size(LocalViewConfiguration.current.minimumTouchTargetSize)
             )
             Text(
-                text = "$name: ${
-                    if (amount.toInt().toFloat() == amount) amount.toInt() else amount
-                } ${unit.displayValue()}",
+                text = "$name: $amount ${unit.displayValue()}",
                 fontSize = 20.sp
             )
         }
     }
 }
 
+inline val Float.amount: IngredientAmount get() = IngredientAmount(this)
+inline val Int.amount: IngredientAmount get() = IngredientAmount(this.toFloat())
+
+@JvmInline
+value class IngredientAmount(val value: Float) : Comparable<IngredientAmount> {
+    override fun toString(): String =
+        if (value.toInt().toFloat() == value) value.toInt().toString() else value.toString()
+
+    val roundToInt get() = IngredientAmount(value.toInt().toFloat())
+
+    override fun compareTo(other: IngredientAmount): Int =
+        value.compareTo(other.value)
+
+    operator fun times(other: Float) = IngredientAmount(value.times(other))
+    operator fun times(other: Int) = IngredientAmount(value.times(other))
+
+    operator fun div(other: Float) = IngredientAmount(value.div(other))
+    operator fun div(other: Int) = IngredientAmount(value.div(other))
+}
+
 
 enum class Unit(
     val type: UnitType,
-    val identifyers: List<String>,
+    val identifiers: List<String>,
     val unitRelation: UnitRelation? = null
 ) {
     Gram(
-        type = UnitType.Volume,
-        identifyers = listOf("gramm", "g", "gram", "grams")
+        type = UnitType.Mass,
+        identifiers = listOf("gramm", "g", "gram", "grams")
     ) {
         @Composable
         override fun displayValueLong(): String {
@@ -141,8 +181,8 @@ enum class Unit(
         }
     },
     Kilogram(
-        type = UnitType.Volume,
-        identifyers = listOf("kilogramm", "kg", "kilogram", "kilograms", "kilo"),
+        type = UnitType.Mass,
+        identifiers = listOf("kilogramm", "kg", "kilogram", "kilograms", "kilo"),
         unitRelation = UnitRelation(1000f, Gram)
     ) {
         @Composable
@@ -154,7 +194,7 @@ enum class Unit(
             return "kg"
         }
     },
-    None(type = UnitType.None, identifyers = listOf("none")) {
+    None(type = UnitType.None, identifiers = listOf("none")) {
         @Composable
         override fun displayValueLong(): String {
             return ""
@@ -173,6 +213,7 @@ enum class Unit(
 
 enum class UnitType {
     Volume,
+    Mass,
     None
 }
 

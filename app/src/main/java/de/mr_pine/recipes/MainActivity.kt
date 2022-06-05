@@ -26,26 +26,20 @@ import de.mr_pine.recipes.screens.RecipeView
 import de.mr_pine.recipes.screens.ShowError
 import de.mr_pine.recipes.ui.theme.HarmonizedTheme
 import de.mr_pine.recipes.ui.theme.RecipesTheme
-import de.mr_pine.recipes.viewModels.MainViewModel
 import de.mr_pine.recipes.viewModels.RecipeViewModel
 
-private const val TAG = "MainActivity"
-
-
+@ExperimentalFoundationApi
+@ExperimentalMaterial3Api
+@ExperimentalAnimationApi
+@ExperimentalMaterialApi
 class MainActivity : ComponentActivity() {
 
-    @ExperimentalFoundationApi
-    @ExperimentalMaterial3Api
-    @ExperimentalAnimationApi
-    @ExperimentalMaterialApi
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
 
             val systemUiController = rememberSystemUiController()
 
-
-            val mainViewModel: MainViewModel = viewModel()
             val recipeViewModel: RecipeViewModel = viewModel()
 
             try {
@@ -64,7 +58,7 @@ class MainActivity : ComponentActivity() {
                 val titleColor = TopAppBarDefaults.smallTopAppBarColors().containerColor(
                     scrollFraction = scrollBehavior.scrollFraction
                 ).value
-                val useDarkIcons = !isSystemInDarkTheme();
+                val useDarkIcons = !isSystemInDarkTheme()
                 remember(titleColor) {
                     systemUiController.setStatusBarColor(titleColor)
                     systemUiController.navigationBarDarkContentEnabled = useDarkIcons
