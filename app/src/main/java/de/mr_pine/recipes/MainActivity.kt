@@ -16,6 +16,7 @@ import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.tooling.preview.Preview
@@ -27,6 +28,17 @@ import de.mr_pine.recipes.screens.ShowError
 import de.mr_pine.recipes.ui.theme.HarmonizedTheme
 import de.mr_pine.recipes.ui.theme.RecipesTheme
 import de.mr_pine.recipes.viewModels.RecipeViewModel
+import kotlinx.coroutines.launch
+
+/*
+ * TODO: Splash screen: https://developer.android.com/guide/topics/ui/splash-screen
+ * TODO: Maybe animated icons: https://www.youtube.com/watch?v=hiDaPrcZbco
+ * TODO: Think about navigation: https://developer.android.com/jetpack/compose/navigation, JetNews
+ * TODO: Nav Drawer: https://github.com/Mr-Pine/Shintaikan/tree/update-dependecies
+ * TODO: Loading of recipes
+ * TODO: Main navigation from Homescreen
+ * TODO: Make @Composable functions of Recipe components stateless -> Move statefulness to the classes
+ */
 
 @ExperimentalFoundationApi
 @ExperimentalMaterial3Api
@@ -43,7 +55,7 @@ class MainActivity : ComponentActivity() {
             val recipeViewModel: RecipeViewModel = viewModel()
 
             try {
-            recipeViewModel.currentRecipe = Recipe.deserialize(
+                recipeViewModel.currentRecipe = Recipe.deserialize(
                     resources.openRawResource(R.raw.rezept).bufferedReader().readText()
                 )
             } catch (e: Exception) {
@@ -65,47 +77,56 @@ class MainActivity : ComponentActivity() {
                     true
                 }
 
+                val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
+                val coroutineScope = rememberCoroutineScope()
 
                 // A surface container using the 'background' color from the theme
-                Surface(
-                    modifier = Modifier.fillMaxSize(),
-                    color = MaterialTheme.colorScheme.surface
-                ) {
-                    Scaffold(
-                        modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
-                        topBar = {
-                            SmallTopAppBar(
-                                title = {
-                                    Text(
-                                        recipeViewModel.currentRecipe?.metadata?.title
-                                            ?: "No recipe specified"
-                                    )
-                                },
-                                navigationIcon = {
-                                    IconButton(
-                                        onClick = { /* "Open nav drawer" */ }
-                                    ) {
-                                        Icon(
-                                            Icons.Filled.Menu,
-                                            contentDescription = "Localized description"
+
+                ModalNavigationDrawer(drawerContent = { Text("Drawer") }, drawerState = drawerState) {
+                    Surface(
+                        modifier = Modifier.fillMaxSize(),
+                        color = MaterialTheme.colorScheme.surface
+                    ) {
+                        Scaffold(
+                            modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
+                            topBar = {
+                                SmallTopAppBar(
+                                    title = {
+                                        Text(
+                                            recipeViewModel.currentRecipe?.metadata?.title
+                                                ?: "No recipe specified"
                                         )
-                                    }
-                                },
-                                scrollBehavior = scrollBehavior
-                            )
-                        },
-                        floatingActionButtonPosition = FabPosition.End,
-                        floatingActionButton = {
-                            ExtendedFloatingActionButton(
-                                onClick = { /* fab click handler */ }
-                            ) {
-                                Icon(imageVector = Icons.Default.Edit, contentDescription = null)
+                                    },
+                                    navigationIcon = {
+                                        IconButton(
+                                            onClick = { coroutineScope.launch { drawerState.open() } }
+                                        ) {
+                                            Icon(
+                                                Icons.Filled.Menu,
+                                                contentDescription = "Localized description"
+                                            )
+                                        }
+                                    },
+                                    scrollBehavior = scrollBehavior
+                                )
+                            },
+                            floatingActionButtonPosition = FabPosition.End,
+                            floatingActionButton = {
+                                ExtendedFloatingActionButton(
+                                    onClick = { /* fab click handler */ }
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.Edit,
+                                        contentDescription = null
+                                    )
+                                }
+                            }) { innerPadding ->
+                            Box(modifier = Modifier.padding(innerPadding)) {
+                                recipeViewModel.currentRecipe?.let { RecipeView(recipe = it) }
+                                    ?: Text(
+                                        text = "Missing recipe"
+                                    )
                             }
-                        }) { innerPadding ->
-                        Box(modifier = Modifier.padding(innerPadding)) {
-                            recipeViewModel.currentRecipe?.let { RecipeView(recipe = it) } ?: Text(
-                                text = "Missing recipe"
-                            )
                         }
                     }
                 }
