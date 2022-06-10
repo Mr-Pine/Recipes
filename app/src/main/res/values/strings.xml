@@ -6,4 +6,5 @@
     <string name="kilograms">kilograms</string>
     <string name="step_repeat">Repeat step</string>
     <string name="step_finish">Finish step</string>
+    <string name="externalFiles_subfolder" translatable="false">Recipes</string>
 </resources>

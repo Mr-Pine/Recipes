@@ -108,7 +108,6 @@ class RecipeInstruction(
                         type = if (index % 2 == elementOffset) InstructionPart.PartType.TEXT else InstructionPart.PartType.EMBED
                     )
                 }
-                Log.d(TAG, "InstructionCard: $elementList")
                 for (part in partList) {
                     when (part.type) {
                         InstructionPart.PartType.TEXT -> {
@@ -191,20 +190,15 @@ class RecipeInstruction(
                     contentColor = CardDefaults.cardColors().contentColor(!done).value
                 ),
                 onClick = {
-                    setCurrentlyActiveIndex(index); Log.d(
-                    TAG,
-                    "InstructionCard: $currentlyActiveIndex"
-                )
+                    setCurrentlyActiveIndex(index)
                 }
             ) {
 
                 Column(modifier = Modifier.padding(12.dp)) {
                     SubcomposeLayout { constraints ->
 
-                        Log.d(TAG, "InstructionCard: Hello 👋")
-
-                        var inlineContent = inlineEmbeds.mapValues {
-                            var key = it.key
+                        val inlineContent = inlineEmbeds.mapValues {
+                            val key = it.key
                             var data = it.value.inlineContent
                             if(data == null) {
                                 data = generateInlineContent(key, constraints = constraints) {

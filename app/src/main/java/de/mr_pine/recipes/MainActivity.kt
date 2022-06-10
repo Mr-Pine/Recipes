@@ -1,6 +1,7 @@
 package de.mr_pine.recipes
 
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.animation.ExperimentalAnimationApi
@@ -12,10 +13,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.tooling.preview.Preview
@@ -34,9 +32,13 @@ import kotlinx.coroutines.launch
  * TODO: Maybe animated icons: https://www.youtube.com/watch?v=hiDaPrcZbco
  * TODO: Think about navigation: https://developer.android.com/jetpack/compose/navigation, JetNews
  * TODO: Nav Drawer Content: https://github.com/Mr-Pine/Shintaikan/tree/update-dependecies
- * TODO: Loading of recipes
+ * TODO: Loading of recipes & receiving of intents, importing files
  * TODO: Main navigation from Homescreen
+ * TODO: Implement Settings (see XKCDFeed)
  */
+
+private const val TAG = "MainActivity"
+
 
 @ExperimentalFoundationApi
 @ExperimentalMaterial3Api
@@ -54,6 +56,11 @@ class MainActivity : ComponentActivity() {
         setContent {
 
             val recipeViewModel: RecipeViewModel = viewModel()
+
+            SideEffect {
+                recipeViewModel.loadRecipeFiles(this)
+                Log.d(TAG, "onCreate: ${recipeViewModel.recipeFiles}")
+            }
 
             try {
                 recipeViewModel.currentRecipe = Recipe.deserialize(
@@ -143,7 +150,7 @@ class MainActivity : ComponentActivity() {
     }
 
     override fun onBackPressed() {
-        if(!tryCloseNavigationDrawer()) super.onBackPressed()
+        if (!tryCloseNavigationDrawer()) super.onBackPressed()
     }
 }
 
