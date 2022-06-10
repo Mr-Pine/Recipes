@@ -12,7 +12,7 @@ android {
 
     defaultConfig {
         applicationId = "de.mr_pine.recipes"
-        minSdk = 22
+        minSdk = 23
         targetSdk = 32
         versionCode = 1
         versionName = "1.0"
@@ -59,14 +59,12 @@ dependencies {
     implementation("androidx.compose.material:material-icons-extended:$composeVersion")
     implementation("com.google.android.material:material:1.7.0-alpha02")
     testImplementation("junit:junit:4.13.2")
-    androidTestImplementation("androidx.test.ext:junit:1.1.4-alpha06")
-    androidTestImplementation("androidx.test.espresso:espresso-core:3.5.0-alpha06")
+    androidTestImplementation("androidx.test.ext:junit:1.1.4-alpha07")
+    androidTestImplementation("androidx.test.espresso:espresso-core:3.5.0-alpha07")
     androidTestImplementation("androidx.compose.ui:ui-test-junit4:$composeVersion")
     debugImplementation("androidx.compose.ui:ui-tooling:$composeVersion")
     debugImplementation("androidx.compose.ui:ui-test-manifest:$composeVersion")
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:$lifecycleVersion")
 
     implementation("androidx.constraintlayout:constraintlayout-compose:1.1.0-alpha02")
-
-    implementation("com.google.accompanist:accompanist-systemuicontroller:0.24.9-beta")
 }

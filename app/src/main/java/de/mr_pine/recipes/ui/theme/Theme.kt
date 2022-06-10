@@ -1,18 +1,14 @@
 package de.mr_pine.recipes.ui.theme
 
-import android.app.Activity
 import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalView
-import androidx.core.view.WindowCompat
 import com.google.android.material.color.ColorRoles
 import com.google.android.material.color.MaterialColors
 
@@ -38,6 +34,9 @@ private val LightColorScheme = lightColorScheme(
     */
 )
 
+/**
+ * @see [HarmonizedTheme]
+ */
 @Composable
 fun RecipesTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
@@ -52,16 +51,6 @@ fun RecipesTheme(
         }
         darkTheme -> DarkColorScheme
         else -> LightColorScheme
-    }
-    val view = LocalView.current
-    if (!view.isInEditMode) {
-        SideEffect {
-            (view.context as Activity).window.statusBarColor = colorScheme.surface.toArgb()
-            WindowCompat.getInsetsController(
-                (view.context as Activity).window,
-                view
-            ).isAppearanceLightStatusBars = !darkTheme
-        }
     }
 
     MaterialTheme(
@@ -170,17 +159,6 @@ fun HarmonizedTheme(
     }
     val colorsWithHarmonizedError =
         if (errorHarmonize) setupErrorColors(colors, !useDarkTheme) else colors
-
-    val view = LocalView.current
-    if (!view.isInEditMode) {
-        SideEffect {
-            (view.context as Activity).window.statusBarColor = colors.surface.toArgb()
-            WindowCompat.getInsetsController(
-                (view.context as Activity).window,
-                view
-            ).isAppearanceLightStatusBars = !useDarkTheme
-        }
-    }
 
     val extendedColors = setupCustomColors(colors, !useDarkTheme)
     CompositionLocalProvider(LocalExtendedColors provides extendedColors) {

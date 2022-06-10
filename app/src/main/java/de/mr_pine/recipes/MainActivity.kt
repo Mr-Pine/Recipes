@@ -5,23 +5,22 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.*
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.core.view.WindowCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import de.mr_pine.recipes.models.Recipe
 import de.mr_pine.recipes.screens.RecipeView
 import de.mr_pine.recipes.screens.ShowError
@@ -34,7 +33,7 @@ import kotlinx.coroutines.launch
  * TODO: Splash screen: https://developer.android.com/guide/topics/ui/splash-screen
  * TODO: Maybe animated icons: https://www.youtube.com/watch?v=hiDaPrcZbco
  * TODO: Think about navigation: https://developer.android.com/jetpack/compose/navigation, JetNews
- * TODO: Nav Drawer: https://github.com/Mr-Pine/Shintaikan/tree/update-dependecies
+ * TODO: Nav Drawer Content: https://github.com/Mr-Pine/Shintaikan/tree/update-dependecies
  * TODO: Loading of recipes
  * TODO: Main navigation from Homescreen
  * TODO: Make @Composable functions of Recipe components stateless -> Move statefulness to the classes
@@ -46,11 +45,14 @@ import kotlinx.coroutines.launch
 @ExperimentalMaterialApi
 class MainActivity : ComponentActivity() {
 
+    var tryCloseNavigationDrawer: () -> Boolean = { false }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContent {
 
-            val systemUiController = rememberSystemUiController()
+        WindowCompat.setDecorFitsSystemWindows(window, false)
+
+        setContent {
 
             val recipeViewModel: RecipeViewModel = viewModel()
 
@@ -66,23 +68,24 @@ class MainActivity : ComponentActivity() {
                 TopAppBarDefaults.pinnedScrollBehavior(rememberTopAppBarScrollState())
 
             HarmonizedTheme {
-
-                val titleColor = TopAppBarDefaults.smallTopAppBarColors().containerColor(
-                    scrollFraction = scrollBehavior.scrollFraction
-                ).value
-                val useDarkIcons = !isSystemInDarkTheme()
-                remember(titleColor) {
-                    systemUiController.setStatusBarColor(titleColor)
-                    systemUiController.navigationBarDarkContentEnabled = useDarkIcons
-                    true
-                }
+                val coroutineScope = rememberCoroutineScope()
 
                 val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
-                val coroutineScope = rememberCoroutineScope()
+                tryCloseNavigationDrawer = remember(drawerState) {
+                    {
+                        val open = drawerState.isOpen
+                        coroutineScope.launch { drawerState.close() }
+                        open
+                    }
+                }
 
                 // A surface container using the 'background' color from the theme
 
-                ModalNavigationDrawer(drawerContent = { Text("Drawer") }, drawerState = drawerState) {
+                ModalNavigationDrawer(
+                    drawerContent = { Text("Drawer") },
+                    drawerState = drawerState,
+                    modifier = Modifier.imePadding()
+                ) {
                     Surface(
                         modifier = Modifier.fillMaxSize(),
                         color = MaterialTheme.colorScheme.surface
@@ -90,25 +93,31 @@ class MainActivity : ComponentActivity() {
                         Scaffold(
                             modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
                             topBar = {
-                                SmallTopAppBar(
-                                    title = {
-                                        Text(
-                                            recipeViewModel.currentRecipe?.metadata?.title
-                                                ?: "No recipe specified"
-                                        )
-                                    },
-                                    navigationIcon = {
-                                        IconButton(
-                                            onClick = { coroutineScope.launch { drawerState.open() } }
-                                        ) {
-                                            Icon(
-                                                Icons.Filled.Menu,
-                                                contentDescription = "Localized description"
+                                val containerColor by TopAppBarDefaults.smallTopAppBarColors()
+                                    .containerColor(scrollBehavior.scrollFraction)
+                                Box(modifier = Modifier.background(containerColor)) {
+                                    SmallTopAppBar(
+                                        modifier = Modifier
+                                            .statusBarsPadding(),
+                                        title = {
+                                            Text(
+                                                recipeViewModel.currentRecipe?.metadata?.title
+                                                    ?: "No recipe specified"
                                             )
-                                        }
-                                    },
-                                    scrollBehavior = scrollBehavior
-                                )
+                                        },
+                                        navigationIcon = {
+                                            IconButton(
+                                                onClick = { coroutineScope.launch { drawerState.open() } }
+                                            ) {
+                                                Icon(
+                                                    Icons.Filled.Menu,
+                                                    contentDescription = "Localized description"
+                                                )
+                                            }
+                                        },
+                                        scrollBehavior = scrollBehavior
+                                    )
+                                }
                             },
                             floatingActionButtonPosition = FabPosition.End,
                             floatingActionButton = {
@@ -132,6 +141,10 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
+    }
+
+    override fun onBackPressed() {
+        if(!tryCloseNavigationDrawer()) super.onBackPressed()
     }
 }
 
