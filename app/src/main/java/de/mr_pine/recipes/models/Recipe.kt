@@ -1,5 +1,7 @@
 package de.mr_pine.recipes.models
 
+import de.mr_pine.recipes.models.instructions.RecipeInstructions
+
 private const val TAG = "Recipe"
 
 data class Recipe(

@@ -36,7 +36,6 @@ import kotlinx.coroutines.launch
  * TODO: Nav Drawer Content: https://github.com/Mr-Pine/Shintaikan/tree/update-dependecies
  * TODO: Loading of recipes
  * TODO: Main navigation from Homescreen
- * TODO: Make @Composable functions of Recipe components stateless -> Move statefulness to the classes
  */
 
 @ExperimentalFoundationApi

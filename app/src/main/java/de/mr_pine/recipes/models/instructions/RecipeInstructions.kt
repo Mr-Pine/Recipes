@@ -1,4 +1,4 @@
-package de.mr_pine.recipes.models
+package de.mr_pine.recipes.models.instructions
 
 import android.util.Log
 import androidx.compose.animation.*
@@ -27,10 +27,12 @@ import androidx.compose.ui.unit.dp
 import com.google.android.material.color.MaterialColors
 import de.mr_pine.recipes.R
 import de.mr_pine.recipes.components.swipeabe.Swipeable
-import de.mr_pine.recipes.models.instructions.InstructionSubmodels
+import de.mr_pine.recipes.models.IngredientAmount
+import de.mr_pine.recipes.models.RecipeDeserializable
+import de.mr_pine.recipes.models.RecipeIngredient
+import de.mr_pine.recipes.models.extractFromList
 import de.mr_pine.recipes.screens.ShowError
 import de.mr_pine.recipes.ui.theme.Extended
-import kotlin.Unit
 
 private const val TAG = "RecipeInstructions"
 
@@ -61,7 +63,7 @@ class RecipeInstructions(override val serialized: String, private val recipeTitl
 
 class RecipeInstruction(
     override val serialized: String,
-    val index: Int,
+    private val index: Int,
     private val recipeTitle: String
 ) : InstructionSubmodels(), RecipeDeserializable {
 
@@ -77,6 +79,9 @@ class RecipeInstruction(
         return this
     }
 
+    data class EmbedData(var enabled: Boolean, var inlineContent: InlineTextContent? = null)
+
+    var inlineEmbeds = mutableStateMapOf<String, EmbedData>()
 
     @ExperimentalMaterialApi
     @ExperimentalFoundationApi
@@ -91,9 +96,7 @@ class RecipeInstruction(
         getIngredientFraction: (String, Float) -> RecipeIngredient,
     ) {
 
-        val active = remember(currentlyActiveIndex) { currentlyActiveIndex == index }
-
-        val inlineIds = remember(content) { mutableStateListOf<String>() }
+        val active = currentlyActiveIndex == index
 
         val annotatedContent by remember(content) {
             mutableStateOf(buildAnnotatedString {
@@ -121,7 +124,7 @@ class RecipeInstruction(
                                 .trim()
                             val inlineId = "$embedType \"$embedContent\""
                             appendInlineContent(inlineId, "embed type: $embedType")
-                            inlineIds.add(inlineId)
+                            inlineEmbeds[inlineId] = EmbedData(enabled = true)
                         }
                     }
                 }
@@ -198,80 +201,93 @@ class RecipeInstruction(
                 Column(modifier = Modifier.padding(12.dp)) {
                     SubcomposeLayout { constraints ->
 
+                        Log.d(TAG, "InstructionCard: Hello 👋")
 
-                        val inlineDividerContent = inlineIds.associateWith {
-                            generateInlineContent(it, constraints = constraints) {
-                                val contentResult = "(?<!\\\\)\".*(?<!\\\\)\"".toRegex().find(it)
-                                    ?: throw Exception("Badly formatted inline Id: $it")
-                                val content =
-                                    contentResult.value.substring(1, contentResult.value.length - 1)
-                                val parts = it.substring(0, contentResult.range.first).split(" ")
-                                val embedType = try {
-                                    EmbedType[parts[0].substring(1)]
-                                } catch (e: Exception) {
-                                    ShowError(errorMessage = e.message ?: ""); EmbedType.UNKNOWN
-                                }
-                                val model = embedType.constructor?.invoke(content)
+                        var inlineContent = inlineEmbeds.mapValues {
+                            var key = it.key
+                            var data = it.value.inlineContent
+                            if(data == null) {
+                                data = generateInlineContent(key, constraints = constraints) {
+                                    val contentResult = "(?<!\\\\)\".*(?<!\\\\)\"".toRegex().find(key)
+                                        ?: throw Exception("Badly formatted inline Id: $it")
+                                    val content =
+                                        contentResult.value.substring(1, contentResult.value.length - 1)
+                                    val parts = key.substring(0, contentResult.range.first).split(" ")
+                                    val embedType = try {
+                                        EmbedType[parts[0].substring(1)]
+                                    } catch (e: Exception) {
+                                        ShowError(errorMessage = e.message ?: ""); EmbedType.UNKNOWN
+                                    }
+                                    val model = embedType.constructor?.invoke(content)
 
-                                when (model) {
-                                    is IngredientModel -> model.receiveIngredient(getIngredientFraction, getIngredientAbsolute)
-                                }
-
-                                var enabled by remember { mutableStateOf(true) }
-                                val defaultChipColor = AssistChipDefaults.elevatedAssistChipColors()
-                                val defaultChipColorDisabled =
-                                    AssistChipDefaults.elevatedAssistChipColors(
-                                        containerColor = defaultChipColor.containerColor(false).value,
-                                        labelColor = defaultChipColor.labelColor(false).value,
-                                        leadingIconContentColor = defaultChipColor.leadingIconContentColor(
-                                            false
-                                        ).value,
-                                        trailingIconContentColor = defaultChipColor.trailingIconContentColor(
-                                            false
-                                        ).value
-                                    )
-
-                                fun getChipColor(enabledColor: Boolean) =
-                                    if (enabledColor) defaultChipColor else defaultChipColorDisabled
-
-                                val context = LocalContext.current
-
-                                ElevatedAssistChip(
-                                    onClick = {
-                                        when (embedType) {
-                                            EmbedType.INGREDIENT -> enabled = !enabled
-                                            EmbedType.TIMER -> (model as TimerModel).call(
-                                                recipeTitle,
-                                                context
-                                            )
-                                            else -> {}
-                                        }
-                                    },
-                                    modifier = Modifier.height(28.dp),
-                                    colors = getChipColor(enabled),
-                                    leadingIcon = {
-                                        Icon(
-                                            imageVector = when (embedType) {
-                                                EmbedType.INGREDIENT -> Icons.Default.Scale
-                                                EmbedType.TIMER -> Icons.Default.Timer
-                                                EmbedType.UNKNOWN -> Icons.Default.QuestionMark
-                                            },
-                                            contentDescription = embedType.toString(),
-                                            modifier = Modifier.size(18.dp)
+                                    when (model) {
+                                        is IngredientModel -> model.receiveIngredient(
+                                            getIngredientFraction,
+                                            getIngredientAbsolute
                                         )
-                                    },
-                                    label = { Text(text = model?.content ?: it) },
-                                    elevation = if (enabled) null else AssistChipDefaults.elevatedAssistChipElevation(
-                                        defaultElevation = 0.dp,
-                                        pressedElevation = 0.dp
+                                    }
+                                    val defaultChipColor = AssistChipDefaults.elevatedAssistChipColors()
+                                    val defaultChipColorDisabled =
+                                        AssistChipDefaults.elevatedAssistChipColors(
+                                            containerColor = defaultChipColor.containerColor(false).value,
+                                            labelColor = defaultChipColor.labelColor(false).value,
+                                            leadingIconContentColor = defaultChipColor.leadingIconContentColor(
+                                                false
+                                            ).value,
+                                            trailingIconContentColor = defaultChipColor.trailingIconContentColor(
+                                                false
+                                            ).value
+                                        )
+
+                                    fun getChipColor(enabledColor: Boolean) =
+                                        if (enabledColor) defaultChipColor else defaultChipColorDisabled
+
+                                    val context = LocalContext.current
+
+                                    var enabled by remember(inlineEmbeds[key]?.enabled) { mutableStateOf(inlineEmbeds[key]?.enabled ?: true) }
+                                    fun setEnabled(value: Boolean) {inlineEmbeds[key]?.enabled = value; enabled = value}
+
+                                    ElevatedAssistChip(
+                                        onClick = {
+                                            when (embedType) {
+                                                EmbedType.INGREDIENT -> setEnabled(!enabled)
+                                                EmbedType.TIMER -> (model as TimerModel).call(
+                                                    recipeTitle,
+                                                    context
+                                                )
+                                                else -> {}
+                                            }
+                                        },
+                                        modifier = Modifier.height(28.dp),
+                                        colors = getChipColor(enabled),
+                                        leadingIcon = {
+                                            Icon(
+                                                imageVector = when (embedType) {
+                                                    EmbedType.INGREDIENT -> Icons.Default.Scale
+                                                    EmbedType.TIMER -> Icons.Default.Timer
+                                                    EmbedType.UNKNOWN -> Icons.Default.QuestionMark
+                                                },
+                                                contentDescription = embedType.toString(),
+                                                modifier = Modifier.size(18.dp)
+                                            )
+                                        },
+                                        label = { Text(text = model?.content ?: key) },
+                                        elevation = if (enabled) null else AssistChipDefaults.elevatedAssistChipElevation(
+                                            defaultElevation = 0.dp,
+                                            pressedElevation = 0.dp
+                                        ),
+                                        enabled = !done
                                     )
-                                )
+                                }
                             }
+                            data
                         }
 
                         val contentPlaceable = subcompose("content") {
 
-                            Text(text = annotatedContent, inlineContent = inlineDividerContent)
+                            Text(
+                                text = annotatedContent,
+                                inlineContent = inlineContent)
 
 
                         }[0].measure(constraints)
