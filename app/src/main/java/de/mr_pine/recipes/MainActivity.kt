@@ -1,31 +1,31 @@
 package de.mr_pine.recipes
 
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.core.view.WindowCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
 import de.mr_pine.recipes.models.Recipe
-import de.mr_pine.recipes.screens.RecipeView
+import de.mr_pine.recipes.screens.Home
 import de.mr_pine.recipes.screens.ShowError
 import de.mr_pine.recipes.ui.theme.HarmonizedTheme
 import de.mr_pine.recipes.ui.theme.RecipesTheme
 import de.mr_pine.recipes.viewModels.RecipeViewModel
+import de.mr_pine.recipes.viewModels.RecipeViewModelFactory
 import kotlinx.coroutines.launch
+import java.io.File
 
 /*
  * TODO: Splash screen: https://developer.android.com/guide/topics/ui/splash-screen
@@ -55,19 +55,20 @@ class MainActivity : ComponentActivity() {
 
         setContent {
 
-            val recipeViewModel: RecipeViewModel = viewModel()
+            val recipeFolder = File(getExternalFilesDir(null), getString(R.string.externalFiles_subfolder))
 
-            SideEffect {
-                recipeViewModel.loadRecipeFiles(this)
-                Log.d(TAG, "onCreate: ${recipeViewModel.recipeFiles}")
+            val recipeViewModel: RecipeViewModel = viewModel(factory = RecipeViewModelFactory(recipeFolder))
+
+            LaunchedEffect(null) {
+                recipeViewModel.loadRecipeFiles()
             }
 
             try {
-                recipeViewModel.currentRecipe = Recipe.deserialize(
-                    resources.openRawResource(R.raw.rezept).bufferedReader().readText()
-                )
+                val serialized = resources.openRawResource(R.raw.rezept).bufferedReader().readText()
+                recipeViewModel.saveRecipeFile(serialized, "Recipe_2")
+                recipeViewModel.currentRecipe = Recipe(serialized = serialized)
             } catch (e: Exception) {
-                ShowError(errorMessage = e.message ?: "")
+                ShowError(e)
             }
 
             val scrollBehavior =
@@ -96,7 +97,8 @@ class MainActivity : ComponentActivity() {
                         modifier = Modifier.fillMaxSize(),
                         color = MaterialTheme.colorScheme.surface
                     ) {
-                        Scaffold(
+                        Home(recipeViewModel)
+                        /*Scaffold(
                             modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
                             topBar = {
                                 val containerColor by TopAppBarDefaults.smallTopAppBarColors()
@@ -128,7 +130,7 @@ class MainActivity : ComponentActivity() {
                             floatingActionButtonPosition = FabPosition.End,
                             floatingActionButton = {
                                 ExtendedFloatingActionButton(
-                                    onClick = { /* fab click handler */ }
+                                    onClick = { *//* fab click handler *//* }
                                 ) {
                                     Icon(
                                         imageVector = Icons.Default.Edit,
@@ -137,12 +139,19 @@ class MainActivity : ComponentActivity() {
                                 }
                             }) { innerPadding ->
                             Box(modifier = Modifier.padding(innerPadding)) {
-                                recipeViewModel.currentRecipe?.let { RecipeView(recipe = it) }
+                                *//*recipeViewModel.currentRecipe?.let { RecipeView(recipe = it) }
                                     ?: Text(
                                         text = "Missing recipe"
-                                    )
+                                    )*//*
+                                LazyColumn{
+                                    items(recipeViewModel.recipes) { recipe ->
+                                        recipe.metadata?.let { metadata ->
+                                            Text(metadata.title)
+                                        }
+                                    }
+                                }
                             }
-                        }
+                        }*/
                     }
                 }
             }

@@ -4,25 +4,32 @@ import de.mr_pine.recipes.models.instructions.RecipeInstructions
 
 private const val TAG = "Recipe"
 
-data class Recipe(
-    val metadata: RecipeMetadata,
-    val ingredients: RecipeIngredients,
-    val instructions: RecipeInstructions
-) {
+class Recipe(
+    val fileName: String = "",
+    private val serializeMetadata: Boolean = true,
+    override var serialized: String,
+    private val initDeserialize: Boolean = false,
+) : RecipeDeserializable {
 
+    var instructions: RecipeInstructions? = null
+    var metadata: RecipeMetadata? = null
+    var ingredients: RecipeIngredients? = null
 
-    companion object {
-        fun deserialize(serialized: String): Recipe {
-            val metadata =
-                RecipeMetadata.deserialize(
-                    serialized.extractData(RecipeMetadata.DataTag))
-            val ingredients = RecipeIngredients(serialized.extractData(RecipeIngredients.DataTag))
-            return Recipe(
-                metadata = metadata,
-                ingredients = ingredients,
-                instructions = RecipeInstructions(serialized.extractData(RecipeInstructions.DataTag), metadata.title)
+    init {
+        deserialize()
+    }
+
+    override fun deserialize(): Recipe {
+        if(serializeMetadata || initDeserialize) metadata = RecipeMetadata(serialized.extractData(RecipeMetadata.DataTag))
+        if(initDeserialize) {
+            ingredients = RecipeIngredients(serialized.extractData(RecipeIngredients.DataTag))
+            instructions = RecipeInstructions(
+                serialized.extractData(RecipeInstructions.DataTag),
+                metadata!!.title
             )
         }
+
+        return this
     }
 }
 
@@ -53,10 +60,6 @@ fun String.extractString(stringName: String, enclosing: Char = '"'): String {
     return this.substring(start.range.last + 1, end.range.first)
 }
 
-interface RecipeList : RecipeDeserializable {
-    val list: MutableList<RecipeDeserializable>
-}
-
 fun String.extractFromList(): MutableList<String> {
     val items = mutableListOf<String>()
     var lastIndex = 0
@@ -79,6 +82,7 @@ fun String.extractFromList(): MutableList<String> {
 }
 
 interface RecipeDeserializable {
+
     val serialized: String
 
     fun deserialize(): RecipeDeserializable

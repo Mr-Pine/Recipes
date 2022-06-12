@@ -8,19 +8,19 @@ import de.mr_pine.recipes.models.Unit
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
 
-open class InstructionSubmodels {
+interface InstructionSubmodels {
 
-    protected data class InstructionPart(val content: String, val type: PartType) {
+    data class InstructionPart(val content: String, val type: PartType) {
         enum class PartType(identifier: Int) {
             TEXT(0), EMBED(1)
         }
     }
 
-    protected interface EmbedTypeModel {
+    interface EmbedTypeModel {
         var content: String
     }
 
-    protected class TimerModel(rawContent: String) : EmbedTypeModel {
+    class TimerModel(rawContent: String) : EmbedTypeModel {
 
         val duration: Duration = rawContent.toInt().seconds
         override var content: String = duration.toString()
@@ -35,7 +35,7 @@ open class InstructionSubmodels {
         }
     }
 
-    protected class IngredientModel(private val rawContent: String) : EmbedTypeModel {
+    class IngredientModel(private val rawContent: String) : EmbedTypeModel {
 
         private val ingredientName: String = rawContent.extractString("Name")
         private val displayName: String = rawContent.extractString("Display")
@@ -45,17 +45,17 @@ open class InstructionSubmodels {
         get() = ingredient?.let { "${it.amount} ${it.unit.displayValue()} $displayName"} ?: "???"
         set(new){}
 
-        fun receiveIngredient(getIngredientFraction: (String, Float) -> RecipeIngredient, getIngredientAbsolute: (String, IngredientAmount, Unit) -> RecipeIngredient) {
+        fun receiveIngredient(getIngredientFraction: ((String, Float) -> RecipeIngredient)?, getIngredientAbsolute: ((String, IngredientAmount, Unit) -> RecipeIngredient)?) {
             ingredient = when ("@\\S+".toRegex().find(amountRaw)?.value ?: "") {
                 "@Absolute" -> {
                     val amount = amountRaw.extractString("AbsoluteAmount", '\'').toFloat().amount
                     val unit = Unit.values().find { it.identifiers.contains(amountRaw.extractString("Unit", '\'')) }
                         ?: throw Exception("unknown unit: ${amountRaw.extractString("Unit", '\'')}")
-                    getIngredientAbsolute(ingredientName, amount, unit)
+                    getIngredientAbsolute?.invoke(ingredientName, amount, unit)
                 }
                 "@Fraction" -> {
                     val fraction = amountRaw.extractString("Fraction", '\'').toFloat()
-                    getIngredientFraction(ingredientName, fraction)
+                    getIngredientFraction?.invoke(ingredientName, fraction)
                 }
                 else -> null
             }
@@ -64,7 +64,7 @@ open class InstructionSubmodels {
     }
 
 
-    protected enum class EmbedType(val constructor: ((String) -> EmbedTypeModel)?) {
+    enum class EmbedType(val constructor: ((String) -> EmbedTypeModel)?) {
         INGREDIENT(::IngredientModel), TIMER(::TimerModel), UNKNOWN(null);
 
         companion object {

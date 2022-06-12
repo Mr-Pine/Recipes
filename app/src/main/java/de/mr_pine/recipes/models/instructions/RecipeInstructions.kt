@@ -31,6 +31,7 @@ import de.mr_pine.recipes.models.IngredientAmount
 import de.mr_pine.recipes.models.RecipeDeserializable
 import de.mr_pine.recipes.models.RecipeIngredient
 import de.mr_pine.recipes.models.extractFromList
+import de.mr_pine.recipes.models.instructions.InstructionSubmodels.*
 import de.mr_pine.recipes.screens.ShowError
 import de.mr_pine.recipes.ui.theme.Extended
 
@@ -65,7 +66,7 @@ class RecipeInstruction(
     override val serialized: String,
     private val index: Int,
     private val recipeTitle: String
-) : InstructionSubmodels(), RecipeDeserializable {
+) : RecipeDeserializable, InstructionSubmodels {
 
     private var content: String = serialized
 
@@ -92,8 +93,8 @@ class RecipeInstruction(
         currentlyActiveIndex: Int,
         setCurrentlyActiveIndex: (Int) -> Unit,
         setNextActive: () -> Unit,
-        getIngredientAbsolute: (String, IngredientAmount, de.mr_pine.recipes.models.Unit) -> RecipeIngredient,
-        getIngredientFraction: (String, Float) -> RecipeIngredient,
+        getIngredientAbsolute: ((String, IngredientAmount, de.mr_pine.recipes.models.Unit) -> RecipeIngredient)?,
+        getIngredientFraction: ((String, Float) -> RecipeIngredient)?,
     ) {
 
         val active = currentlyActiveIndex == index
@@ -210,7 +211,7 @@ class RecipeInstruction(
                                     val embedType = try {
                                         EmbedType[parts[0].substring(1)]
                                     } catch (e: Exception) {
-                                        ShowError(errorMessage = e.message ?: ""); EmbedType.UNKNOWN
+                                        ShowError(e); EmbedType.UNKNOWN
                                     }
                                     val model = embedType.constructor?.invoke(content)
 

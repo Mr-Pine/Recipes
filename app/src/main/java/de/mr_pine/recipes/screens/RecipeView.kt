@@ -1,5 +1,6 @@
 package de.mr_pine.recipes.screens
 
+import android.util.Log
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Arrangement
@@ -32,51 +33,51 @@ fun RecipeView(recipe: Recipe) {
         state = lazyListState
     ) {
         item {
-            recipe.metadata.MetaInfo()
+            recipe.metadata?.MetaInfo()
         }
         item {
-            recipe.ingredients.IngredientsCard()
+            recipe.ingredients?.IngredientsCard()
         }
 
         fun setCurrentlyActiveIndex(index: Int) {
-            recipe.instructions.currentlyActiveIndex.value = index
+            recipe.instructions?.currentlyActiveIndex?.value = index
             /*coroutineScope.launch {
                 lazyListState.animateScrollToItem(index + 2, -300)
             }*/
         }
 
-        itemsIndexed(recipe.instructions.instructions) { index, instruction ->
+        itemsIndexed(recipe.instructions?.instructions ?: listOf()) { index, instruction ->
             instruction.InstructionCard(
-                recipe.instructions.currentlyActiveIndex.value,
+                recipe.instructions?.currentlyActiveIndex?.value ?: -1,
                 setCurrentlyActiveIndex = ::setCurrentlyActiveIndex,
                 setNextActive = {
-                    for ((nextIndex, next) in recipe.instructions.instructions.subList(
+                    for ((nextIndex, next) in recipe.instructions?.instructions?.subList(
                         index + 1,
-                        recipe.instructions.instructions.size
-                    ).withIndex()) {
+                        recipe.instructions?.instructions?.size ?: 0
+                    )?.withIndex() ?: listOf()) {
                         if (!next.done) {
                             setCurrentlyActiveIndex(nextIndex + index + 1)
                             break
                         }
                     }
-                    if (recipe.instructions.currentlyActiveIndex.value == index) setCurrentlyActiveIndex(
-                        recipe.instructions.instructions.size
+                    if (recipe.instructions?.currentlyActiveIndex?.value == index) setCurrentlyActiveIndex(
+                        recipe.instructions?.instructions?.size ?: 0
                     )
                 },
-                getIngredientAbsolute = recipe.ingredients::getPartialIngredient,
-                getIngredientFraction = recipe.ingredients::getPartialIngredient
+                getIngredientAbsolute = recipe.ingredients?.let { it::getPartialIngredient },
+                getIngredientFraction = recipe.ingredients?.let { it::getPartialIngredient }
             )
         }
     }
 }
 
 @Composable
-fun ShowError(errorMessage: String) {
-    var shown by remember { mutableStateOf(true) }
+fun ShowError(error: Exception) {
+    var shown by remember { Log.e("Recipe Error", "ShowError: ${error.message ?: ""}${error.stackTrace.joinToString("\n")}", ); mutableStateOf(true) }
     if (shown) AlertDialog(
         onDismissRequest = { shown = false },
         title = { Text(text = "Error Occurred") },
-        text = { Text(text = errorMessage) },
+        text = { Text(text = error.message ?: "") },
         icon = {
             Icon(
                 imageVector = Icons.Default.Error,
