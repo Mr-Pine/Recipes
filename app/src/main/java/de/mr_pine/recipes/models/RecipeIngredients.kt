@@ -38,7 +38,7 @@ class RecipeIngredients(override val serialized: String) : RecipeDeserializable 
 
     fun getPartialIngredient(name: String, fraction: Float) =
         ingredients.find { name == it.name }?.getPartial(fraction)
-            ?: throw Exception("Ingredient not found")
+            ?: throw Exception("Ingredient $name not found")
 
     companion object {
 
@@ -49,7 +49,9 @@ class RecipeIngredients(override val serialized: String) : RecipeDeserializable 
     @Composable
     fun IngredientsCard() {
         Card(
-            modifier = Modifier.padding(2.dp).fillMaxWidth(),
+            modifier = Modifier
+                .padding(2.dp)
+                .fillMaxWidth(),
             colors = CardDefaults.cardColors()
         ) {
             Column(modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp)) {
@@ -79,7 +81,7 @@ class RecipeIngredient(override val serialized: String) : RecipeDeserializable {
         name: String,
         amount: IngredientAmount,
         unit: IngredientUnit
-    ) : this("Name: \"$name\" Amount: \"$amount\" Unit: \"${unit.displayValue()}\"")
+    ) : this("Name: \"$name\" Amount: \"$amount\" Unit: \"${unit.identifiers[0]}\"")
 
     fun getPartial(amount: IngredientAmount, unit: IngredientUnit): RecipeIngredient {
         return RecipeIngredient(name, amount, unit)
@@ -92,8 +94,9 @@ class RecipeIngredient(override val serialized: String) : RecipeDeserializable {
     override fun deserialize(forceDeserialization: Boolean): RecipeIngredient {
         name = serialized.extractString("Name")
         amount = serialized.extractString("Amount").replace(',', '.').toFloat().amount
-        unit = IngredientUnit.values().find { it.identifiers.contains(serialized.extractString("Unit")) }
-            ?: throw Exception("unknown unit: ${serialized.extractString("Unit")}")
+        unit = IngredientUnit.values()
+            .find { it.identifiers.contains(serialized.extractString("Unit")) }
+            ?: throw Exception("unknown unit in $serialized: ${serialized.extractString("Unit")}")
 
         adjustUnit()
 
@@ -150,7 +153,7 @@ inline val Int.amount: IngredientAmount get() = IngredientAmount(this.toFloat())
 @JvmInline
 value class IngredientAmount(val value: Float) : Comparable<IngredientAmount> {
     override fun toString(): String =
-        if (value.toInt().toFloat() == value) value.toInt().toString() else value.toString()
+        if (value.toInt().toFloat() == value) value.toInt().toString() else String.format("%.2f", value)
 
     val roundToInt get() = IngredientAmount(value.toInt().toFloat())
 
@@ -196,6 +199,35 @@ enum class IngredientUnit(
         override fun displayValue(): String {
             return "kg"
         }
+    },
+    Milliliter(
+        type = UnitType.Volume,
+        identifiers = listOf("milliliter", "milliliters", "millilitre", "millilitres", "ml")
+    ) {
+        override fun displayValue(): String {
+            return "ml"
+        }
+
+        @Composable
+        override fun displayValueLong(): String {
+            return stringResource(R.string.milliliters)
+        }
+
+    },
+    Liter(
+        type = UnitType.Volume,
+        identifiers = listOf("liter", "liters", "litre", "litres", "l"),
+        unitRelation = UnitRelation(1000f, Milliliter)
+    ) {
+        override fun displayValue(): String {
+            return "l"
+        }
+
+        @Composable
+        override fun displayValueLong(): String {
+            return stringResource(R.string.liters)
+        }
+
     },
     None(type = UnitType.None, identifiers = listOf("none")) {
         @Composable

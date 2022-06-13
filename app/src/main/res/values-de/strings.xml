@@ -8,4 +8,7 @@
     <string name="step_repeat">Schritt wiederholen</string>
     <string name="step_finish">Schritt abschließen</string>
     <string name="search">Suchen</string>
+    <string name="milliliters">milliliter</string>
+    <string name="liters">liter</string>
+    <string name="portions">Portionen</string>
 </resources>

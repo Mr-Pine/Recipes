@@ -256,6 +256,7 @@ class RecipeInstruction(
                                         inlineEmbeds[key]?.enabled = value; enabled = value
                                     }
 
+                                    // TODO: Change to FilterChip
                                     ElevatedSuggestionChip(
                                         onClick = {
                                             when (embedType) {

@@ -3,10 +3,12 @@ package de.mr_pine.recipes.models.instructions
 import android.content.Context
 import android.content.Intent
 import android.provider.AlarmClock
+import android.util.Log
 import de.mr_pine.recipes.models.*
-import de.mr_pine.recipes.models.IngredientUnit
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
+
+private const val TAG = "InstructionSubmodels"
 
 interface InstructionSubmodels {
 
@@ -38,24 +40,45 @@ interface InstructionSubmodels {
     class IngredientModel(private val rawContent: String) : EmbedTypeModel {
 
         private val ingredientName: String = rawContent.extractString("Name")
-        private val displayName: String = rawContent.extractString("Display")
-        private val amountRaw: String = rawContent.extractString("Amount")
+        private val displayName: String = try {
+            rawContent.extractString("Display")
+        } catch (e: Exception) {
+            Log.i(TAG, "No Displayname found "); ingredientName
+        }
+        private val amountRaw: String? = try {
+            rawContent.extractString("Amount")
+        } catch (e: Exception) {
+            Log.i(TAG, "No Amount found "); null
+        }
+        private val noAmount: Boolean? = try {
+            rawContent.extractString("NoAmount").toBoolean()
+        } catch (e: Exception) {
+            Log.i(TAG, "NoAmount not found "); null
+        }
         var ingredient: RecipeIngredient? = null
         override var content: String
-        get() = ingredient?.let { "${it.amount} ${it.unit.displayValue()} $displayName"} ?: "???"
-        set(new){}
+            get() = ingredient?.let { "${if(noAmount != true) "${it.amount} ${it.unit.displayValue()} " else ""}$displayName" }
+                ?: "???"
+            set(new) {}
 
-        fun receiveIngredient(getIngredientFraction: ((String, Float) -> RecipeIngredient)?, getIngredientAbsolute: ((String, IngredientAmount, IngredientUnit) -> RecipeIngredient)?) {
-            ingredient = when ("@\\S+".toRegex().find(amountRaw)?.value ?: "") {
+        fun receiveIngredient(
+            getIngredientFraction: ((String, Float) -> RecipeIngredient)?,
+            getIngredientAbsolute: ((String, IngredientAmount, IngredientUnit) -> RecipeIngredient)?
+        ) {
+            ingredient = when (amountRaw?.let { "@\\S+".toRegex().find(it)?.value }) {
                 "@Absolute" -> {
                     val amount = amountRaw.extractString("AbsoluteAmount", '\'').toFloat().amount
-                    val unit = IngredientUnit.values().find { it.identifiers.contains(amountRaw.extractString("Unit", '\'')) }
+                    val unit = IngredientUnit.values()
+                        .find { it.identifiers.contains(amountRaw.extractString("Unit", '\'')) }
                         ?: throw Exception("unknown unit: ${amountRaw.extractString("Unit", '\'')}")
                     getIngredientAbsolute?.invoke(ingredientName, amount, unit)
                 }
                 "@Fraction" -> {
                     val fraction = amountRaw.extractString("Fraction", '\'').toFloat()
                     getIngredientFraction?.invoke(ingredientName, fraction)
+                }
+                null -> {
+                    getIngredientFraction?.invoke(ingredientName, 1f)
                 }
                 else -> null
             }

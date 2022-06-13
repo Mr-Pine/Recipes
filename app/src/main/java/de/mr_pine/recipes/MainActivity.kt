@@ -1,6 +1,7 @@
 package de.mr_pine.recipes
 
 import android.os.Bundle
+import android.provider.OpenableColumns
 import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -71,19 +72,29 @@ class MainActivity : ComponentActivity() {
             }
 
             val recipeImporter =
-                rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri ->
-                    if (uri?.path?.endsWith(".rcp") == true) {
+                rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
+                    val filename = uri?.let {
+                        contentResolver.query(it, arrayOf(OpenableColumns.DISPLAY_NAME), null, null)
+                            ?.apply { moveToFirst() }
+                            ?.let { cursor ->
+                                val filename = cursor.getString(0)
+                                cursor.close()
+                                filename
+                            }
+                    }
+                    if (filename?.endsWith(".rcp") == true) {
                         val content = contentResolver.openInputStream(uri)?.reader()?.readText()
                         content?.let {
                             recipeViewModel.saveRecipeFile(
                                 it,
-                                uri.path?.let { it.substring(it.lastIndexOf("/") + 1) } ?: "recipe")
+                                filename
+                            )
                         }
-                        Log.d(TAG, "onCreate: importing $content")
+                       Log.d(TAG, "onCreate: importing $content")
                     }
                 }
 
-            recipeViewModel.importRecipe = { recipeImporter.launch("application/*") }
+            recipeViewModel.importRecipe = { recipeImporter.launch(arrayOf("application/*")) }
 
             HarmonizedTheme {
                 val coroutineScope = rememberCoroutineScope()

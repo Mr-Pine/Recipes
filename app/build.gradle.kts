@@ -12,7 +12,7 @@ android {
 
     defaultConfig {
         applicationId = "de.mr_pine.recipes"
-        minSdk = 23
+        minSdk = 26
         targetSdk = 32
         versionCode = 1
         versionName = "1.0"

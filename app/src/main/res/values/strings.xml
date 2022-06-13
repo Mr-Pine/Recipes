@@ -8,4 +8,7 @@
     <string name="step_finish">Finish step</string>
     <string name="externalFiles_subfolder" translatable="false">Recipes</string>
     <string name="search">Search</string>
+    <string name="milliliters">milliliters</string>
+    <string name="liters">liters</string>
+    <string name="portions">Portions</string>
 </resources>
