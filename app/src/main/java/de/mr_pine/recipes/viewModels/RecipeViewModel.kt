@@ -1,12 +1,10 @@
 package de.mr_pine.recipes.viewModels
 
 import android.util.Log
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.*
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import de.mr_pine.recipes.models.Destination
 import de.mr_pine.recipes.models.Recipe
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -21,7 +19,9 @@ class RecipeViewModel(private val recipeFolder: File) : ViewModel() {
 
     var recipeFiles = mutableStateListOf<File>()
 
-    var recipes = mutableStateListOf<Recipe>()
+    var recipes = mutableStateMapOf<String, Recipe>()
+
+    var currentFileName by mutableStateOf("Recipe_2.rcp")
 
     private val ioCoroutineScope = CoroutineScope(Dispatchers.IO)
 
@@ -34,11 +34,9 @@ class RecipeViewModel(private val recipeFolder: File) : ViewModel() {
                         ?: listOf()
                 )
                 recipeFiles.forEach { recipeFile ->
-                    if (!recipes.any { it.fileName == recipeFile.name })
+                    if (!recipes.containsKey(recipeFile.name))
                         try {
-                            recipes.add(
-                                Recipe(recipeFile.name, true, recipeFile.readText())
-                            )
+                            recipes[recipeFile.name] = Recipe(recipeFile.name, true, recipeFile.readText())
                         } catch (e: Exception) {
                             Log.e(TAG, "loadRecipeFiles: $recipeFile not properly formatted")
                         }
@@ -57,10 +55,22 @@ class RecipeViewModel(private val recipeFolder: File) : ViewModel() {
         recipeFiles.indexOfFirst { it.name == fileNameExtension }
             .takeIf { it >= 0 }?.let {
                 recipeFiles[it] = recipeFile
-                recipes[recipes.indexOfFirst { it.fileName == fileNameExtension }] =
-                    Recipe(fileNameExtension, serialized = content)
+                recipes[fileNameExtension] = Recipe(fileNameExtension, serialized = content)
             }
     }
+
+    fun loadRecipe(recipe: Recipe) {
+        this.currentFileName = recipe.fileName
+    }
+
+    fun navigateToRecipe(recipe: Recipe) {
+        loadRecipe(recipe)
+        navigate(Destination.RECIPE)
+    }
+
+    var navigate: (destination: Destination) -> Unit = {}
+    var importRecipe: () -> Unit = {}
+    var showNavDrawer: () -> Unit = {}
 }
 
 class RecipeViewModelFactory(

@@ -3,8 +3,10 @@ package de.mr_pine.recipes.components.swipeabe
 import android.annotation.SuppressLint
 import androidx.compose.animation.core.AnimationSpec
 import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material.*
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.*
@@ -68,17 +70,28 @@ fun Swipeable(
         val anchors = hashMapOf(0f to SwipeCardState.DEFAULT)
 
         if (swipeLeftComposable != null) anchors[anchorPositionsPx.start] = SwipeCardState.LEFT
-        if (swipeRightComposable != null) anchors[anchorPositionsPx.endInclusive] = SwipeCardState.RIGHT
+        if (swipeRightComposable != null) anchors[anchorPositionsPx.endInclusive] =
+            SwipeCardState.RIGHT
+
+        val cardPadding = 2.dp
 
         Surface(
             color = Color.Transparent,
-            content = {(if (swipeLeftVisible) {
-                swipeLeftComposable
-            } else {
-                swipeRightComposable
-            } ?: {_,_ ->}).invoke(swipeableState.offset.value, swipeableState.progress.fraction)},
+            content = {
+                Box(modifier = Modifier.padding(0.dp)) {
+                    (if (swipeLeftVisible) {
+                        swipeLeftComposable
+                    } else {
+                        swipeRightComposable
+                    } ?: { _, _ -> }).invoke(
+                        swipeableState.offset.value,
+                        swipeableState.progress.fraction
+                    )
+                }
+            },
             modifier = Modifier
                 .fillMaxWidth()
+                .padding(cardPadding)
                 .constrainAs(actionCardRef) {
                     top.linkTo(mainCardRef.top)
                     bottom.linkTo(mainCardRef.bottom)
@@ -129,7 +142,11 @@ fun Swipeable(
 
             swipeLeftVisible = swipeableState.offset.value <= 0
 
-            content()
+            val contstraints = this
+
+            Box(modifier = Modifier.padding(cardPadding)) {
+                with(contstraints) { content() }
+            }
         }
 
     }

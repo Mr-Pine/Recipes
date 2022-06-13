@@ -4,7 +4,7 @@ import android.content.Context
 import android.content.Intent
 import android.provider.AlarmClock
 import de.mr_pine.recipes.models.*
-import de.mr_pine.recipes.models.Unit
+import de.mr_pine.recipes.models.IngredientUnit
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
 
@@ -45,11 +45,11 @@ interface InstructionSubmodels {
         get() = ingredient?.let { "${it.amount} ${it.unit.displayValue()} $displayName"} ?: "???"
         set(new){}
 
-        fun receiveIngredient(getIngredientFraction: ((String, Float) -> RecipeIngredient)?, getIngredientAbsolute: ((String, IngredientAmount, Unit) -> RecipeIngredient)?) {
+        fun receiveIngredient(getIngredientFraction: ((String, Float) -> RecipeIngredient)?, getIngredientAbsolute: ((String, IngredientAmount, IngredientUnit) -> RecipeIngredient)?) {
             ingredient = when ("@\\S+".toRegex().find(amountRaw)?.value ?: "") {
                 "@Absolute" -> {
                     val amount = amountRaw.extractString("AbsoluteAmount", '\'').toFloat().amount
-                    val unit = Unit.values().find { it.identifiers.contains(amountRaw.extractString("Unit", '\'')) }
+                    val unit = IngredientUnit.values().find { it.identifiers.contains(amountRaw.extractString("Unit", '\'')) }
                         ?: throw Exception("unknown unit: ${amountRaw.extractString("Unit", '\'')}")
                     getIngredientAbsolute?.invoke(ingredientName, amount, unit)
                 }

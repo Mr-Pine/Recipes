@@ -23,7 +23,7 @@ class RecipeMetadata(
         deserialize()
     }
 
-    override fun deserialize(): RecipeMetadata {
+    override fun deserialize(forceDeserialization: Boolean): RecipeMetadata {
         title = serialized.extractString("Title")
         author = serialized.extractString("Author")
         return this

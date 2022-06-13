@@ -1,8 +1,11 @@
 package de.mr_pine.recipes
 
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
+import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.fillMaxSize
@@ -17,9 +20,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.core.view.WindowCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
-import de.mr_pine.recipes.models.Recipe
-import de.mr_pine.recipes.screens.Home
-import de.mr_pine.recipes.screens.ShowError
+import androidx.navigation.compose.currentBackStackEntryAsState
+import androidx.navigation.compose.rememberNavController
+import de.mr_pine.recipes.models.Destination
+import de.mr_pine.recipes.models.RecipeNavHost
 import de.mr_pine.recipes.ui.theme.HarmonizedTheme
 import de.mr_pine.recipes.ui.theme.RecipesTheme
 import de.mr_pine.recipes.viewModels.RecipeViewModel
@@ -55,24 +59,31 @@ class MainActivity : ComponentActivity() {
 
         setContent {
 
-            val recipeFolder = File(getExternalFilesDir(null), getString(R.string.externalFiles_subfolder))
 
-            val recipeViewModel: RecipeViewModel = viewModel(factory = RecipeViewModelFactory(recipeFolder))
+            val recipeFolder =
+                File(getExternalFilesDir(null), getString(R.string.externalFiles_subfolder))
+
+            val recipeViewModel: RecipeViewModel =
+                viewModel(factory = RecipeViewModelFactory(recipeFolder))
 
             LaunchedEffect(null) {
                 recipeViewModel.loadRecipeFiles()
             }
 
-            try {
-                val serialized = resources.openRawResource(R.raw.rezept).bufferedReader().readText()
-                recipeViewModel.saveRecipeFile(serialized, "Recipe_2")
-                recipeViewModel.currentRecipe = Recipe(serialized = serialized)
-            } catch (e: Exception) {
-                ShowError(e)
-            }
+            val recipeImporter =
+                rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri ->
+                    if (uri?.path?.endsWith(".rcp") == true) {
+                        val content = contentResolver.openInputStream(uri)?.reader()?.readText()
+                        content?.let {
+                            recipeViewModel.saveRecipeFile(
+                                it,
+                                uri.path?.let { it.substring(it.lastIndexOf("/") + 1) } ?: "recipe")
+                        }
+                        Log.d(TAG, "onCreate: importing $content")
+                    }
+                }
 
-            val scrollBehavior =
-                TopAppBarDefaults.pinnedScrollBehavior(rememberTopAppBarScrollState())
+            recipeViewModel.importRecipe = { recipeImporter.launch("application/*") }
 
             HarmonizedTheme {
                 val coroutineScope = rememberCoroutineScope()
@@ -86,10 +97,20 @@ class MainActivity : ComponentActivity() {
                     }
                 }
 
+                val navHostController = rememberNavController()
+
+                recipeViewModel.showNavDrawer = { coroutineScope.launch { drawerState.open() } }
+                recipeViewModel.navigate = { navHostController.navigate(it.toString()) }
+
                 // A surface container using the 'background' color from the theme
 
                 ModalNavigationDrawer(
-                    drawerContent = { Text("Drawer") },
+                    drawerContent = {
+                        NavDrawerContent(
+                            currentDestination = Destination.values()
+                                .find { it.toString() == navHostController.currentBackStackEntryAsState().value?.destination?.route }
+                                ?: Destination.RECIPE) { navHostController.navigate(it.toString()); tryCloseNavigationDrawer() }
+                    },
                     drawerState = drawerState,
                     modifier = Modifier.imePadding()
                 ) {
@@ -97,61 +118,12 @@ class MainActivity : ComponentActivity() {
                         modifier = Modifier.fillMaxSize(),
                         color = MaterialTheme.colorScheme.surface
                     ) {
-                        Home(recipeViewModel)
-                        /*Scaffold(
-                            modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
-                            topBar = {
-                                val containerColor by TopAppBarDefaults.smallTopAppBarColors()
-                                    .containerColor(scrollBehavior.scrollFraction)
-                                Box(modifier = Modifier.background(containerColor)) {
-                                    SmallTopAppBar(
-                                        modifier = Modifier
-                                            .statusBarsPadding(),
-                                        title = {
-                                            Text(
-                                                recipeViewModel.currentRecipe?.metadata?.title
-                                                    ?: "No recipe specified"
-                                            )
-                                        },
-                                        navigationIcon = {
-                                            IconButton(
-                                                onClick = { coroutineScope.launch { drawerState.open() } }
-                                            ) {
-                                                Icon(
-                                                    Icons.Filled.Menu,
-                                                    contentDescription = "Localized description"
-                                                )
-                                            }
-                                        },
-                                        scrollBehavior = scrollBehavior
-                                    )
-                                }
-                            },
-                            floatingActionButtonPosition = FabPosition.End,
-                            floatingActionButton = {
-                                ExtendedFloatingActionButton(
-                                    onClick = { *//* fab click handler *//* }
-                                ) {
-                                    Icon(
-                                        imageVector = Icons.Default.Edit,
-                                        contentDescription = null
-                                    )
-                                }
-                            }) { innerPadding ->
-                            Box(modifier = Modifier.padding(innerPadding)) {
-                                *//*recipeViewModel.currentRecipe?.let { RecipeView(recipe = it) }
-                                    ?: Text(
-                                        text = "Missing recipe"
-                                    )*//*
-                                LazyColumn{
-                                    items(recipeViewModel.recipes) { recipe ->
-                                        recipe.metadata?.let { metadata ->
-                                            Text(metadata.title)
-                                        }
-                                    }
-                                }
-                            }
-                        }*/
+                        //Home(viewModel = recipeViewModel)
+                        //RecipeView(viewModel = recipeViewModel)
+                        RecipeNavHost(
+                            navController = navHostController,
+                            viewModel = recipeViewModel
+                        )
                     }
                 }
             }

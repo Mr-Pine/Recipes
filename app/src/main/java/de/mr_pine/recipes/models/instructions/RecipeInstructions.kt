@@ -49,7 +49,7 @@ class RecipeInstructions(override val serialized: String, private val recipeTitl
         deserialize()
     }
 
-    override fun deserialize(): RecipeInstructions {
+    override fun deserialize(forceDeserialization: Boolean): RecipeInstructions {
         instructions = serialized.extractFromList()
             .mapIndexed { index, serialized -> RecipeInstruction(serialized, index, recipeTitle) }
             .toMutableList()
@@ -76,7 +76,7 @@ class RecipeInstruction(
         content = serialized.split("\n").joinToString("\n") { it.trim() }.trim()
     }
 
-    override fun deserialize(): RecipeDeserializable {
+    override fun deserialize(forceDeserialization: Boolean): RecipeDeserializable {
         return this
     }
 
@@ -93,7 +93,7 @@ class RecipeInstruction(
         currentlyActiveIndex: Int,
         setCurrentlyActiveIndex: (Int) -> Unit,
         setNextActive: () -> Unit,
-        getIngredientAbsolute: ((String, IngredientAmount, de.mr_pine.recipes.models.Unit) -> RecipeIngredient)?,
+        getIngredientAbsolute: ((String, IngredientAmount, de.mr_pine.recipes.models.IngredientUnit) -> RecipeIngredient)?,
         getIngredientFraction: ((String, Float) -> RecipeIngredient)?,
     ) {
 
@@ -186,9 +186,9 @@ class RecipeInstruction(
             ElevatedCard(
                 modifier = Modifier
                     .fillMaxWidth(),
-                colors = CardDefaults.cardColors(
-                    containerColor = CardDefaults.cardColors().containerColor(!done).value,
-                    contentColor = CardDefaults.cardColors().contentColor(!done).value
+                colors = CardDefaults.elevatedCardColors(
+                    containerColor = CardDefaults.elevatedCardColors().containerColor(!done).value,
+                    contentColor = CardDefaults.elevatedCardColors().contentColor(!done).value
                 ),
                 onClick = {
                     setCurrentlyActiveIndex(index)
@@ -201,13 +201,18 @@ class RecipeInstruction(
                         val inlineContent = inlineEmbeds.mapValues {
                             val key = it.key
                             var data = it.value.inlineContent
-                            if(data == null) {
+                            if (data == null) {
                                 data = generateInlineContent(key, constraints = constraints) {
-                                    val contentResult = "(?<!\\\\)\".*(?<!\\\\)\"".toRegex().find(key)
-                                        ?: throw Exception("Badly formatted inline Id: $it")
+                                    val contentResult =
+                                        "(?<!\\\\)\".*(?<!\\\\)\"".toRegex().find(key)
+                                            ?: throw Exception("Badly formatted inline Id: $it")
                                     val content =
-                                        contentResult.value.substring(1, contentResult.value.length - 1)
-                                    val parts = key.substring(0, contentResult.range.first).split(" ")
+                                        contentResult.value.substring(
+                                            1,
+                                            contentResult.value.length - 1
+                                        )
+                                    val parts =
+                                        key.substring(0, contentResult.range.first).split(" ")
                                     val embedType = try {
                                         EmbedType[parts[0].substring(1)]
                                     } catch (e: Exception) {
@@ -221,16 +226,18 @@ class RecipeInstruction(
                                             getIngredientAbsolute
                                         )
                                     }
-                                    val defaultChipColor = AssistChipDefaults.elevatedAssistChipColors()
+                                    val defaultChipColor =
+                                        SuggestionChipDefaults.elevatedSuggestionChipColors()
                                     val defaultChipColorDisabled =
-                                        AssistChipDefaults.elevatedAssistChipColors(
-                                            containerColor = defaultChipColor.containerColor(false).value,
-                                            labelColor = defaultChipColor.labelColor(false).value,
-                                            leadingIconContentColor = defaultChipColor.leadingIconContentColor(
-                                                false
+                                        SuggestionChipDefaults.elevatedSuggestionChipColors(
+                                            containerColor = defaultChipColor.containerColor(
+                                                enabled = false
                                             ).value,
-                                            trailingIconContentColor = defaultChipColor.trailingIconContentColor(
-                                                false
+                                            labelColor = defaultChipColor.labelColor(
+                                                enabled = false
+                                            ).value,
+                                            iconContentColor = defaultChipColor.leadingIconContentColor(
+                                                enabled = false
                                             ).value
                                         )
 
@@ -239,10 +246,17 @@ class RecipeInstruction(
 
                                     val context = LocalContext.current
 
-                                    var enabled by remember(inlineEmbeds[key]?.enabled) { mutableStateOf(inlineEmbeds[key]?.enabled ?: true) }
-                                    fun setEnabled(value: Boolean) {inlineEmbeds[key]?.enabled = value; enabled = value}
+                                    var enabled by remember(inlineEmbeds[key]?.enabled) {
+                                        mutableStateOf(
+                                            inlineEmbeds[key]?.enabled ?: true
+                                        )
+                                    }
 
-                                    ElevatedAssistChip(
+                                    fun setEnabled(value: Boolean) {
+                                        inlineEmbeds[key]?.enabled = value; enabled = value
+                                    }
+
+                                    ElevatedSuggestionChip(
                                         onClick = {
                                             when (embedType) {
                                                 EmbedType.INGREDIENT -> setEnabled(!enabled)
@@ -253,9 +267,9 @@ class RecipeInstruction(
                                                 else -> {}
                                             }
                                         },
-                                        modifier = Modifier.height(28.dp),
-                                        colors = getChipColor(enabled),
-                                        leadingIcon = {
+                                        modifier = Modifier.height(28.dp).padding(horizontal = 1.dp),
+                                        //colors = getChipColor(enabled),
+                                        icon = {
                                             Icon(
                                                 imageVector = when (embedType) {
                                                     EmbedType.INGREDIENT -> Icons.Default.Scale
@@ -267,10 +281,12 @@ class RecipeInstruction(
                                             )
                                         },
                                         label = { Text(text = model?.content ?: key) },
-                                        elevation = if (enabled) null else AssistChipDefaults.elevatedAssistChipElevation(
-                                            defaultElevation = 0.dp,
-                                            pressedElevation = 0.dp
-                                        ),
+                                        elevation = if (enabled) AssistChipDefaults.elevatedAssistChipElevation(
+                                            defaultElevation = 2.dp,
+                                            pressedElevation = 3.dp,
+                                            hoveredElevation = 6.dp,
+                                            focusedElevation = 3.dp
+                                        ) else AssistChipDefaults.assistChipElevation(),
                                         enabled = !done
                                     )
                                 }
@@ -282,7 +298,8 @@ class RecipeInstruction(
 
                             Text(
                                 text = annotatedContent,
-                                inlineContent = inlineContent)
+                                inlineContent = inlineContent
+                            )
 
 
                         }[0].measure(constraints)

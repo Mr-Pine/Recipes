@@ -26,13 +26,13 @@ class RecipeIngredients(override val serialized: String) : RecipeDeserializable 
         deserialize()
     }
 
-    override fun deserialize(): RecipeDeserializable {
+    override fun deserialize(forceDeserialization: Boolean): RecipeDeserializable {
         ingredients = serialized.extractFromList().map { RecipeIngredient(it) }.toMutableList()
 
         return this
     }
 
-    fun getPartialIngredient(name: String, amount: IngredientAmount, unit: Unit) =
+    fun getPartialIngredient(name: String, amount: IngredientAmount, unit: IngredientUnit) =
         ingredients.find { name == it.name }?.getPartial(amount, unit)
             ?: throw Exception("Ingredient not found")
 
@@ -49,7 +49,7 @@ class RecipeIngredients(override val serialized: String) : RecipeDeserializable 
     @Composable
     fun IngredientsCard() {
         Card(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier.padding(2.dp).fillMaxWidth(),
             colors = CardDefaults.cardColors()
         ) {
             Column(modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp)) {
@@ -68,7 +68,7 @@ class RecipeIngredients(override val serialized: String) : RecipeDeserializable 
 class RecipeIngredient(override val serialized: String) : RecipeDeserializable {
     var name: String = ""
     var amount: IngredientAmount = 0.amount
-    var unit: Unit = Unit.None
+    var unit: IngredientUnit = IngredientUnit.None
     private var isChecked by mutableStateOf(false)
 
     init {
@@ -78,10 +78,10 @@ class RecipeIngredient(override val serialized: String) : RecipeDeserializable {
     constructor(
         name: String,
         amount: IngredientAmount,
-        unit: Unit
+        unit: IngredientUnit
     ) : this("Name: \"$name\" Amount: \"$amount\" Unit: \"${unit.displayValue()}\"")
 
-    fun getPartial(amount: IngredientAmount, unit: Unit): RecipeIngredient {
+    fun getPartial(amount: IngredientAmount, unit: IngredientUnit): RecipeIngredient {
         return RecipeIngredient(name, amount, unit)
     }
 
@@ -89,10 +89,10 @@ class RecipeIngredient(override val serialized: String) : RecipeDeserializable {
         return RecipeIngredient(name, amount * fraction, unit)
     }
 
-    override fun deserialize(): RecipeIngredient {
+    override fun deserialize(forceDeserialization: Boolean): RecipeIngredient {
         name = serialized.extractString("Name")
         amount = serialized.extractString("Amount").replace(',', '.').toFloat().amount
-        unit = Unit.values().find { it.identifiers.contains(serialized.extractString("Unit")) }
+        unit = IngredientUnit.values().find { it.identifiers.contains(serialized.extractString("Unit")) }
             ?: throw Exception("unknown unit: ${serialized.extractString("Unit")}")
 
         adjustUnit()
@@ -108,13 +108,13 @@ class RecipeIngredient(override val serialized: String) : RecipeDeserializable {
                 unit = relation.other
             }
         } else {
-            Unit.values().map { it.unitRelation }.find { it?.other == unit }
+            IngredientUnit.values().map { it.unitRelation }.find { it?.other == unit }
                 ?.let { relation ->
                     if (amount > relation.conversionFactor.amount && (amount / relation.conversionFactor * 10).let {
                             it == it
                         }) {
                         amount /= relation.conversionFactor
-                        unit = Unit.values().find { it.unitRelation == relation }!!
+                        unit = IngredientUnit.values().find { it.unitRelation == relation }!!
                     }
                 }
         }
@@ -165,7 +165,7 @@ value class IngredientAmount(val value: Float) : Comparable<IngredientAmount> {
 }
 
 
-enum class Unit(
+enum class IngredientUnit(
     val type: UnitType,
     val identifiers: List<String>,
     val unitRelation: UnitRelation? = null
@@ -222,5 +222,5 @@ enum class UnitType {
 
 class UnitRelation(
     val conversionFactor: Float,
-    val other: Unit
+    val other: IngredientUnit
 )

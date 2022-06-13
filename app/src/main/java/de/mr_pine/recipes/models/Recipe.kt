@@ -1,5 +1,8 @@
 package de.mr_pine.recipes.models
 
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import de.mr_pine.recipes.models.instructions.RecipeInstructions
 
 private const val TAG = "Recipe"
@@ -11,17 +14,17 @@ class Recipe(
     private val initDeserialize: Boolean = false,
 ) : RecipeDeserializable {
 
-    var instructions: RecipeInstructions? = null
-    var metadata: RecipeMetadata? = null
-    var ingredients: RecipeIngredients? = null
+    var instructions: RecipeInstructions? by mutableStateOf(null)
+    var metadata: RecipeMetadata? by mutableStateOf(null)
+    var ingredients: RecipeIngredients? by mutableStateOf(null)
 
     init {
         deserialize()
     }
 
-    override fun deserialize(): Recipe {
-        if(serializeMetadata || initDeserialize) metadata = RecipeMetadata(serialized.extractData(RecipeMetadata.DataTag))
-        if(initDeserialize) {
+    override fun deserialize(forceDeserialization: Boolean): Recipe {
+        if(serializeMetadata || initDeserialize || forceDeserialization) metadata = RecipeMetadata(serialized.extractData(RecipeMetadata.DataTag))
+        if(initDeserialize || forceDeserialization) {
             ingredients = RecipeIngredients(serialized.extractData(RecipeIngredients.DataTag))
             instructions = RecipeInstructions(
                 serialized.extractData(RecipeInstructions.DataTag),
@@ -85,5 +88,5 @@ interface RecipeDeserializable {
 
     val serialized: String
 
-    fun deserialize(): RecipeDeserializable
+    fun deserialize(forceDeserialization: Boolean = false): RecipeDeserializable
 }
