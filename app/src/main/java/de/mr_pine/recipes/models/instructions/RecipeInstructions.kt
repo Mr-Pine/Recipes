@@ -3,6 +3,7 @@ package de.mr_pine.recipes.models.instructions
 import android.util.Log
 import androidx.compose.animation.*
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.InlineTextContent
 import androidx.compose.foundation.text.appendInlineContent
@@ -24,6 +25,7 @@ import androidx.compose.ui.text.PlaceholderVerticalAlign
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.google.android.material.color.MaterialColors
 import de.mr_pine.recipes.R
 import de.mr_pine.recipes.components.swipeabe.Swipeable
@@ -256,8 +258,18 @@ class RecipeInstruction(
                                         inlineEmbeds[key]?.enabled = value; enabled = value
                                     }
 
-                                    // TODO: Change to FilterChip
-                                    ElevatedSuggestionChip(
+                                    val icon = @Composable {
+                                        Icon(
+                                            imageVector = when (embedType) {
+                                                EmbedType.INGREDIENT -> Icons.Default.Scale
+                                                EmbedType.TIMER -> Icons.Default.Timer
+                                                EmbedType.UNKNOWN -> Icons.Default.QuestionMark
+                                            },
+                                            contentDescription = embedType.toString(),
+                                            modifier = Modifier.size(18.dp)
+                                        )
+                                    }
+                                    RecipeChip(
                                         onClick = {
                                             when (embedType) {
                                                 EmbedType.INGREDIENT -> setEnabled(!enabled)
@@ -268,27 +280,10 @@ class RecipeInstruction(
                                                 else -> {}
                                             }
                                         },
-                                        modifier = Modifier.height(28.dp).padding(horizontal = 1.dp),
-                                        //colors = getChipColor(enabled),
-                                        icon = {
-                                            Icon(
-                                                imageVector = when (embedType) {
-                                                    EmbedType.INGREDIENT -> Icons.Default.Scale
-                                                    EmbedType.TIMER -> Icons.Default.Timer
-                                                    EmbedType.UNKNOWN -> Icons.Default.QuestionMark
-                                                },
-                                                contentDescription = embedType.toString(),
-                                                modifier = Modifier.size(18.dp)
-                                            )
-                                        },
-                                        label = { Text(text = model?.content ?: key) },
-                                        elevation = if (enabled) AssistChipDefaults.elevatedAssistChipElevation(
-                                            defaultElevation = 2.dp,
-                                            pressedElevation = 3.dp,
-                                            hoveredElevation = 6.dp,
-                                            focusedElevation = 3.dp
-                                        ) else AssistChipDefaults.assistChipElevation(),
-                                        enabled = !done
+                                        selected = enabled,
+                                        enabled = !done,
+                                        icon = icon,
+                                        labelText = model?.content ?: key
                                     )
                                 }
                             }
@@ -299,7 +294,11 @@ class RecipeInstruction(
 
                             Text(
                                 text = annotatedContent,
-                                inlineContent = inlineContent
+                                inlineContent = inlineContent,
+                                style = MaterialTheme.typography.bodyLarge.copy(
+                                    fontSize = 20.sp,
+                                    lineHeight = 26.sp
+                                )
                             )
 
 
@@ -357,5 +356,58 @@ fun SubcomposeMeasureScope.generateInlineContent(
         )
     ) {
         content()
+    }
+}
+
+@ExperimentalMaterial3Api
+@Composable
+fun RecipeChip(
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    selected: Boolean,
+    enabled: Boolean,
+    icon: @Composable () -> Unit,
+    labelText: String
+) {
+    val colors = FilterChipDefaults.elevatedFilterChipColors(
+        selectedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+        selectedLabelColor = MaterialTheme.colorScheme.onSurfaceVariant,
+        selectedLeadingIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
+        selectedTrailingIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
+        disabledContainerColor = FilterChipDefaults.elevatedFilterChipColors().containerColor(enabled = false, selected = false).value.let { if(!selected) it.copy(alpha = 0.0f) else it }
+    )
+
+    val elevation = if (selected) FilterChipDefaults.elevatedFilterChipElevation(
+        defaultElevation = 3.dp,
+        pressedElevation = 3.dp,
+        focusedElevation = 3.dp,
+        hoveredElevation = 6.dp,
+        draggedElevation = 12.dp,
+        disabledElevation = 0.dp
+    ) else FilterChipDefaults.elevatedFilterChipElevation()
+
+    Box(
+        modifier = modifier
+            .height(30.dp)
+            .clickable(onClick = onClick)
+    ) {
+        ElevatedFilterChip(
+            onClick = onClick,
+            modifier = modifier
+                .padding(horizontal = 3.dp, vertical = 2.dp),
+            selected = selected,
+            enabled = enabled,
+            leadingIcon = icon,
+            selectedIcon = icon,
+            label = { Text(text = labelText) },
+            colors = colors,
+            elevation = elevation,
+            border = FilterChipDefaults.filterChipBorder(
+                borderColor = Color.Transparent,
+                selectedBorderColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                disabledSelectedBorderColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.12f),
+                selectedBorderWidth = 1.dp
+            )
+        )
     }
 }

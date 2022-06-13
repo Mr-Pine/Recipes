@@ -43,7 +43,12 @@ fun Home(viewModel: RecipeViewModel) {
 
 @ExperimentalMaterial3Api
 @Composable
-fun Home(showNavDrawer: () -> Unit, recipeList: List<Recipe>, importRecipe: () -> Unit, navigateToRecipe: (Recipe) -> Unit) {
+fun Home(
+    showNavDrawer: () -> Unit,
+    recipeList: List<Recipe>,
+    importRecipe: () -> Unit,
+    navigateToRecipe: (Recipe) -> Unit
+) {
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(rememberTopAppBarScrollState())
 
     Log.d(TAG, "Home: ${MaterialTheme.colorScheme}")
@@ -117,10 +122,15 @@ fun Home(showNavDrawer: () -> Unit, recipeList: List<Recipe>, importRecipe: () -
             Box(
                 Modifier
                     .padding(paddingValues)
-                    .padding(horizontal = 12.dp)) {
+                    .padding(horizontal = 12.dp)
+            ) {
                 LazyColumn(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                    item { Box(modifier = Modifier.height(2.dp)) }
                     items(recipeList.filter { it.metadata != null }) { recipe ->
-                        Card(modifier = Modifier.fillMaxWidth().clickable { navigateToRecipe(recipe) }) {
+                        ElevatedCard(
+                            onClick = { navigateToRecipe(recipe) },
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
                             Row(modifier = Modifier.padding(12.dp)) {
                                 Text(
                                     text = recipe.metadata!!.title,
@@ -129,6 +139,7 @@ fun Home(showNavDrawer: () -> Unit, recipeList: List<Recipe>, importRecipe: () -
                             }
                         }
                     }
+                    item { Box(modifier = Modifier.height(2.dp)) }
                 }
             }
         }
