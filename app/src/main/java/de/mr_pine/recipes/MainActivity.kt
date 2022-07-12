@@ -23,9 +23,9 @@ import androidx.core.view.WindowCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import de.mr_pine.recipes.models.Destination
 import de.mr_pine.recipes.models.Recipe
-import de.mr_pine.recipes.models.RecipeNavHost
+import de.mr_pine.recipes.screens.Destination
+import de.mr_pine.recipes.screens.RecipeNavHost
 import de.mr_pine.recipes.ui.theme.HarmonizedTheme
 import de.mr_pine.recipes.ui.theme.RecipesTheme
 import de.mr_pine.recipes.viewModels.RecipeViewModel

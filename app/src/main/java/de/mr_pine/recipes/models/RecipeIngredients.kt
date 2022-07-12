@@ -1,21 +1,10 @@
 package de.mr_pine.recipes.models
 
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
-import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.platform.LocalViewConfiguration
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import de.mr_pine.recipes.R
 
 class RecipeIngredients(override val serialized: String) : RecipeDeserializable {
@@ -44,34 +33,13 @@ class RecipeIngredients(override val serialized: String) : RecipeDeserializable 
 
         const val DataTag = "Ingredients"
     }
-
-    @ExperimentalMaterial3Api
-    @Composable
-    fun IngredientsCard() {
-        Card(
-            modifier = Modifier
-                .padding(2.dp)
-                .fillMaxWidth(),
-            colors = CardDefaults.cardColors()
-        ) {
-            Column(modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp)) {
-                Text(
-                    text = stringResource(R.string.Ingredients),
-                    style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Medium)
-                )
-                for (ingredient in ingredients) {
-                    ingredient.IngredientRow()
-                }
-            }
-        }
-    }
 }
 
 class RecipeIngredient(override val serialized: String) : RecipeDeserializable {
     var name: String = ""
     var amount: IngredientAmount = 0.amount
     var unit: IngredientUnit = IngredientUnit.None
-    private var isChecked by mutableStateOf(false)
+    var isChecked by mutableStateOf(false)
 
     init {
         deserialize()
@@ -120,29 +88,6 @@ class RecipeIngredient(override val serialized: String) : RecipeDeserializable {
                         unit = IngredientUnit.values().find { it.unitRelation == relation }!!
                     }
                 }
-        }
-    }
-
-    @ExperimentalMaterial3Api
-    @Composable
-    fun IngredientRow() {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier
-                .alpha(if (isChecked) 0.5f else 1f)
-                .fillMaxWidth()
-                .clip(MaterialTheme.shapes.medium)
-                .clickable { isChecked = !isChecked }
-        ) {
-            Checkbox(
-                checked = isChecked,
-                onCheckedChange = null,
-                modifier = Modifier.size(LocalViewConfiguration.current.minimumTouchTargetSize)
-            )
-            Text(
-                text = "$name: $amount ${unit.displayValue()}",
-                fontSize = 20.sp
-            )
         }
     }
 }

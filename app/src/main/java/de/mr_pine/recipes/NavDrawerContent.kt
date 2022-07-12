@@ -8,9 +8,8 @@ import androidx.compose.material3.NavigationDrawerItem
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import de.mr_pine.recipes.models.Destination
-import de.mr_pine.recipes.models.Destination.HOME
-import de.mr_pine.recipes.models.Destination.RECIPE
+import de.mr_pine.recipes.screens.Destination
+import de.mr_pine.recipes.screens.Destination.*
 
 @ExperimentalMaterial3Api
 @Composable

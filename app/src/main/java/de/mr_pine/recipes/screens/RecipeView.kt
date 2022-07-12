@@ -18,6 +18,9 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.unit.dp
+import de.mr_pine.recipes.model_views.IngredientsCard
+import de.mr_pine.recipes.model_views.InstructionCard
+import de.mr_pine.recipes.model_views.MetaInfo
 import de.mr_pine.recipes.models.Recipe
 import de.mr_pine.recipes.viewModels.RecipeViewModel
 

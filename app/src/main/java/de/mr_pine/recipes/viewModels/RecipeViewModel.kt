@@ -4,7 +4,7 @@ import android.util.Log
 import androidx.compose.runtime.*
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import de.mr_pine.recipes.models.Destination
+import de.mr_pine.recipes.screens.Destination
 import de.mr_pine.recipes.models.Recipe
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
