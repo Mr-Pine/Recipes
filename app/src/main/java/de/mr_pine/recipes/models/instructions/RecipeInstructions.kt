@@ -6,10 +6,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.buildAnnotatedString
-import kotlinx.serialization.KSerializer
-import kotlinx.serialization.SerialName
-import kotlinx.serialization.Serializable
-import kotlinx.serialization.Transient
+import kotlinx.serialization.*
+import kotlinx.serialization.descriptors.PrimitiveKind
+import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
 import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
@@ -21,7 +20,7 @@ class RecipeInstructions(
     var instructions: List<RecipeInstruction>
 ) {
 
-    var currentlyActiveIndex = mutableStateOf(0)
+    var currentlyActiveIndex by mutableStateOf(0)
 
     companion object {
         const val DataTag = "Instructions"
@@ -39,13 +38,31 @@ class RecipeInstruction(
 
     var done by mutableStateOf(false)
 
-    @Serializable
-    data class EmbedData(@Transient var enabled: Boolean = true, var embed: InstructionSubmodels.EmbedTypeModel)
+    @Serializable(with = EmbedDataSerializer::class)
+    data class EmbedData(
+        @Transient var enabled: Boolean = true,
+        val embed: InstructionSubmodels.EmbedTypeModel
+    )
+
+    private object EmbedDataSerializer : KSerializer<EmbedData> {
+        override fun deserialize(decoder: Decoder): EmbedData {
+            return EmbedData(
+                embed = serializer<InstructionSubmodels.EmbedTypeModel>().deserialize(decoder)
+            )
+        }
+
+        override val descriptor: SerialDescriptor =
+            serializer<InstructionSubmodels.EmbedTypeModel>().descriptor
+
+        override fun serialize(encoder: Encoder, value: EmbedData) {
+            serializer<InstructionSubmodels.EmbedTypeModel>().serialize(encoder, value.embed)
+        }
+    }
 }
 
-object AnnotatedSerializer: KSerializer<AnnotatedString> {
-    override val descriptor: SerialDescriptor
-        get() = TODO("Not yet implemented")
+object AnnotatedSerializer : KSerializer<AnnotatedString> {
+    override val descriptor: SerialDescriptor =
+        PrimitiveSerialDescriptor("AnnotatedString", PrimitiveKind.STRING)
 
     override fun deserialize(decoder: Decoder): AnnotatedString {
         return buildAnnotatedString {
@@ -53,7 +70,7 @@ object AnnotatedSerializer: KSerializer<AnnotatedString> {
             val elements = unannotated.split(regex = "[{][{]\\d+[}][}]".toRegex())
             elements.forEachIndexed { index, element ->
                 append(element)
-                if(index != elements.lastIndex){
+                if (index != elements.lastIndex) {
                     appendInlineContent(index.toString())
                 }
             }
@@ -61,7 +78,12 @@ object AnnotatedSerializer: KSerializer<AnnotatedString> {
     }
 
     override fun serialize(encoder: Encoder, value: AnnotatedString) {
-        TODO("Not yet implemented")
+        var text = value.text
+        val annotations = value.getStringAnnotations(0, value.lastIndex)
+        annotations.forEachIndexed { index, range ->
+            text = text.replaceRange(range.start..range.end, "{{$index}}")
+        }
+        encoder.encodeString(text)
     }
 }
 

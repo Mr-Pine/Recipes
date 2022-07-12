@@ -5,8 +5,11 @@ import android.content.Intent
 import android.provider.AlarmClock
 import de.mr_pine.recipes.models.*
 import kotlinx.serialization.KSerializer
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
+import kotlinx.serialization.descriptors.PrimitiveKind
+import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
 import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
@@ -18,7 +21,7 @@ private const val TAG = "InstructionSubmodels"
 
 interface InstructionSubmodels {
 
-    @Serializable(with = EmbedSerializer::class)
+
     interface EmbedTypeModel {
         val content: String
     }
@@ -26,9 +29,9 @@ interface InstructionSubmodels {
     @Serializable
     data class EmbedType(val type: String)
 
-    object EmbedSerializer : KSerializer<EmbedTypeModel> {
-        override val descriptor: SerialDescriptor
-            get() = TODO("Not yet implemented")
+    /*object EmbedSerializer : KSerializer<EmbedTypeModel> {
+
+        override val descriptor: SerialDescriptor = buildClassSerialDescriptor("EmbedTypeModel", TimerModel.serializer().descriptor, IngredientModel.serializer().descriptor)
 
         override fun deserialize(decoder: Decoder): EmbedTypeModel {
             val type = EmbedType.serializer().deserialize(decoder)
@@ -42,9 +45,10 @@ interface InstructionSubmodels {
         override fun serialize(encoder: Encoder, value: EmbedTypeModel) {
             TODO("Not yet implemented")
         }
-    }
+    }*/
 
     @Serializable
+    @SerialName("Timer")
     class TimerModel(@Serializable(with = SecondsSerializer::class) val duration: Duration) : EmbedTypeModel {
 
         override val content: String = duration.toString()
@@ -60,8 +64,7 @@ interface InstructionSubmodels {
     }
 
     object SecondsSerializer: KSerializer<Duration> {
-        override val descriptor: SerialDescriptor
-            get() = TODO("Not yet implemented")
+        override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("Duration", PrimitiveKind.FLOAT)
 
         override fun deserialize(decoder: Decoder): Duration {
             return decoder.decodeInt().seconds
@@ -73,10 +76,14 @@ interface InstructionSubmodels {
     }
 
     @Serializable
+    @SerialName("Ingredient")
     class IngredientModel(
+        @SerialName("name")
         private val ingredientName: String,
+        @SerialName("display")
         private val displayName: String = ingredientName,
         private val amountRaw: String? = null,
+        @SerialName("noAmount")
         private val noAmount: Boolean = false
     ) : EmbedTypeModel {
 

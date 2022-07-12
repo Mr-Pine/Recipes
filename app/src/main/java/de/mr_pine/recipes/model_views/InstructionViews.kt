@@ -6,7 +6,6 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.InlineTextContent
-import androidx.compose.foundation.text.appendInlineContent
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
@@ -22,7 +21,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.Placeholder
 import androidx.compose.ui.text.PlaceholderVerticalAlign
-import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -33,7 +31,6 @@ import de.mr_pine.recipes.models.IngredientAmount
 import de.mr_pine.recipes.models.RecipeIngredient
 import de.mr_pine.recipes.models.instructions.InstructionSubmodels
 import de.mr_pine.recipes.models.instructions.RecipeInstruction
-import de.mr_pine.recipes.screens.ShowError
 import de.mr_pine.recipes.ui.theme.Extended
 
 private const val TAG = "InstructionViews"
@@ -46,6 +43,7 @@ private const val TAG = "InstructionViews"
 fun RecipeInstruction.InstructionCard(
     index: Int,
     currentlyActiveIndex: Int,
+    recipeTitle: String,
     setCurrentlyActiveIndex: (Int) -> Unit,
     setNextActive: () -> Unit,
     getIngredientAbsolute: ((String, IngredientAmount, de.mr_pine.recipes.models.IngredientUnit) -> RecipeIngredient)?,
@@ -123,10 +121,11 @@ fun RecipeInstruction.InstructionCard(
                 SubcomposeLayout { constraints ->
 
                     val inlineContent = inlineEmbeds.mapIndexed { index, embedData ->
-                            val data = generateInlineContent(index.toString(), constraints = constraints) {
+                        val data =
+                            generateInlineContent(index.toString(), constraints = constraints) {
 
-                                if (embedData is InstructionSubmodels.IngredientModel ) {
-                                    embedData.receiveIngredient(
+                                if (embedData.embed is InstructionSubmodels.IngredientModel) {
+                                    embedData.embed.receiveIngredient(
                                         getIngredientFraction,
                                         getIngredientAbsolute
                                     )
@@ -151,32 +150,32 @@ fun RecipeInstruction.InstructionCard(
 
                                 val context = LocalContext.current
 
-                                var enabled by remember(inlineEmbeds[key]?.enabled) {
-                                    mutableStateOf(
-                                        inlineEmbeds[key]?.enabled ?: true
-                                    )
+                                var enabled by remember(embedData.enabled) {
+                                    mutableStateOf( embedData.enabled )
                                 }
 
                                 fun setEnabled(value: Boolean) {
-                                    inlineEmbeds[key]?.enabled = value; enabled = value
+                                    embedData.enabled = value; enabled = value
                                 }
 
                                 val icon = @Composable {
                                     Icon(
-                                        imageVector = when (embedType) {
-                                            InstructionSubmodels.EmbedType.INGREDIENT -> Icons.Default.Scale
-                                            InstructionSubmodels.EmbedType.TIMER -> Icons.Default.Timer
-                                            InstructionSubmodels.EmbedType.UNKNOWN -> Icons.Default.QuestionMark
+                                        imageVector = when (embedData.embed) {
+                                            is InstructionSubmodels.IngredientModel -> Icons.Default.Scale
+                                            is InstructionSubmodels.TimerModel -> Icons.Default.Timer
+                                            else -> Icons.Default.QuestionMark
                                         },
-                                        contentDescription = embedType.toString(),
+                                        contentDescription = null,
                                         modifier = Modifier.size(18.dp)
                                     )
                                 }
                                 RecipeChip(
                                     onClick = {
-                                        when (embedType) {
-                                            InstructionSubmodels.EmbedType.INGREDIENT -> setEnabled(!enabled)
-                                            InstructionSubmodels.EmbedType.TIMER -> (model as InstructionSubmodels.TimerModel).call(
+                                        when (embedData.embed) {
+                                            is InstructionSubmodels.IngredientModel -> setEnabled(
+                                                !enabled
+                                            )
+                                            is InstructionSubmodels.TimerModel -> embedData.embed.call(
                                                 recipeTitle,
                                                 context
                                             )
@@ -186,11 +185,11 @@ fun RecipeInstruction.InstructionCard(
                                     selected = enabled,
                                     enabled = !done,
                                     icon = icon,
-                                    labelText = model?.content ?: key
+                                    labelText = embedData.embed.content
                                 )
                             }
-                        data
-                    }
+                        index.toString() to data
+                    }.toMap()
 
                     val contentPlaceable = subcompose("content") {
 
@@ -256,7 +255,12 @@ fun RecipeChip(
         selectedLabelColor = MaterialTheme.colorScheme.onSurfaceVariant,
         selectedLeadingIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
         selectedTrailingIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
-        disabledContainerColor = FilterChipDefaults.elevatedFilterChipColors().containerColor(enabled = false, selected = false).value.let { if(!selected) it.copy(alpha = 0.0f) else it }
+        disabledContainerColor = FilterChipDefaults.elevatedFilterChipColors()
+            .containerColor(enabled = false, selected = false).value.let {
+            if (!selected) it.copy(
+                alpha = 0.0f
+            ) else it
+        }
     )
 
     val elevation = if (selected) FilterChipDefaults.elevatedFilterChipElevation(

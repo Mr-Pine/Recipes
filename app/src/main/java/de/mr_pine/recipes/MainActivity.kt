@@ -1,16 +1,14 @@
 package de.mr_pine.recipes
 
 import android.os.Bundle
-import android.provider.OpenableColumns
 import android.util.Log
 import androidx.activity.ComponentActivity
-import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.text.appendInlineContent
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -18,11 +16,15 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.core.view.WindowCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import de.mr_pine.recipes.models.instructions.InstructionSubmodels
+import de.mr_pine.recipes.models.instructions.RecipeInstruction
+import de.mr_pine.recipes.models.module
 import de.mr_pine.recipes.screens.Destination
 import de.mr_pine.recipes.screens.RecipeNavHost
 import de.mr_pine.recipes.ui.theme.HarmonizedTheme
@@ -30,9 +32,12 @@ import de.mr_pine.recipes.ui.theme.RecipesTheme
 import de.mr_pine.recipes.viewModels.RecipeViewModel
 import de.mr_pine.recipes.viewModels.RecipeViewModelFactory
 import kotlinx.coroutines.launch
+import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import java.io.File
+import kotlin.time.Duration.Companion.seconds
 
 /*
  * TODO: Splash screen: https://developer.android.com/guide/topics/ui/splash-screen
@@ -47,6 +52,7 @@ import java.io.File
 private const val TAG = "MainActivity"
 
 
+@ExperimentalSerializationApi
 @ExperimentalFoundationApi
 @ExperimentalMaterial3Api
 @ExperimentalAnimationApi
@@ -73,12 +79,39 @@ class MainActivity : ComponentActivity() {
                 //recipeViewModel.loadRecipeFiles()
             }
 
-            val json = Json { ignoreUnknownKeys = true }
+            val json = Json { ignoreUnknownKeys = true; serializersModule = module }
 
-            recipeViewModel.recipes["test"] = json.decodeFromString(resources.openRawResource(R.raw.rezept).bufferedReader().readText())
-            recipeViewModel.currentFileName = "test"
+            Log.d(
+                TAG,
+                "onCreate: ${
+                    json.encodeToString(
+                        listOf(
+                            RecipeInstruction(
+                                buildAnnotatedString { append("dsigfdsoigjsdijgoidsjgiosdjgidsjfgisdg"); appendInlineContent("0", "dsoif"); append("fosidfgsd") },
+                                listOf(
+                                    RecipeInstruction.EmbedData(
+                                        true,
+                                        InstructionSubmodels.TimerModel(600.seconds)
+                                    ),
+                                    RecipeInstruction.EmbedData(
+                                        true,
+                                        InstructionSubmodels.IngredientModel(ingredientName = "ghihfg")
+                                    )
+                                )
+                            )
+                        )
+                    )
+                }"
+            )
 
-            val recipeImporter =
+            recipeViewModel.recipes.add(
+                json.decodeFromString(
+                    resources.openRawResource(R.raw.rezept).bufferedReader().readText()
+                )
+            )
+            recipeViewModel.currentRecipe = recipeViewModel.recipes[0]
+
+            /*val recipeImporter =
                 rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
                     val filename = uri?.let {
                         contentResolver.query(it, arrayOf(OpenableColumns.DISPLAY_NAME), null, null)
@@ -99,9 +132,9 @@ class MainActivity : ComponentActivity() {
                         }
                        Log.d(TAG, "onCreate: importing $content")
                     }
-                }
+                }*/
 
-            recipeViewModel.importRecipe = { recipeImporter.launch(arrayOf("application/*")) }
+            //recipeViewModel.importRecipe = { recipeImporter.launch(arrayOf("application/*")) }
 
             HarmonizedTheme {
                 val coroutineScope = rememberCoroutineScope()
@@ -117,7 +150,8 @@ class MainActivity : ComponentActivity() {
 
                 val navHostController = rememberNavController()
 
-                recipeViewModel.showNavDrawer = { coroutineScope.launch { drawerState.open() } }
+                recipeViewModel.showNavDrawer =
+                    { coroutineScope.launch { drawerState.open() } }
                 recipeViewModel.navigate = { navHostController.navigate(it.toString()) }
 
                 // A surface container using the 'background' color from the theme

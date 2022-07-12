@@ -35,7 +35,7 @@ private const val TAG = "Home"
 fun Home(viewModel: RecipeViewModel) {
     Home(
         { viewModel.showNavDrawer() },
-        viewModel.recipes.values.toList(),
+        viewModel.recipes,
         importRecipe = { viewModel.importRecipe() },
         navigateToRecipe = viewModel::navigateToRecipe
     )
