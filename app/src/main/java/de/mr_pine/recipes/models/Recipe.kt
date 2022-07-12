@@ -1,12 +1,12 @@
 package de.mr_pine.recipes.models
 
 import de.mr_pine.recipes.models.instructions.InstructionSubmodels
+import de.mr_pine.recipes.models.instructions.RecipeInstruction
 import de.mr_pine.recipes.models.instructions.RecipeInstructions
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.descriptors.SerialDescriptor
-import kotlinx.serialization.descriptors.buildClassSerialDescriptor
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 import kotlinx.serialization.modules.SerializersModule
@@ -32,22 +32,26 @@ data class Recipe(
 
 @ExperimentalSerializationApi
 object RecipeSerializer: KSerializer<Recipe> {
-    override val descriptor: SerialDescriptor = buildClassSerialDescriptor("Recipe") {
-        element("instructions", RecipeInstructions.serializer().descriptor)
-        element("metadata", RecipeMetadata.serializer().descriptor)
-        element("ingredients", RecipeIngredients.serializer().descriptor)
-    }
+    @Serializable
+    data class RecipeBackbone(
+        val metadata: RecipeMetadata,
+        val ingredients: List<RecipeIngredient>,
+        val instructions: List<RecipeInstruction>
+    )
+
+    override val descriptor: SerialDescriptor = RecipeBackbone.serializer().descriptor
 
     override fun deserialize(decoder: Decoder): Recipe {
+        val backbone = decoder.decodeSerializableValue(RecipeBackbone.serializer())
         return Recipe(
-            instructions = RecipeInstructions.serializer().deserialize(decoder),
-            metadata = RecipeMetadata.serializer().deserialize(decoder),
-            ingredients = RecipeIngredients.serializer().deserialize(decoder)
+            instructions = RecipeInstructions(backbone.instructions),
+            metadata = backbone.metadata,
+            ingredients = RecipeIngredients(backbone.ingredients)
         )
     }
 
     override fun serialize(encoder: Encoder, value: Recipe) {
-        TODO("Not yet implemented")
+        encoder.encodeSerializableValue(RecipeBackbone.serializer(), RecipeBackbone(value.metadata, value.ingredients.ingredients, value.instructions.instructions))
     }
 }
 

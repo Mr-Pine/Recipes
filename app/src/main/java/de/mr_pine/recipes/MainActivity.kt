@@ -22,9 +22,10 @@ import androidx.core.view.WindowCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import de.mr_pine.recipes.models.*
 import de.mr_pine.recipes.models.instructions.InstructionSubmodels
 import de.mr_pine.recipes.models.instructions.RecipeInstruction
-import de.mr_pine.recipes.models.module
+import de.mr_pine.recipes.models.instructions.RecipeInstructions
 import de.mr_pine.recipes.screens.Destination
 import de.mr_pine.recipes.screens.RecipeNavHost
 import de.mr_pine.recipes.ui.theme.HarmonizedTheme
@@ -85,17 +86,32 @@ class MainActivity : ComponentActivity() {
                 TAG,
                 "onCreate: ${
                     json.encodeToString(
-                        listOf(
-                            RecipeInstruction(
-                                buildAnnotatedString { append("dsigfdsoigjsdijgoidsjgiosdjgidsjfgisdg"); appendInlineContent("0", "dsoif"); append("fosidfgsd") },
+                        Recipe(
+                            metadata = RecipeMetadata(
+                                title = "test1"
+                            ),
+                            ingredients = RecipeIngredients(
+                                listOf(RecipeIngredient("Wasser", 300.amount))
+                            ),
+                            instructions = RecipeInstructions(
                                 listOf(
-                                    RecipeInstruction.EmbedData(
-                                        true,
-                                        InstructionSubmodels.TimerModel(600.seconds)
-                                    ),
-                                    RecipeInstruction.EmbedData(
-                                        true,
-                                        InstructionSubmodels.IngredientModel(ingredientName = "ghihfg")
+                                    RecipeInstruction(
+                                        buildAnnotatedString {
+                                            append("dsigfdsoigjsdijgoidsjgiosdjgidsjfgisdg"); appendInlineContent(
+                                            "0",
+                                            "dsoif"
+                                        ); append("fosidfgsd")
+                                        },
+                                        listOf(
+                                            RecipeInstruction.EmbedData(
+                                                true,
+                                                InstructionSubmodels.TimerModel(600.seconds)
+                                            ),
+                                            RecipeInstruction.EmbedData(
+                                                true,
+                                                InstructionSubmodels.IngredientModel(ingredientName = "ghihfg")
+                                            )
+                                        )
                                     )
                                 )
                             )
