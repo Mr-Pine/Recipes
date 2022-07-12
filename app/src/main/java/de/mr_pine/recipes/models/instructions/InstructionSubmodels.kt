@@ -3,29 +3,51 @@ package de.mr_pine.recipes.models.instructions
 import android.content.Context
 import android.content.Intent
 import android.provider.AlarmClock
-import android.util.Log
 import de.mr_pine.recipes.models.*
+import kotlinx.serialization.KSerializer
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.Transient
+import kotlinx.serialization.descriptors.SerialDescriptor
+import kotlinx.serialization.encoding.Decoder
+import kotlinx.serialization.encoding.Encoder
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
+import kotlin.time.DurationUnit
 
 private const val TAG = "InstructionSubmodels"
 
 interface InstructionSubmodels {
 
-    data class InstructionPart(val content: String, val type: PartType) {
-        enum class PartType(identifier: Int) {
-            TEXT(0), EMBED(1)
+    @Serializable(with = EmbedSerializer::class)
+    interface EmbedTypeModel {
+        val content: String
+    }
+
+    @Serializable
+    data class EmbedType(val type: String)
+
+    object EmbedSerializer : KSerializer<EmbedTypeModel> {
+        override val descriptor: SerialDescriptor
+            get() = TODO("Not yet implemented")
+
+        override fun deserialize(decoder: Decoder): EmbedTypeModel {
+            val type = EmbedType.serializer().deserialize(decoder)
+            return when (type.type) {
+                "Ingredient" -> IngredientModel.serializer().deserialize(decoder)
+                "Timer" -> TimerModel.serializer().deserialize(decoder)
+                else -> throw Exception("No valid type: ${type.type}")
+            }
+        }
+
+        override fun serialize(encoder: Encoder, value: EmbedTypeModel) {
+            TODO("Not yet implemented")
         }
     }
 
-    interface EmbedTypeModel {
-        var content: String
-    }
+    @Serializable
+    class TimerModel(@Serializable(with = SecondsSerializer::class) val duration: Duration) : EmbedTypeModel {
 
-    class TimerModel(rawContent: String) : EmbedTypeModel {
-
-        val duration: Duration = rawContent.toInt().seconds
-        override var content: String = duration.toString()
+        override val content: String = duration.toString()
 
         fun call(title: String, context: Context) {
             val intent = Intent(AlarmClock.ACTION_SET_TIMER).apply {
@@ -37,29 +59,33 @@ interface InstructionSubmodels {
         }
     }
 
-    class IngredientModel(private val rawContent: String) : EmbedTypeModel {
+    object SecondsSerializer: KSerializer<Duration> {
+        override val descriptor: SerialDescriptor
+            get() = TODO("Not yet implemented")
 
-        private val ingredientName: String = rawContent.extractString("Name")
-        private val displayName: String = try {
-            rawContent.extractString("Display")
-        } catch (e: Exception) {
-            Log.i(TAG, "No Displayname found "); ingredientName
+        override fun deserialize(decoder: Decoder): Duration {
+            return decoder.decodeInt().seconds
         }
-        private val amountRaw: String? = try {
-            rawContent.extractString("Amount")
-        } catch (e: Exception) {
-            Log.i(TAG, "No Amount found "); null
+
+        override fun serialize(encoder: Encoder, value: Duration) {
+            encoder.encodeInt(value.toInt(DurationUnit.SECONDS))
         }
-        private val noAmount: Boolean? = try {
-            rawContent.extractString("NoAmount").toBoolean()
-        } catch (e: Exception) {
-            Log.i(TAG, "NoAmount not found "); null
-        }
+    }
+
+    @Serializable
+    class IngredientModel(
+        private val ingredientName: String,
+        private val displayName: String = ingredientName,
+        private val amountRaw: String? = null,
+        private val noAmount: Boolean = false
+    ) : EmbedTypeModel {
+
+        @Transient
         var ingredient: RecipeIngredient? = null
-        override var content: String
-            get() = ingredient?.let { "${if(noAmount != true) "${it.amount} ${it.unit.displayValue()} " else ""}$displayName" }
+
+        override val content: String
+            get() = ingredient?.let { "${if (!noAmount) "${it.amount} ${it.unit.displayValue()} " else ""}$displayName" }
                 ?: "???"
-            set(new) {}
 
         fun receiveIngredient(
             getIngredientFraction: ((String, Float) -> RecipeIngredient)?,
@@ -84,20 +110,5 @@ interface InstructionSubmodels {
             }
         }
 
-    }
-
-
-    enum class EmbedType(val constructor: ((String) -> EmbedTypeModel)?) {
-        INGREDIENT(::IngredientModel), TIMER(::TimerModel), UNKNOWN(null);
-
-        companion object {
-            operator fun get(type: String): EmbedType {
-                return when (type.trim().lowercase()) {
-                    "ingredient" -> INGREDIENT
-                    "timer" -> TIMER
-                    else -> throw Exception("Bad type: $type")
-                }
-            }
-        }
     }
 }

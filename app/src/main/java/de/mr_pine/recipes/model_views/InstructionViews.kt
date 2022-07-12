@@ -44,6 +44,7 @@ private const val TAG = "InstructionViews"
 @ExperimentalMaterial3Api
 @Composable
 fun RecipeInstruction.InstructionCard(
+    index: Int,
     currentlyActiveIndex: Int,
     setCurrentlyActiveIndex: (Int) -> Unit,
     setNextActive: () -> Unit,
@@ -53,37 +54,6 @@ fun RecipeInstruction.InstructionCard(
 
     val active = currentlyActiveIndex == index
 
-    val annotatedContent by remember(content) {
-        mutableStateOf(buildAnnotatedString {
-            val elementList = content.split("(?<!\\\\)(([{][{])|([}][}]))".toRegex())
-            val elementOffset = if (elementList[0] == "") 1 else 0
-            val partList = elementList.filter { it != "" }.mapIndexed { index, s ->
-                InstructionSubmodels.InstructionPart(
-                    content = s,
-                    type = if (index % 2 == elementOffset) InstructionSubmodels.InstructionPart.PartType.TEXT else InstructionSubmodels.InstructionPart.PartType.EMBED
-                )
-            }
-            for (part in partList) {
-                when (part.type) {
-                    InstructionSubmodels.InstructionPart.PartType.TEXT -> {
-                        append(part.content)
-                    }
-                    InstructionSubmodels.InstructionPart.PartType.EMBED -> {
-                        val embedTypeResult = "@\\S+".toRegex().find(part.content)
-                            ?: throw Exception("Missing @[EmbedType]")
-
-                        val embedType = embedTypeResult.value
-
-                        val embedContent = part.content.removeRange(embedTypeResult.range)
-                            .trim()
-                        val inlineId = "$embedType \"$embedContent\""
-                        appendInlineContent(inlineId, "embed type: $embedType")
-                        inlineEmbeds[inlineId] = RecipeInstruction.EmbedData(enabled = true)
-                    }
-                }
-            }
-        })
-    }
 
     fun toggleDone() {
         done = !done
@@ -152,30 +122,11 @@ fun RecipeInstruction.InstructionCard(
             Column(modifier = Modifier.padding(12.dp)) {
                 SubcomposeLayout { constraints ->
 
-                    val inlineContent = inlineEmbeds.mapValues {
-                        val key = it.key
-                        var data = it.value.inlineContent
-                        if (data == null) {
-                            data = generateInlineContent(key, constraints = constraints) {
-                                val contentResult =
-                                    "(?<!\\\\)\".*(?<!\\\\)\"".toRegex().find(key)
-                                        ?: throw Exception("Badly formatted inline Id: $it")
-                                val content =
-                                    contentResult.value.substring(
-                                        1,
-                                        contentResult.value.length - 1
-                                    )
-                                val parts =
-                                    key.substring(0, contentResult.range.first).split(" ")
-                                val embedType = try {
-                                    InstructionSubmodels.EmbedType[parts[0].substring(1)]
-                                } catch (e: Exception) {
-                                    ShowError(e); InstructionSubmodels.EmbedType.UNKNOWN
-                                }
-                                val model = embedType.constructor?.invoke(content)
+                    val inlineContent = inlineEmbeds.mapIndexed { index, embedData ->
+                            val data = generateInlineContent(index.toString(), constraints = constraints) {
 
-                                when (model) {
-                                    is InstructionSubmodels.IngredientModel -> model.receiveIngredient(
+                                if (embedData is InstructionSubmodels.IngredientModel ) {
+                                    embedData.receiveIngredient(
                                         getIngredientFraction,
                                         getIngredientAbsolute
                                     )
@@ -238,14 +189,13 @@ fun RecipeInstruction.InstructionCard(
                                     labelText = model?.content ?: key
                                 )
                             }
-                        }
                         data
                     }
 
                     val contentPlaceable = subcompose("content") {
 
                         Text(
-                            text = annotatedContent,
+                            text = content,
                             inlineContent = inlineContent,
                             style = MaterialTheme.typography.bodyLarge.copy(
                                 fontSize = 20.sp,
