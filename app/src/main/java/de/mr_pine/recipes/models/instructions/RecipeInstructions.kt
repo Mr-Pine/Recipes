@@ -7,29 +7,16 @@ import androidx.compose.ui.text.Placeholder
 import androidx.compose.ui.text.PlaceholderVerticalAlign
 import androidx.compose.ui.unit.Constraints
 import de.mr_pine.recipes.models.RecipeDeserializable
-import de.mr_pine.recipes.models.extractFromList
+import kotlinx.serialization.Serializable
 
 private const val TAG = "RecipeInstructions"
 
-class RecipeInstructions(override val serialized: String, private val recipeTitle: String) :
-    RecipeDeserializable {
-
-    var instructions = mutableListOf<RecipeInstruction>()
-        private set
+@Serializable
+class RecipeInstructions(
+    var instructions: List<RecipeInstruction>
+) {
 
     var currentlyActiveIndex = mutableStateOf(0)
-
-    init {
-        deserialize()
-    }
-
-    override fun deserialize(forceDeserialization: Boolean): RecipeInstructions {
-        instructions = serialized.extractFromList()
-            .mapIndexed { index, serialized -> RecipeInstruction(serialized, index, recipeTitle) }
-            .toMutableList()
-
-        return this
-    }
 
     companion object {
         const val DataTag = "Instructions"
@@ -57,24 +44,5 @@ class RecipeInstruction(
     data class EmbedData(var enabled: Boolean, var inlineContent: InlineTextContent? = null)
 
     var inlineEmbeds = mutableStateMapOf<String, EmbedData>()
-}
-
-fun SubcomposeMeasureScope.generateInlineContent(
-    id: String,
-    constraints: Constraints = Constraints(),
-    content: @Composable () -> Unit
-): InlineTextContent {
-    val (inlineWidth, inlineHeight) = subcompose(id, content)[0].measure(constraints)
-        .let { Pair(it.width.toSp(), it.height.toSp()) }
-
-    return InlineTextContent(
-        Placeholder(
-            width = inlineWidth,
-            height = inlineHeight,
-            placeholderVerticalAlign = PlaceholderVerticalAlign.TextCenter
-        )
-    ) {
-        content()
-    }
 }
 

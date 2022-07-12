@@ -6,20 +6,18 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.res.stringResource
 import de.mr_pine.recipes.R
+import kotlinx.serialization.KSerializer
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.descriptors.PrimitiveKind
+import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
+import kotlinx.serialization.descriptors.SerialDescriptor
+import kotlinx.serialization.encoding.Decoder
+import kotlinx.serialization.encoding.Encoder
 
-class RecipeIngredients(override val serialized: String) : RecipeDeserializable {
-
-    var ingredients: MutableList<RecipeIngredient> = mutableListOf()
-
-    init {
-        deserialize()
-    }
-
-    override fun deserialize(forceDeserialization: Boolean): RecipeDeserializable {
-        ingredients = serialized.extractFromList().map { RecipeIngredient(it) }.toMutableList()
-
-        return this
-    }
+@Serializable
+class RecipeIngredients(
+    var ingredients: List<RecipeIngredient>
+) {
 
     fun getPartialIngredient(name: String, amount: IngredientAmount, unit: IngredientUnit) =
         ingredients.find { name == it.name }?.getPartial(amount, unit)
@@ -35,21 +33,13 @@ class RecipeIngredients(override val serialized: String) : RecipeDeserializable 
     }
 }
 
-class RecipeIngredient(override val serialized: String) : RecipeDeserializable {
-    var name: String = ""
-    var amount: IngredientAmount = 0.amount
+@Serializable
+class RecipeIngredient(
+    var name: String,
+    var amount: IngredientAmount = 0.amount,
     var unit: IngredientUnit = IngredientUnit.None
+){
     var isChecked by mutableStateOf(false)
-
-    init {
-        deserialize()
-    }
-
-    constructor(
-        name: String,
-        amount: IngredientAmount,
-        unit: IngredientUnit
-    ) : this("Name: \"$name\" Amount: \"$amount\" Unit: \"${unit.identifiers[0]}\"")
 
     fun getPartial(amount: IngredientAmount, unit: IngredientUnit): RecipeIngredient {
         return RecipeIngredient(name, amount, unit)
@@ -57,18 +47,6 @@ class RecipeIngredient(override val serialized: String) : RecipeDeserializable {
 
     fun getPartial(fraction: Float): RecipeIngredient {
         return RecipeIngredient(name, amount * fraction, unit)
-    }
-
-    override fun deserialize(forceDeserialization: Boolean): RecipeIngredient {
-        name = serialized.extractString("Name")
-        amount = serialized.extractString("Amount").replace(',', '.').toFloat().amount
-        unit = IngredientUnit.values()
-            .find { it.identifiers.contains(serialized.extractString("Unit")) }
-            ?: throw Exception("unknown unit in $serialized: ${serialized.extractString("Unit")}")
-
-        adjustUnit()
-
-        return this
     }
 
     private fun adjustUnit() {
@@ -96,9 +74,13 @@ inline val Float.amount: IngredientAmount get() = IngredientAmount(this)
 inline val Int.amount: IngredientAmount get() = IngredientAmount(this.toFloat())
 
 @JvmInline
+@Serializable(with = AmountSerializer::class)
 value class IngredientAmount(val value: Float) : Comparable<IngredientAmount> {
     override fun toString(): String =
-        if (value.toInt().toFloat() == value) value.toInt().toString() else String.format("%.2f", value)
+        if (value.toInt().toFloat() == value) value.toInt().toString() else String.format(
+            "%.2f",
+            value
+        )
 
     val roundToInt get() = IngredientAmount(value.toInt().toFloat())
 
@@ -112,6 +94,17 @@ value class IngredientAmount(val value: Float) : Comparable<IngredientAmount> {
     operator fun div(other: Int) = IngredientAmount(value.div(other))
 }
 
+object AmountSerializer: KSerializer<IngredientAmount> {
+    override fun deserialize(decoder: Decoder): IngredientAmount {
+        return decoder.decodeFloat().amount
+    }
+
+    override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("Amount", PrimitiveKind.STRING)
+
+    override fun serialize(encoder: Encoder, value: IngredientAmount) {
+        encoder.encodeFloat(value.value)
+    }
+}
 
 enum class IngredientUnit(
     val type: UnitType,

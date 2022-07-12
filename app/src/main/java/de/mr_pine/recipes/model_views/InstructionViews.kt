@@ -5,6 +5,7 @@ import androidx.compose.animation.*
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.text.InlineTextContent
 import androidx.compose.foundation.text.appendInlineContent
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.icons.Icons
@@ -16,9 +17,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.layout.SubcomposeLayout
+import androidx.compose.ui.layout.SubcomposeMeasureScope
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.Placeholder
+import androidx.compose.ui.text.PlaceholderVerticalAlign
 import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.google.android.material.color.MaterialColors
@@ -28,7 +33,6 @@ import de.mr_pine.recipes.models.IngredientAmount
 import de.mr_pine.recipes.models.RecipeIngredient
 import de.mr_pine.recipes.models.instructions.InstructionSubmodels
 import de.mr_pine.recipes.models.instructions.RecipeInstruction
-import de.mr_pine.recipes.models.instructions.generateInlineContent
 import de.mr_pine.recipes.screens.ShowError
 import de.mr_pine.recipes.ui.theme.Extended
 
@@ -337,5 +341,25 @@ fun RecipeChip(
                 selectedBorderWidth = 1.dp
             )
         )
+    }
+}
+
+
+fun SubcomposeMeasureScope.generateInlineContent(
+    id: String,
+    constraints: Constraints = Constraints(),
+    content: @Composable () -> Unit
+): InlineTextContent {
+    val (inlineWidth, inlineHeight) = subcompose(id, content)[0].measure(constraints)
+        .let { Pair(it.width.toSp(), it.height.toSp()) }
+
+    return InlineTextContent(
+        Placeholder(
+            width = inlineWidth,
+            height = inlineHeight,
+            placeholderVerticalAlign = PlaceholderVerticalAlign.TextCenter
+        )
+    ) {
+        content()
     }
 }

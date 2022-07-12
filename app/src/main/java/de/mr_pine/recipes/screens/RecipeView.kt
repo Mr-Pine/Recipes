@@ -32,8 +32,6 @@ import de.mr_pine.recipes.viewModels.RecipeViewModel
 fun RecipeView(viewModel: RecipeViewModel) {
     val currentRecipe = viewModel.recipes[viewModel.currentFileName]
     if (currentRecipe != null) {
-        if (currentRecipe.ingredients == null || currentRecipe.instructions == null || currentRecipe.metadata == null)
-            currentRecipe.deserialize(true)
         RecipeView(recipe = currentRecipe, openDrawer = viewModel.showNavDrawer, viewModel::loadRecipe)
     } else {
         Row(

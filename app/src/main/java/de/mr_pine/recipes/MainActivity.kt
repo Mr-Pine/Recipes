@@ -23,7 +23,6 @@ import androidx.core.view.WindowCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import de.mr_pine.recipes.models.Recipe
 import de.mr_pine.recipes.screens.Destination
 import de.mr_pine.recipes.screens.RecipeNavHost
 import de.mr_pine.recipes.ui.theme.HarmonizedTheme
@@ -31,6 +30,8 @@ import de.mr_pine.recipes.ui.theme.RecipesTheme
 import de.mr_pine.recipes.viewModels.RecipeViewModel
 import de.mr_pine.recipes.viewModels.RecipeViewModelFactory
 import kotlinx.coroutines.launch
+import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.json.Json
 import java.io.File
 
 /*
@@ -72,7 +73,9 @@ class MainActivity : ComponentActivity() {
                 //recipeViewModel.loadRecipeFiles()
             }
 
-            recipeViewModel.recipes["test"] = (Recipe(fileName = "test",serialized = resources.openRawResource(R.raw.rezept).bufferedReader().readText()))
+            val json = Json { ignoreUnknownKeys = true }
+
+            recipeViewModel.recipes["test"] = json.decodeFromString(resources.openRawResource(R.raw.rezept).bufferedReader().readText())
             recipeViewModel.currentFileName = "test"
 
             val recipeImporter =
