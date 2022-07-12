@@ -83,7 +83,7 @@ interface InstructionSubmodels {
         @SerialName("display")
         private val displayName: String = ingredientName,
         private val amountRaw: String? = null,
-        @SerialName("noAmount")
+        @SerialName("no_amount")
         private val noAmount: Boolean = false
     ) : EmbedTypeModel {
 

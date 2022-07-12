@@ -15,7 +15,7 @@ import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 
 @Serializable
-class RecipeIngredients(
+data class RecipeIngredients(
     var ingredients: List<RecipeIngredient>
 ) {
 
@@ -26,11 +26,6 @@ class RecipeIngredients(
     fun getPartialIngredient(name: String, fraction: Float) =
         ingredients.find { name == it.name }?.getPartial(fraction)
             ?: throw Exception("Ingredient $name not found")
-
-    companion object {
-
-        const val DataTag = "Ingredients"
-    }
 }
 
 @Serializable
@@ -47,6 +42,10 @@ class RecipeIngredient(
 
     fun getPartial(fraction: Float): RecipeIngredient {
         return RecipeIngredient(name, amount * fraction, unit)
+    }
+
+    init {
+        adjustUnit()
     }
 
     private fun adjustUnit() {
@@ -69,6 +68,8 @@ class RecipeIngredient(
         }
     }
 }
+
+
 
 inline val Float.amount: IngredientAmount get() = IngredientAmount(this)
 inline val Int.amount: IngredientAmount get() = IngredientAmount(this.toFloat())

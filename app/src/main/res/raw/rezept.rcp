@@ -6,43 +6,43 @@
   "ingredients": [
     {
       "name": "Butter",
-      "Amount": 75,
-      "Unit": "grams"
+      "amount": 75,
+      "unit": "Gram"
     },
     {
       "name": "Zwiebel",
-      "Amount": 0.5,
-      "Unit": "none"
+      "amount": 0.5,
+      "unit": "None"
     },
     {
       "name": "Weißwein",
-      "Amount": 150,
-      "Unit": "ml"
+      "amount": 150,
+      "unit": "Milliliter"
     },
     {
       "name": "Hühnerbrühe",
-      "Amount": 1,
-      "Unit": "liter"
+      "amount": 1,
+      "unit": "Liter"
     },
     {
       "name": "Carnarolireis",
-      "Amount": 200,
-      "Unit": "grams"
+      "amount": 200,
+      "unit": "Gram"
     },
     {
       "name": "Parmesan",
-      "Amount": 50,
-      "Unit": "grams"
+      "amount": 50,
+      "unit": "Gram"
     },
     {
       "name": "Speck (opt.)",
-      "Amount": 70,
-      "Unit": "grams"
+      "amount": 70,
+      "unit": "Gram"
     },
     {
       "name": "Paprika o.ä. (opt.) ca.",
-      "Amount": 100,
-      "Unit": "grams"
+      "amount": 100,
+      "unit": "Gram"
     }
   ],
   "instructions": [
@@ -65,14 +65,14 @@
           "Ingredient",
           {
             "name": "Zwiebel",
-            "noAmount": true
+            "no_amount": true
           }
         ],
         [
           "Ingredient",
           {
             "name": "Butter",
-            "Amount": "@Fraction Fraction: '0.133333333'"
+            "amount": "@Fraction Fraction: '0.133333333'"
           }
         ],
         [
@@ -86,7 +86,7 @@
           "Ingredient",
           {
             "name": "Butter",
-            "Amount": "@Fraction Fraction: '0.2'"
+            "amount": "@Fraction Fraction: '0.2'"
           }
         ]
       ]
@@ -146,7 +146,7 @@
           "Ingredient",
           {
             "name": "Butter",
-            "Amount": "@Fraction Fraction: '0.666666667'"
+            "amount": "@Fraction Fraction: '0.666666667'"
           }
         ],
         [
@@ -160,7 +160,7 @@
           {
             "name": "Speck (opt.)",
             "display": "Speck",
-            "noAmount": true
+            "no_amount": true
           }
         ]
       ]
