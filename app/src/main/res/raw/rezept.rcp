@@ -1,49 +1,64 @@
 Metadata: {
-    Title: "Leckeres Gericht 2"
-    Author: "David Kiefer"
+	Title: "Risotto"
+	Portions: "2"
 }
 Ingredients: {
 [
-    Name: "Mehl"
-    Amount: "6000"
-    Unit: "grams"
+	Name: "Butter"
+	Amount: "75"
+	Unit: "grams"
 ]
 [
-    Name: "Zucker"
-    Amount: "3500"
-    Unit: "grams"
+	Name: "Zwiebel"
+	Amount: "0.5"
+	Unit: "none"
 ]
 [
-    Name: "Eier"
-    Amount: "4"
-    Unit: "none"
+	Name: "Weißwein"
+	Amount: "150"
+	Unit: "ml"
 ]
 [
-    Name: "Butter"
-    Amount: "0,1"
-    Unit: "kilogramm"
+	Name: "Hühnerbrühe"
+	Amount: "1"
+	Unit: "liter"
+]
+[
+	Name: "Carnarolireis"
+	Amount: "200"
+	Unit: "grams"
+]
+[
+	Name: "Parmesan"
+	Amount: "50"
+	Unit: "grams"
+]
+[
+	Name: "Speck (opt.)"
+	Amount: "70"
+	Unit: "grams"
+]
+[
+	Name: "Paprika o.ä. (opt.) ca."
+	Amount: "100"
+	Unit: "grams"
 ]
 }
 Instructions: {
 [
-    {{5400 @Timer}} Dies ist Schritt 1 des Rezepts. Man benötigt dafür {{@Ingredient Name: "Mehl" Display: "Weizenmehl" Amount: "@Absolute AbsoluteAmount: '2' Unit: 'kg'"}}. Ja so ist das
+	Optional:
+	{{@Ingredient Name: "Speck (opt.)" Display: "Speck"}} in die kalte Pfanne geben und anbraten. Danach aus der Pfanne nehmen
 ]
 [
-    Dieroiudnfiusdnfgsadg
-    fdgdopfjgopidsrfjmgoidfsjgoidfsjmmg
-    dfpighhjdsofihgjosdfijhodfinshodfgh
-    dfsphijdfopihjodfisjhoidfhidhsfiopühkfhdspohdfpoh
+	Klein geschnittene {{@Ingredient Name: "Zwiebel" NoAmount: "true"}} in {{@Ingredient Name: "Butter" Amount: "@Fraction Fraction: '0.133333333'"}} anschwitzen. Dann den {{@Ingredient Name: "Carnarolireis" Display: "Reis"}} hinzugeben, durch Umrühren mit weiteren {{@Ingredient Name: "Butter" Amount: "@Fraction Fraction: '0.2'"}} glasiseren und bei mittlerer Hitze braten
 ]
 [
-    Dieroiudnfiusdnfgsadg
-    fdgdopfjgopidsrfjmgoidfsjgoidfsjmmg
-    dfpighhjdsofihgjosdfijhodfinshodfgh
-    dfsphijdfopihjodfisjhoidfhidhsfiopühkfhdspohdfpoh
+	Wenn der Reis heiß ist {{@Ingredient Name: "Weißwein" Display: "Wein"}} dazuschütten und rühren bis der Wein verdampft ist
 ]
 [
-    Dieroiudnfiusdnfgsadg
-    fdgdopfjgopidsrfjmgoidfsjgoidfsjmmg
-    dfpighhjdsofihgjosdfijhodfinshodfgh
-    dfsphijdfopihjodfisjhoidfhidhsfiopühkfhdspohdfpoh
+	Die {{@Ingredient Name: "Hühnerbrühe"}} eine Schöpfkelle nach der anderen dazugeben. Dazwischen immer warten bis die Flüssigkeit fast ganz aufgenommen wurde, der Reis aber noch nicht trocken ist. Nach ca. {{@Timer 600}} {{@Ingredient Name: "Paprika o.ä. (opt.) ca."}} hinzugeben
+]
+[
+	Nach weiteren ca. {{@Timer 780}} probieren ob der Reis fertig ist, sonst weiter köcheln lassen. Ist er fertig {{@Ingredient Name: "Butter" Amount: "@Fraction Fraction: '0.666666667'"}}, {{@Ingredient Name: "Parmesan"}} und den {{@Ingredient Name: "Speck (opt.)" Display: "Speck" NoAmount: "true"}} dazugeben
 ]
 }

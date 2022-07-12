@@ -24,6 +24,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import de.mr_pine.recipes.models.Destination
+import de.mr_pine.recipes.models.Recipe
 import de.mr_pine.recipes.models.RecipeNavHost
 import de.mr_pine.recipes.ui.theme.HarmonizedTheme
 import de.mr_pine.recipes.ui.theme.RecipesTheme
@@ -68,8 +69,11 @@ class MainActivity : ComponentActivity() {
                 viewModel(factory = RecipeViewModelFactory(recipeFolder))
 
             LaunchedEffect(null) {
-                recipeViewModel.loadRecipeFiles()
+                //recipeViewModel.loadRecipeFiles()
             }
+
+            recipeViewModel.recipes["test"] = (Recipe(fileName = "test",serialized = resources.openRawResource(R.raw.rezept).bufferedReader().readText()))
+            recipeViewModel.currentFileName = "test"
 
             val recipeImporter =
                 rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->

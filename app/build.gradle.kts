@@ -4,6 +4,7 @@ plugins {
 }
 
 val composeVersion = "1.3.0-alpha01"
+val composeCompilerVersion = "1.2.0"
 val lifecycleVersion = "2.6.0-alpha01"
 
 android {
@@ -40,7 +41,7 @@ android {
         compose = true
     }
     composeOptions {
-        kotlinCompilerExtensionVersion = composeVersion
+        kotlinCompilerExtensionVersion = composeCompilerVersion
     }
     packagingOptions {
         resources.excludes += "META-INF/AL2.0"
