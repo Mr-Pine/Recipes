@@ -38,7 +38,7 @@
           },
           "amount": {
             "description": "The amount of this ingredient",
-            "type": "nuber"
+            "type": "number"
           },
           "unit": {
             "description": "The unit the amount is specipied in",
