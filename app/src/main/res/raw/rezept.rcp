@@ -11,8 +11,7 @@
     },
     {
       "name": "Zwiebel",
-      "amount": 0.5,
-      "unit": "None"
+      "amount": 0.5
     },
     {
       "name": "Weißwein",
@@ -53,7 +52,8 @@
           "Ingredient",
           {
             "name": "Speck (opt.)",
-            "display": "Speck"
+            "display": "Speck",
+            "sldhfsd": "sdoifhsdoi"
           }
         ]
       ]

@@ -33,7 +33,7 @@ class RecipeInstruction(
     @Serializable(with = AnnotatedSerializer::class)
     val content: AnnotatedString,
     @SerialName("replacements")
-    val inlineEmbeds: List<EmbedData>
+    val inlineEmbeds: List<EmbedData> = listOf()
 ) : InstructionSubmodels {
 
     var done by mutableStateOf(false)
