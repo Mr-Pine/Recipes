@@ -13,16 +13,12 @@ import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
 import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
+import kotlin.math.roundToInt
 
 @Serializable
 data class RecipeIngredients(
     var ingredients: List<RecipeIngredient>
 ) {
-
-    fun getPartialIngredient(name: String, amount: IngredientAmount, unit: IngredientUnit) =
-        ingredients.find { name == it.name }?.getPartial(amount, unit)
-            ?: throw Exception("Ingredient not found")
-
     fun getPartialIngredient(name: String, fraction: Float) =
         ingredients.find { name == it.name }?.getPartial(fraction)
             ?: throw Exception("Ingredient $name not found")
@@ -33,12 +29,8 @@ class RecipeIngredient(
     var name: String,
     var amount: IngredientAmount = 0.amount,
     var unit: IngredientUnit = IngredientUnit.None
-){
+) {
     var isChecked by mutableStateOf(false)
-
-    fun getPartial(amount: IngredientAmount, unit: IngredientUnit): RecipeIngredient {
-        return RecipeIngredient(name, amount, unit)
-    }
 
     fun getPartial(fraction: Float): RecipeIngredient {
         return RecipeIngredient(name, amount * fraction, unit)
@@ -70,7 +62,6 @@ class RecipeIngredient(
 }
 
 
-
 inline val Float.amount: IngredientAmount get() = IngredientAmount(this)
 inline val Int.amount: IngredientAmount get() = IngredientAmount(this.toFloat())
 
@@ -78,10 +69,10 @@ inline val Int.amount: IngredientAmount get() = IngredientAmount(this.toFloat())
 @Serializable(with = AmountSerializer::class)
 value class IngredientAmount(val value: Float) : Comparable<IngredientAmount> {
     override fun toString(): String =
-        if (value.toInt().toFloat() == value) value.toInt().toString() else String.format(
-            "%.2f",
-            value
-        )
+        if (String.format("%.2f", value.roundToInt().toFloat()) == String.format("%.2f", value))
+            value.roundToInt().toString()
+        else
+            String.format("%.2f", value)
 
     val roundToInt get() = IngredientAmount(value.toInt().toFloat())
 
@@ -95,12 +86,13 @@ value class IngredientAmount(val value: Float) : Comparable<IngredientAmount> {
     operator fun div(other: Int) = IngredientAmount(value.div(other))
 }
 
-object AmountSerializer: KSerializer<IngredientAmount> {
+object AmountSerializer : KSerializer<IngredientAmount> {
     override fun deserialize(decoder: Decoder): IngredientAmount {
         return decoder.decodeFloat().amount
     }
 
-    override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("Amount", PrimitiveKind.STRING)
+    override val descriptor: SerialDescriptor =
+        PrimitiveSerialDescriptor("Amount", PrimitiveKind.STRING)
 
     override fun serialize(encoder: Encoder, value: IngredientAmount) {
         encoder.encodeFloat(value.value)
@@ -108,14 +100,9 @@ object AmountSerializer: KSerializer<IngredientAmount> {
 }
 
 enum class IngredientUnit(
-    val type: UnitType,
-    val identifiers: List<String>,
     val unitRelation: UnitRelation? = null
 ) {
-    Gram(
-        type = UnitType.Mass,
-        identifiers = listOf("gramm", "g", "gram", "grams")
-    ) {
+    Gram {
         @Composable
         override fun displayValueLong(): String {
             return stringResource(R.string.grams)
@@ -126,8 +113,6 @@ enum class IngredientUnit(
         }
     },
     Kilogram(
-        type = UnitType.Mass,
-        identifiers = listOf("kilogramm", "kg", "kilogram", "kilograms", "kilo"),
         unitRelation = UnitRelation(1000f, Gram)
     ) {
         @Composable
@@ -139,10 +124,7 @@ enum class IngredientUnit(
             return "kg"
         }
     },
-    Milliliter(
-        type = UnitType.Volume,
-        identifiers = listOf("milliliter", "milliliters", "millilitre", "millilitres", "ml")
-    ) {
+    Milliliter {
         override fun displayValue(): String {
             return "ml"
         }
@@ -154,8 +136,6 @@ enum class IngredientUnit(
 
     },
     Liter(
-        type = UnitType.Volume,
-        identifiers = listOf("liter", "liters", "litre", "litres", "l"),
         unitRelation = UnitRelation(1000f, Milliliter)
     ) {
         override fun displayValue(): String {
@@ -168,7 +148,7 @@ enum class IngredientUnit(
         }
 
     },
-    None(type = UnitType.None, identifiers = listOf("none")) {
+    None {
         @Composable
         override fun displayValueLong(): String {
             return ""
@@ -183,12 +163,6 @@ enum class IngredientUnit(
 
     @Composable
     abstract fun displayValueLong(): String
-}
-
-enum class UnitType {
-    Volume,
-    Mass,
-    None
 }
 
 class UnitRelation(

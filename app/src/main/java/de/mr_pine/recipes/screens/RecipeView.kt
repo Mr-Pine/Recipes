@@ -137,7 +137,6 @@ fun RecipeView(recipe: Recipe, openDrawer: () -> Unit, loadRecipe: (Recipe) -> U
                                 recipe.instructions.instructions.size
                             )
                         },
-                        getIngredientAbsolute = recipe.ingredients.let { it::getPartialIngredient },
                         getIngredientFraction = recipe.ingredients.let { it::getPartialIngredient }
                     )
                 }

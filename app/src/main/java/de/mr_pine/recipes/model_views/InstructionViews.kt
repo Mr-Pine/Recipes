@@ -27,7 +27,6 @@ import androidx.compose.ui.unit.sp
 import com.google.android.material.color.MaterialColors
 import de.mr_pine.recipes.R
 import de.mr_pine.recipes.components.swipeabe.Swipeable
-import de.mr_pine.recipes.models.IngredientAmount
 import de.mr_pine.recipes.models.RecipeIngredient
 import de.mr_pine.recipes.models.instructions.InstructionSubmodels
 import de.mr_pine.recipes.models.instructions.RecipeInstruction
@@ -46,7 +45,6 @@ fun RecipeInstruction.InstructionCard(
     recipeTitle: String,
     setCurrentlyActiveIndex: (Int) -> Unit,
     setNextActive: () -> Unit,
-    getIngredientAbsolute: ((String, IngredientAmount, de.mr_pine.recipes.models.IngredientUnit) -> RecipeIngredient)?,
     getIngredientFraction: ((String, Float) -> RecipeIngredient)?,
 ) {
 
@@ -125,10 +123,7 @@ fun RecipeInstruction.InstructionCard(
                             generateInlineContent(index.toString(), constraints = constraints) {
 
                                 if (embedData.embed is InstructionSubmodels.IngredientModel) {
-                                    embedData.embed.receiveIngredient(
-                                        getIngredientFraction,
-                                        getIngredientAbsolute
-                                    )
+                                    embedData.embed.receiveIngredient(getIngredientFraction)
                                 }
                                 val defaultChipColor =
                                     SuggestionChipDefaults.elevatedSuggestionChipColors()
@@ -151,7 +146,7 @@ fun RecipeInstruction.InstructionCard(
                                 val context = LocalContext.current
 
                                 var enabled by remember(embedData.enabled) {
-                                    mutableStateOf( embedData.enabled )
+                                    mutableStateOf(embedData.enabled)
                                 }
 
                                 fun setEnabled(value: Boolean) {
@@ -257,10 +252,10 @@ fun RecipeChip(
         selectedTrailingIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
         disabledContainerColor = FilterChipDefaults.elevatedFilterChipColors()
             .containerColor(enabled = false, selected = false).value.let {
-            if (!selected) it.copy(
-                alpha = 0.0f
-            ) else it
-        }
+                if (!selected) it.copy(
+                    alpha = 0.0f
+                ) else it
+            }
     )
 
     val elevation = if (selected) FilterChipDefaults.elevatedFilterChipElevation(

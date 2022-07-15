@@ -48,6 +48,7 @@ import kotlin.time.Duration.Companion.seconds
  * TODO: Loading of recipes & receiving of intents, importing files
  * TODO: Main navigation from Homescreen
  * TODO: Implement Settings (see XKCDFeed)
+ * TODO: No screen lock when viewing Recipe
  */
 
 private const val TAG = "MainActivity"
