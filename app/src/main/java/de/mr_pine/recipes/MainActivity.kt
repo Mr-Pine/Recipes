@@ -1,8 +1,12 @@
 package de.mr_pine.recipes
 
 import android.os.Bundle
+import android.provider.OpenableColumns
+import android.util.Log
 import androidx.activity.ComponentActivity
+import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.fillMaxSize
@@ -71,19 +75,19 @@ class MainActivity : ComponentActivity() {
                 ))
 
             LaunchedEffect(null) {
-                //recipeViewModel.loadRecipeFiles()
+                recipeViewModel.loadRecipeFiles()
             }
 
-            recipeViewModel.getRecipeFromString(
+            /*recipeViewModel.getRecipeFromString(
                 resources.openRawResource(R.raw.rezept).bufferedReader().readText()
             )?.let {
                 recipeViewModel.recipes.add(
                     it
                 )
             }
-            recipeViewModel.currentRecipe = recipeViewModel.recipes[0]
+            recipeViewModel.currentRecipe = recipeViewModel.recipes[0]*/
 
-            /*val recipeImporter =
+            val recipeImporter =
                 rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
                     val filename = uri?.let {
                         contentResolver.query(it, arrayOf(OpenableColumns.DISPLAY_NAME), null, null)
@@ -99,14 +103,15 @@ class MainActivity : ComponentActivity() {
                         content?.let {
                             recipeViewModel.saveRecipeFile(
                                 it,
-                                filename
+                                filename,
+                                true
                             )
                         }
                        Log.d(TAG, "onCreate: importing $content")
                     }
-                }*/
+                }
 
-            //recipeViewModel.importRecipe = { recipeImporter.launch(arrayOf("application/*")) }
+            recipeViewModel.importRecipe = { recipeImporter.launch(arrayOf("application/*")) }
 
             HarmonizedTheme {
                 val coroutineScope = rememberCoroutineScope()

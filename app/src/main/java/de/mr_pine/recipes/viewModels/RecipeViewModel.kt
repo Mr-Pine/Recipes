@@ -18,7 +18,8 @@ import java.io.FileFilter
 
 private const val TAG = "RecipeViewModel"
 
-class RecipeViewModel(private val recipeFolder: File, private val recipeSchema: JSONSchema) : ViewModel() {
+class RecipeViewModel(private val recipeFolder: File, private val recipeSchema: JSONSchema) :
+    ViewModel() {
     private val json = Json { ignoreUnknownKeys = true; serializersModule = module }
 
     var currentRecipe: Recipe? by mutableStateOf(null)
@@ -46,17 +47,22 @@ class RecipeViewModel(private val recipeFolder: File, private val recipeSchema: 
     }
 
     fun getRecipeFromString(raw: String): Recipe? {
-        val output = recipeSchema.validateDetailed(raw)
-        return if(output.valid) {
-            Log.d(TAG, "getRecipeFromString: Recipe validation succeded")
-            json.decodeFromString(raw)
-        } else {
-            Log.i(TAG, "getRecipeFromString: Recipe validation failed: ${output.error}")
+        return try {
+            val output = recipeSchema.validateDetailed(raw)
+            if (output.valid) {
+                Log.d(TAG, "getRecipeFromString: Recipe validation succeded")
+                json.decodeFromString(raw)
+            } else {
+                Log.i(TAG, "getRecipeFromString: Recipe validation failed: ${output.error}")
+                null
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "getRecipeFromString: Error while validating", e)
             null
         }
     }
 
-    /*fun saveRecipeFile(content: String, fileName: String) {
+    fun saveRecipeFile(content: String, fileName: String, loadRecipe: Boolean = false) {
         val fileNameExtension = "$fileName${if (fileName.endsWith(".rcp")) "" else ".rcp"}"
         val recipeFile = File(recipeFolder, fileNameExtension)
         recipeFile.apply {
@@ -66,9 +72,10 @@ class RecipeViewModel(private val recipeFolder: File, private val recipeSchema: 
         recipeFiles.indexOfFirst { it.name == fileNameExtension }
             .takeIf { it >= 0 }?.let {
                 recipeFiles[it] = recipeFile
-                recipes[fileNameExtension] = Recipe(fileNameExtension, serialized = content)
+                if (loadRecipe)
+                    getRecipeFromString(content)?.let { it1 -> recipes.add(it1) }
             }
-    }*/
+    }
 
     fun loadRecipe(recipe: Recipe) {
         currentRecipe = recipe
