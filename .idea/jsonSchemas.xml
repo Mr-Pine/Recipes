@@ -7,7 +7,7 @@
           <value>
             <SchemaInfo>
               <option name="name" value=".rcp" />
-              <option name="relativePathToSchema" value="rcp.schema.json" />
+              <option name="relativePathToSchema" value="app/src/main/res/raw/rcp.schema" />
               <option name="schemaVersion" value="JSON Schema version 7" />
               <option name="patterns">
                 <list>

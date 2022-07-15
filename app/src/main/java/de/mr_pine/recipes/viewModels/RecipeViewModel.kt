@@ -12,12 +12,13 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
+import net.pwall.json.schema.JSONSchema
 import java.io.File
 import java.io.FileFilter
 
 private const val TAG = "RecipeViewModel"
 
-class RecipeViewModel(private val recipeFolder: File) : ViewModel() {
+class RecipeViewModel(private val recipeFolder: File, private val recipeSchema: JSONSchema) : ViewModel() {
     private val json = Json { ignoreUnknownKeys = true; serializersModule = module }
 
     var currentRecipe: Recipe? by mutableStateOf(null)
@@ -39,12 +40,19 @@ class RecipeViewModel(private val recipeFolder: File) : ViewModel() {
             }.distinctBy { it.name }.toMutableStateList()
             recipes = mutableStateListOf()
             recipeFiles.forEach { recipeFile ->
-                try {
-                    recipes.add( json.decodeFromString(recipeFile.readText()))
-                } catch (e: Exception) {
-                    Log.e(TAG, "loadRecipeFiles: $recipeFile not properly formatted")
-                }
+                getRecipeFromString(recipeFile.readText())?.let { recipes.add(it) }
             }
+        }
+    }
+
+    fun getRecipeFromString(raw: String): Recipe? {
+        val output = recipeSchema.validateDetailed(raw)
+        return if(output.valid) {
+            Log.d(TAG, "getRecipeFromString: Recipe validation succeded")
+            json.decodeFromString(raw)
+        } else {
+            Log.i(TAG, "getRecipeFromString: Recipe validation failed: ${output.error}")
+            null
         }
     }
 
@@ -77,13 +85,15 @@ class RecipeViewModel(private val recipeFolder: File) : ViewModel() {
 }
 
 class RecipeViewModelFactory(
-    private val recipeFolder: File
+    private val recipeFolder: File,
+    private val recipeSchema: JSONSchema
 ) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(RecipeViewModel::class.java)) {
             @Suppress("UNCHECKED_CAST")
             return RecipeViewModel(
-                recipeFolder
+                recipeFolder,
+                recipeSchema
             ) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class")

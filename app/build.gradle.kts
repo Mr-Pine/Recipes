@@ -78,4 +78,5 @@ dependencies {
     androidTestImplementation("androidx.compose.ui:ui-test-junit4:$composeVersion")
 
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.3.3")
+    implementation("net.pwall.json:json-kotlin-schema:0.35")
 }

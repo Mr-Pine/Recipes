@@ -1,14 +1,12 @@
 package de.mr_pine.recipes
 
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.imePadding
-import androidx.compose.foundation.text.appendInlineContent
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -16,16 +14,11 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.core.view.WindowCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import de.mr_pine.recipes.models.*
-import de.mr_pine.recipes.models.instructions.InstructionSubmodels
-import de.mr_pine.recipes.models.instructions.RecipeInstruction
-import de.mr_pine.recipes.models.instructions.RecipeInstructions
 import de.mr_pine.recipes.screens.Destination
 import de.mr_pine.recipes.screens.RecipeNavHost
 import de.mr_pine.recipes.ui.theme.HarmonizedTheme
@@ -34,11 +27,8 @@ import de.mr_pine.recipes.viewModels.RecipeViewModel
 import de.mr_pine.recipes.viewModels.RecipeViewModelFactory
 import kotlinx.coroutines.launch
 import kotlinx.serialization.ExperimentalSerializationApi
-import kotlinx.serialization.decodeFromString
-import kotlinx.serialization.encodeToString
-import kotlinx.serialization.json.Json
+import net.pwall.json.schema.JSONSchema
 import java.io.File
-import kotlin.time.Duration.Companion.seconds
 
 /*
  * TODO: Splash screen: https://developer.android.com/guide/topics/ui/splash-screen
@@ -75,57 +65,22 @@ class MainActivity : ComponentActivity() {
                 File(getExternalFilesDir(null), getString(R.string.externalFiles_subfolder))
 
             val recipeViewModel: RecipeViewModel =
-                viewModel(factory = RecipeViewModelFactory(recipeFolder))
+                viewModel(factory = RecipeViewModelFactory(
+                    recipeFolder = recipeFolder,
+                    recipeSchema = JSONSchema.parse(resources.openRawResource(R.raw.rcp).bufferedReader().readText())
+                ))
 
             LaunchedEffect(null) {
                 //recipeViewModel.loadRecipeFiles()
             }
 
-            val json = Json { ignoreUnknownKeys = true; serializersModule = module }
-
-            Log.d(
-                TAG,
-                "onCreate: ${
-                    json.encodeToString(
-                        Recipe(
-                            metadata = RecipeMetadata(
-                                title = "test1"
-                            ),
-                            ingredients = RecipeIngredients(
-                                listOf(RecipeIngredient("Wasser", 300.amount))
-                            ),
-                            instructions = RecipeInstructions(
-                                listOf(
-                                    RecipeInstruction(
-                                        buildAnnotatedString {
-                                            append("dsigfdsoigjsdijgoidsjgiosdjgidsjfgisdg"); appendInlineContent(
-                                            "0",
-                                            "dsoif"
-                                        ); append("fosidfgsd")
-                                        },
-                                        listOf(
-                                            RecipeInstruction.EmbedData(
-                                                true,
-                                                InstructionSubmodels.TimerModel(600.seconds)
-                                            ),
-                                            RecipeInstruction.EmbedData(
-                                                true,
-                                                InstructionSubmodels.IngredientModel(ingredientName = "ghihfg")
-                                            )
-                                        )
-                                    )
-                                )
-                            )
-                        )
-                    )
-                }"
-            )
-
-            recipeViewModel.recipes.add(
-                json.decodeFromString(
-                    resources.openRawResource(R.raw.rezept).bufferedReader().readText()
+            recipeViewModel.getRecipeFromString(
+                resources.openRawResource(R.raw.rezept).bufferedReader().readText()
+            )?.let {
+                recipeViewModel.recipes.add(
+                    it
                 )
-            )
+            }
             recipeViewModel.currentRecipe = recipeViewModel.recipes[0]
 
             /*val recipeImporter =
