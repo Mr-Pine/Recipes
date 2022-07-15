@@ -18,6 +18,9 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.unit.dp
+import de.mr_pine.recipes.model_views.IngredientsCard
+import de.mr_pine.recipes.model_views.InstructionCard
+import de.mr_pine.recipes.model_views.MetaInfo
 import de.mr_pine.recipes.models.Recipe
 import de.mr_pine.recipes.viewModels.RecipeViewModel
 
@@ -27,10 +30,8 @@ import de.mr_pine.recipes.viewModels.RecipeViewModel
 @ExperimentalAnimationApi
 @Composable
 fun RecipeView(viewModel: RecipeViewModel) {
-    val currentRecipe = viewModel.recipes[viewModel.currentFileName]
+    val currentRecipe = viewModel.currentRecipe
     if (currentRecipe != null) {
-        if (currentRecipe.ingredients == null || currentRecipe.instructions == null || currentRecipe.metadata == null)
-            currentRecipe.deserialize(true)
         RecipeView(recipe = currentRecipe, openDrawer = viewModel.showNavDrawer, viewModel::loadRecipe)
     } else {
         Row(
@@ -65,8 +66,7 @@ fun RecipeView(recipe: Recipe, openDrawer: () -> Unit, loadRecipe: (Recipe) -> U
                         .statusBarsPadding(),
                     title = {
                         Text(
-                            recipe.metadata?.title
-                                ?: "No recipe specified"
+                            recipe.metadata.title
                         )
                     },
                     navigationIcon = {
@@ -102,41 +102,42 @@ fun RecipeView(recipe: Recipe, openDrawer: () -> Unit, loadRecipe: (Recipe) -> U
                 state = lazyListState
             ) {
                 item {
-                    recipe.metadata?.MetaInfo()
+                    recipe.metadata.MetaInfo()
                 }
                 item {
-                    recipe.ingredients?.IngredientsCard()
+                    recipe.ingredients.IngredientsCard()
                 }
 
                 fun setCurrentlyActiveIndex(index: Int) {
-                    recipe.instructions?.currentlyActiveIndex?.value = index
+                    recipe.instructions.currentlyActiveIndex = index
                     /*coroutineScope.launch {
                         lazyListState.animateScrollToItem(index + 2, -300)
                     }*/
                 }
 
                 itemsIndexed(
-                    recipe.instructions?.instructions ?: listOf()
+                    recipe.instructions.instructions
                 ) { index, instruction ->
                     instruction.InstructionCard(
-                        recipe.instructions?.currentlyActiveIndex?.value ?: -1,
+                        index = index,
+                        currentlyActiveIndex = recipe.instructions.currentlyActiveIndex,
+                        recipeTitle = recipe.metadata.title,
                         setCurrentlyActiveIndex = ::setCurrentlyActiveIndex,
                         setNextActive = {
-                            for ((nextIndex, next) in recipe.instructions?.instructions?.subList(
+                            for ((nextIndex, next) in recipe.instructions.instructions.subList(
                                 index + 1,
-                                recipe.instructions?.instructions?.size ?: 0
-                            )?.withIndex() ?: listOf()) {
+                                recipe.instructions.instructions.size
+                            ).withIndex()) {
                                 if (!next.done) {
                                     setCurrentlyActiveIndex(nextIndex + index + 1)
                                     break
                                 }
                             }
-                            if (recipe.instructions?.currentlyActiveIndex?.value == index) setCurrentlyActiveIndex(
-                                recipe.instructions?.instructions?.size ?: 0
+                            if (recipe.instructions.currentlyActiveIndex == index) setCurrentlyActiveIndex(
+                                recipe.instructions.instructions.size
                             )
                         },
-                        getIngredientAbsolute = recipe.ingredients?.let { it::getPartialIngredient },
-                        getIngredientFraction = recipe.ingredients?.let { it::getPartialIngredient }
+                        getIngredientFraction = recipe.ingredients.let { it::getPartialIngredient }
                     )
                 }
             }

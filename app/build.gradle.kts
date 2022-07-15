@@ -1,6 +1,7 @@
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
+    kotlin("plugin.serialization") version "1.7.0"
 }
 
 val composeVersion = "1.3.0-alpha01"
@@ -75,4 +76,7 @@ dependencies {
     androidTestImplementation("androidx.test.ext:junit:1.1.4-alpha07")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.5.0-alpha07")
     androidTestImplementation("androidx.compose.ui:ui-test-junit4:$composeVersion")
+
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.3.3")
+    implementation("net.pwall.json:json-kotlin-schema:0.35")
 }

@@ -1,4 +1,4 @@
-package de.mr_pine.recipes.models
+package de.mr_pine.recipes.screens
 
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -8,10 +8,8 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import de.mr_pine.recipes.models.Destination.HOME
-import de.mr_pine.recipes.models.Destination.RECIPE
-import de.mr_pine.recipes.screens.Home
-import de.mr_pine.recipes.screens.RecipeView
+import de.mr_pine.recipes.screens.Destination.HOME
+import de.mr_pine.recipes.screens.Destination.RECIPE
 import de.mr_pine.recipes.viewModels.RecipeViewModel
 
 @ExperimentalAnimationApi

@@ -23,14 +23,15 @@ import androidx.core.view.WindowCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import de.mr_pine.recipes.models.Destination
-import de.mr_pine.recipes.models.Recipe
-import de.mr_pine.recipes.models.RecipeNavHost
+import de.mr_pine.recipes.screens.Destination
+import de.mr_pine.recipes.screens.RecipeNavHost
 import de.mr_pine.recipes.ui.theme.HarmonizedTheme
 import de.mr_pine.recipes.ui.theme.RecipesTheme
 import de.mr_pine.recipes.viewModels.RecipeViewModel
 import de.mr_pine.recipes.viewModels.RecipeViewModelFactory
 import kotlinx.coroutines.launch
+import kotlinx.serialization.ExperimentalSerializationApi
+import net.pwall.json.schema.JSONSchema
 import java.io.File
 
 /*
@@ -41,11 +42,13 @@ import java.io.File
  * TODO: Loading of recipes & receiving of intents, importing files
  * TODO: Main navigation from Homescreen
  * TODO: Implement Settings (see XKCDFeed)
+ * TODO: No screen lock when viewing Recipe
  */
 
 private const val TAG = "MainActivity"
 
 
+@ExperimentalSerializationApi
 @ExperimentalFoundationApi
 @ExperimentalMaterial3Api
 @ExperimentalAnimationApi
@@ -66,14 +69,23 @@ class MainActivity : ComponentActivity() {
                 File(getExternalFilesDir(null), getString(R.string.externalFiles_subfolder))
 
             val recipeViewModel: RecipeViewModel =
-                viewModel(factory = RecipeViewModelFactory(recipeFolder))
+                viewModel(factory = RecipeViewModelFactory(
+                    recipeFolder = recipeFolder,
+                    recipeSchema = JSONSchema.parse(resources.openRawResource(R.raw.rcp).bufferedReader().readText())
+                ))
 
             LaunchedEffect(null) {
-                //recipeViewModel.loadRecipeFiles()
+                recipeViewModel.loadRecipeFiles()
             }
 
-            recipeViewModel.recipes["test"] = (Recipe(fileName = "test",serialized = resources.openRawResource(R.raw.rezept).bufferedReader().readText()))
-            recipeViewModel.currentFileName = "test"
+            /*recipeViewModel.getRecipeFromString(
+                resources.openRawResource(R.raw.rezept).bufferedReader().readText()
+            )?.let {
+                recipeViewModel.recipes.add(
+                    it
+                )
+            }
+            recipeViewModel.currentRecipe = recipeViewModel.recipes[0]*/
 
             val recipeImporter =
                 rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
@@ -91,7 +103,8 @@ class MainActivity : ComponentActivity() {
                         content?.let {
                             recipeViewModel.saveRecipeFile(
                                 it,
-                                filename
+                                filename,
+                                true
                             )
                         }
                        Log.d(TAG, "onCreate: importing $content")
@@ -114,7 +127,8 @@ class MainActivity : ComponentActivity() {
 
                 val navHostController = rememberNavController()
 
-                recipeViewModel.showNavDrawer = { coroutineScope.launch { drawerState.open() } }
+                recipeViewModel.showNavDrawer =
+                    { coroutineScope.launch { drawerState.open() } }
                 recipeViewModel.navigate = { navHostController.navigate(it.toString()) }
 
                 // A surface container using the 'background' color from the theme
