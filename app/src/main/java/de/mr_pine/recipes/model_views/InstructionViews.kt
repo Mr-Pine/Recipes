@@ -14,6 +14,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.layout.SubcomposeLayout
 import androidx.compose.ui.layout.SubcomposeMeasureScope
@@ -72,8 +73,7 @@ fun RecipeInstruction.InstructionCard(
                 colors = CardDefaults.cardColors(
                     containerColor = Color(
                         MaterialColors.layer(
-                            CardDefaults.cardColors()
-                                .containerColor(true).value.toArgb(),
+                            MaterialTheme.colorScheme.surfaceVariant.toArgb(),
                             currentColor.accentContainer.toArgb(),
                             relative
                         )
@@ -103,12 +103,16 @@ fun RecipeInstruction.InstructionCard(
         )
         }
     ) {
+        val containerColor = MaterialTheme.colorScheme.let {
+            if (done) it.surface.copy(alpha = 0.38f)
+                .compositeOver(it.surfaceColorAtElevation(1.dp)) else it.surface
+        }
         ElevatedCard(
             modifier = Modifier
                 .fillMaxWidth(),
             colors = CardDefaults.elevatedCardColors(
-                containerColor = CardDefaults.elevatedCardColors().containerColor(!done).value,
-                contentColor = CardDefaults.elevatedCardColors().contentColor(!done).value
+                containerColor = containerColor,
+                contentColor = contentColorFor(backgroundColor = containerColor).copy(alpha = if(done) 0.38f else 1f)
             ),
             onClick = {
                 setCurrentlyActiveIndex(index)
@@ -125,23 +129,6 @@ fun RecipeInstruction.InstructionCard(
                                 if (embedData.embed is InstructionSubmodels.IngredientModel) {
                                     embedData.embed.receiveIngredient(getIngredientFraction)
                                 }
-                                val defaultChipColor =
-                                    SuggestionChipDefaults.elevatedSuggestionChipColors()
-                                val defaultChipColorDisabled =
-                                    SuggestionChipDefaults.elevatedSuggestionChipColors(
-                                        containerColor = defaultChipColor.containerColor(
-                                            enabled = false
-                                        ).value,
-                                        labelColor = defaultChipColor.labelColor(
-                                            enabled = false
-                                        ).value,
-                                        iconContentColor = defaultChipColor.leadingIconContentColor(
-                                            enabled = false
-                                        ).value
-                                    )
-
-                                fun getChipColor(enabledColor: Boolean) =
-                                    if (enabledColor) defaultChipColor else defaultChipColorDisabled
 
                                 val context = LocalContext.current
 
@@ -250,12 +237,7 @@ fun RecipeChip(
         selectedLabelColor = MaterialTheme.colorScheme.onSurfaceVariant,
         selectedLeadingIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
         selectedTrailingIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
-        disabledContainerColor = FilterChipDefaults.elevatedFilterChipColors()
-            .containerColor(enabled = false, selected = false).value.let {
-                if (!selected) it.copy(
-                    alpha = 0.0f
-                ) else it
-            }
+        disabledSelectedContainerColor = Color.Transparent
     )
 
     val elevation = if (selected) FilterChipDefaults.elevatedFilterChipElevation(
@@ -279,7 +261,6 @@ fun RecipeChip(
             selected = selected,
             enabled = enabled,
             leadingIcon = icon,
-            selectedIcon = icon,
             label = { Text(text = labelText) },
             colors = colors,
             elevation = elevation,

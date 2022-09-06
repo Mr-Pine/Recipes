@@ -3,7 +3,6 @@ package de.mr_pine.recipes.screens
 import android.util.Log
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
@@ -32,7 +31,11 @@ import de.mr_pine.recipes.viewModels.RecipeViewModel
 fun RecipeView(viewModel: RecipeViewModel) {
     val currentRecipe = viewModel.currentRecipe
     if (currentRecipe != null) {
-        RecipeView(recipe = currentRecipe, openDrawer = viewModel.showNavDrawer, viewModel::loadRecipe)
+        RecipeView(
+            recipe = currentRecipe,
+            openDrawer = viewModel.showNavDrawer,
+            viewModel::loadRecipe
+        )
     } else {
         Row(
             modifier = Modifier
@@ -53,35 +56,29 @@ fun RecipeView(viewModel: RecipeViewModel) {
 fun RecipeView(recipe: Recipe, openDrawer: () -> Unit, loadRecipe: (Recipe) -> Unit) {
     val lazyListState = rememberLazyListState()
 
-    val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(rememberTopAppBarScrollState())
+    val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(rememberTopAppBarState())
 
     Scaffold(
         modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = {
-            val containerColor by TopAppBarDefaults.smallTopAppBarColors()
-                .containerColor(scrollBehavior.scrollFraction)
-            Box(modifier = Modifier.background(containerColor)) {
-                SmallTopAppBar(
-                    modifier = Modifier
-                        .statusBarsPadding(),
-                    title = {
-                        Text(
-                            recipe.metadata.title
+            SmallTopAppBar(
+                title = {
+                    Text(
+                        recipe.metadata.title
+                    )
+                },
+                navigationIcon = {
+                    IconButton(
+                        onClick = openDrawer
+                    ) {
+                        Icon(
+                            Icons.Filled.Menu,
+                            contentDescription = "Localized description"
                         )
-                    },
-                    navigationIcon = {
-                        IconButton(
-                            onClick = openDrawer
-                        ) {
-                            Icon(
-                                Icons.Filled.Menu,
-                                contentDescription = "Localized description"
-                            )
-                        }
-                    },
-                    scrollBehavior = scrollBehavior
-                )
-            }
+                    }
+                },
+                scrollBehavior = scrollBehavior
+            )
         },
         floatingActionButtonPosition = FabPosition.End,
         floatingActionButton = {

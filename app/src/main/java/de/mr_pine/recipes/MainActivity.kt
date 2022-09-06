@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.provider.OpenableColumns
 import android.util.Log
 import androidx.activity.ComponentActivity
+import androidx.activity.OnBackPressedCallback
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
@@ -62,30 +63,32 @@ class MainActivity : ComponentActivity() {
 
         WindowCompat.setDecorFitsSystemWindows(window, false)
 
-        setContent {
+        val onBackPressedCallback = object : OnBackPressedCallback(false) {
+            override fun handleOnBackPressed() {
+                tryCloseNavigationDrawer()
+            }
+        }
+        onBackPressedDispatcher.addCallback(onBackPressedCallback)
 
+        setContent {
 
             val recipeFolder =
                 File(getExternalFilesDir(null), getString(R.string.externalFiles_subfolder))
 
             val recipeViewModel: RecipeViewModel =
-                viewModel(factory = RecipeViewModelFactory(
-                    recipeFolder = recipeFolder,
-                    recipeSchema = JSONSchema.parse(resources.openRawResource(R.raw.rcp).bufferedReader().readText())
-                ))
+                viewModel(
+                    factory = RecipeViewModelFactory(
+                        recipeFolder = recipeFolder,
+                        recipeSchema = JSONSchema.parse(
+                            resources.openRawResource(R.raw.rcp).bufferedReader().readText()
+                        )
+                    )
+                )
 
             LaunchedEffect(null) {
                 recipeViewModel.loadRecipeFiles()
             }
 
-            /*recipeViewModel.getRecipeFromString(
-                resources.openRawResource(R.raw.rezept).bufferedReader().readText()
-            )?.let {
-                recipeViewModel.recipes.add(
-                    it
-                )
-            }
-            recipeViewModel.currentRecipe = recipeViewModel.recipes[0]*/
 
             val recipeImporter =
                 rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
@@ -107,7 +110,7 @@ class MainActivity : ComponentActivity() {
                                 true
                             )
                         }
-                       Log.d(TAG, "onCreate: importing $content")
+                        Log.d(TAG, "onCreate: importing $content")
                     }
                 }
 
@@ -131,7 +134,7 @@ class MainActivity : ComponentActivity() {
                     { coroutineScope.launch { drawerState.open() } }
                 recipeViewModel.navigate = { navHostController.navigate(it.toString()) }
 
-                // A surface container using the 'background' color from the theme
+                onBackPressedCallback.isEnabled = drawerState.isOpen
 
                 ModalNavigationDrawer(
                     drawerContent = {
@@ -157,10 +160,6 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
-    }
-
-    override fun onBackPressed() {
-        if (!tryCloseNavigationDrawer()) super.onBackPressed()
     }
 }
 

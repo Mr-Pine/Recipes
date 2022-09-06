@@ -64,6 +64,7 @@ class RecipeViewModel(private val recipeFolder: File, private val recipeSchema: 
 
     fun saveRecipeFile(content: String, fileName: String, loadRecipe: Boolean = false) {
         val fileNameExtension = "$fileName${if (fileName.endsWith(".rcp")) "" else ".rcp"}"
+        recipeFolder.mkdirs()
         val recipeFile = File(recipeFolder, fileNameExtension)
         recipeFile.apply {
             createNewFile()
