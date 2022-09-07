@@ -4,8 +4,6 @@ import android.util.Log
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.icons.Icons
@@ -16,10 +14,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
-import androidx.compose.ui.unit.dp
-import de.mr_pine.recipes.model_views.IngredientsCard
-import de.mr_pine.recipes.model_views.InstructionCard
-import de.mr_pine.recipes.model_views.MetaInfo
+import de.mr_pine.recipes.model_views.edit.IngredientsEditCard
 import de.mr_pine.recipes.models.Recipe
 import de.mr_pine.recipes.viewModels.RecipeViewModel
 
@@ -34,7 +29,8 @@ fun RecipeView(viewModel: RecipeViewModel) {
         RecipeView(
             recipe = currentRecipe,
             openDrawer = viewModel.showNavDrawer,
-            viewModel::loadRecipe
+            viewModel::loadRecipe,
+            viewModel::SaveRecipeToFile
         )
     } else {
         Row(
@@ -48,12 +44,12 @@ fun RecipeView(viewModel: RecipeViewModel) {
     }
 }
 
-@ExperimentalAnimationApi
+
 @ExperimentalMaterialApi
+@ExperimentalAnimationApi
 @ExperimentalMaterial3Api
-@ExperimentalFoundationApi
 @Composable
-fun RecipeView(recipe: Recipe, openDrawer: () -> Unit, loadRecipe: (Recipe) -> Unit) {
+fun RecipeView(recipe: Recipe, openDrawer: () -> Unit, loadRecipe: (Recipe) -> Unit, saveRecipe: (Recipe) -> Unit) {
     val lazyListState = rememberLazyListState()
 
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(rememberTopAppBarState())
@@ -83,7 +79,7 @@ fun RecipeView(recipe: Recipe, openDrawer: () -> Unit, loadRecipe: (Recipe) -> U
         floatingActionButtonPosition = FabPosition.End,
         floatingActionButton = {
             ExtendedFloatingActionButton(
-                onClick = { loadRecipe(recipe) }
+                onClick = { /*loadRecipe(recipe)*/saveRecipe(recipe) }
             ) {
                 Icon(
                     imageVector = Icons.Default.Edit,
@@ -92,24 +88,30 @@ fun RecipeView(recipe: Recipe, openDrawer: () -> Unit, loadRecipe: (Recipe) -> U
             }
         }) { innerPadding ->
         Box(modifier = Modifier.padding(innerPadding)) {
-            LazyColumn(
-                modifier = Modifier.padding(horizontal = 8.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp),
-                contentPadding = PaddingValues(bottom = 16.dp),
-                state = lazyListState
-            ) {
-                item {
-                    recipe.metadata.MetaInfo()
-                }
-                item {
-                    recipe.ingredients.IngredientsCard()
-                }
 
-                fun setCurrentlyActiveIndex(index: Int) {
-                    recipe.instructions.currentlyActiveIndex = index
-                    /*coroutineScope.launch {
+
+            recipe.ingredients.IngredientsEditCard()
+            /*LazyColumn(
+                    modifier = Modifier.padding(horizontal = 8.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                    contentPadding = PaddingValues(bottom = 16.dp),
+                    state = lazyListState
+                ) {
+                    item {
+                        recipe.metadata.MetaInfo()
+                    }
+                    item {
+                        recipe.ingredients.IngredientsCard()
+                    }
+                    item {
+                        recipe.ingredients.IngredientsEditCard()
+                    }
+
+                    fun setCurrentlyActiveIndex(index: Int) {
+                        recipe.instructions.currentlyActiveIndex = index
+                        *//*coroutineScope.launch {
                         lazyListState.animateScrollToItem(index + 2, -300)
-                    }*/
+                    }*//*
                 }
 
                 itemsIndexed(
@@ -137,7 +139,7 @@ fun RecipeView(recipe: Recipe, openDrawer: () -> Unit, loadRecipe: (Recipe) -> U
                         getIngredientFraction = recipe.ingredients.let { it::getPartialIngredient }
                     )
                 }
-            }
+            }*/
         }
     }
 

@@ -80,4 +80,6 @@ dependencies {
 
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.3.3")
     implementation("net.pwall.json:json-kotlin-schema:0.35")
+
+    implementation("org.burnoutcrew.composereorderable:reorderable:0.9.2")
 }

@@ -104,7 +104,7 @@ class MainActivity : ComponentActivity() {
                     if (filename?.endsWith(".rcp") == true) {
                         val content = contentResolver.openInputStream(uri)?.reader()?.readText()
                         content?.let {
-                            recipeViewModel.saveRecipeFile(
+                            recipeViewModel.saveRecipeFileContent(
                                 it,
                                 filename,
                                 true

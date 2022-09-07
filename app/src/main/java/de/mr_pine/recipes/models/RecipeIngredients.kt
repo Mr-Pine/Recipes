@@ -4,6 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.res.stringResource
 import de.mr_pine.recipes.R
 import kotlinx.serialization.KSerializer
@@ -17,8 +18,13 @@ import kotlin.math.roundToInt
 
 @Serializable
 data class RecipeIngredients(
-    var ingredients: List<RecipeIngredient>
+    @Serializable(with = MutableStateListSerializer::class)
+    var ingredients: SnapshotStateList<RecipeIngredient>
 ) {
+    fun reorderIngredients(from: Int, to: Int) {
+        ingredients.apply { add(to, removeAt(from)) }
+    }
+
     fun getPartialIngredient(name: String, fraction: Float) =
         ingredients.find { name == it.name }?.getPartial(fraction)
             ?: throw Exception("Ingredient $name not found")

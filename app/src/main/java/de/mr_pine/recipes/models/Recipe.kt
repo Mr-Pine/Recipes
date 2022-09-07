@@ -1,5 +1,6 @@
 package de.mr_pine.recipes.models
 
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import de.mr_pine.recipes.models.instructions.InstructionSubmodels
 import de.mr_pine.recipes.models.instructions.RecipeInstruction
 import de.mr_pine.recipes.models.instructions.RecipeInstructions
@@ -35,7 +36,8 @@ object RecipeSerializer: KSerializer<Recipe> {
     @Serializable
     data class RecipeBackbone(
         val metadata: RecipeMetadata,
-        val ingredients: List<RecipeIngredient>,
+        @Serializable(with = MutableStateListSerializer::class)
+        val ingredients: SnapshotStateList<RecipeIngredient>,
         val instructions: List<RecipeInstruction>
     )
 
@@ -53,12 +55,4 @@ object RecipeSerializer: KSerializer<Recipe> {
     override fun serialize(encoder: Encoder, value: Recipe) {
         encoder.encodeSerializableValue(RecipeBackbone.serializer(), RecipeBackbone(value.metadata, value.ingredients.ingredients, value.instructions.instructions))
     }
-}
-
-fun String.extractString(stringName: String, enclosing: Char = '"'): String {
-    val start = "$stringName\\s*:\\s*$enclosing".toRegex().find(this)
-        ?: throw Exception("$stringName not contained in $this")
-    val end = "(?<!\\\\)$enclosing".toRegex().find(this, start.range.last + 1)
-        ?: throw Exception("Missing ending '\"'")
-    return this.substring(start.range.last + 1, end.range.first)
 }

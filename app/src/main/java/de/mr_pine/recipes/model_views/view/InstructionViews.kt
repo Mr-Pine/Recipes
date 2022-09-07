@@ -1,8 +1,7 @@
-package de.mr_pine.recipes.model_views
+package de.mr_pine.recipes.model_views.view
 
 import android.util.Log
 import androidx.compose.animation.*
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.InlineTextContent
@@ -35,10 +34,9 @@ import de.mr_pine.recipes.ui.theme.Extended
 
 private const val TAG = "InstructionViews"
 
-@ExperimentalMaterialApi
-@ExperimentalFoundationApi
 @ExperimentalAnimationApi
 @ExperimentalMaterial3Api
+@ExperimentalMaterialApi
 @Composable
 fun RecipeInstruction.InstructionCard(
     index: Int,

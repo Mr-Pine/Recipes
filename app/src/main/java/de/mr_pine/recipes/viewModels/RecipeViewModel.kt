@@ -11,6 +11,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import net.pwall.json.schema.JSONSchema
 import java.io.File
@@ -41,8 +42,22 @@ class RecipeViewModel(private val recipeFolder: File, private val recipeSchema: 
             }.distinctBy { it.name }.toMutableStateList()
             recipes = mutableStateListOf()
             recipeFiles.forEach { recipeFile ->
-                getRecipeFromString(recipeFile.readText())?.let { recipes.add(it) }
+                getRecipeFromFile(recipeFile)?.let { recipes.add(it) }
             }
+        }
+    }
+
+    fun getRecipeFromFile(file: File): Recipe? {
+        val recipe = getRecipeFromString(file.readText())
+        recipe?.metadata?.file = file
+        return recipe
+    }
+
+    fun SaveRecipeToFile(recipe: Recipe, file: File = recipe.metadata.file!!) {
+        file.parentFile?.mkdirs()
+        file.apply {
+            createNewFile()
+            writeText(json.encodeToString(recipe))
         }
     }
 
@@ -57,12 +72,12 @@ class RecipeViewModel(private val recipeFolder: File, private val recipeSchema: 
                 null
             }
         } catch (e: Exception) {
-            Log.e(TAG, "getRecipeFromString: Error while validating", e)
+            Log.e(TAG, "getRecipeFromString: Error while validating or decoding", e)
             null
         }
     }
 
-    fun saveRecipeFile(content: String, fileName: String, loadRecipe: Boolean = false) {
+    fun saveRecipeFileContent(content: String, fileName: String, loadRecipe: Boolean = false) {
         val fileNameExtension = "$fileName${if (fileName.endsWith(".rcp")) "" else ".rcp"}"
         recipeFolder.mkdirs()
         val recipeFile = File(recipeFolder, fileNameExtension)
