@@ -1,13 +1,11 @@
 package de.mr_pine.recipes.models
 
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.*
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.res.stringResource
 import de.mr_pine.recipes.R
 import kotlinx.serialization.KSerializer
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.descriptors.PrimitiveKind
 import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
@@ -32,14 +30,36 @@ data class RecipeIngredients(
 
 @Serializable
 class RecipeIngredient(
-    var name: String,
-    var amount: IngredientAmount = 0.amount,
-    var unit: IngredientUnit = IngredientUnit.None
+    @Serializable(with = MutableStateSerializer::class)
+    @SerialName("name")
+    private val nameState: MutableState<String>,
+    @Serializable(with = MutableStateSerializer::class)
+    @SerialName("amount")
+    private val amountState: MutableState<IngredientAmount> = mutableStateOf(0.amount),
+    @Serializable(with = MutableStateSerializer::class)
+    @SerialName("unit")
+    private val unitState: MutableState<IngredientUnit> = mutableStateOf(IngredientUnit.None)
 ) {
+    var name by nameState
+    var amount by amountState
+    var unit by unitState
+
     var isChecked by mutableStateOf(false)
 
     fun getPartial(fraction: Float): RecipeIngredient {
-        return RecipeIngredient(name, amount * fraction, unit)
+        return RecipeIngredient(mutableStateOf(name), mutableStateOf(amount * fraction), mutableStateOf(unit))
+    }
+
+    fun copyFrom(from: RecipeIngredient) {
+        this.name = from.name
+        this.amount = from.amount
+        this.unit = from.unit
+    }
+
+    fun copy(): RecipeIngredient {
+        val temp = RecipeIngredient(mutableStateOf(""))
+        temp.copyFrom(this)
+        return temp
     }
 
     init {
@@ -70,6 +90,23 @@ class RecipeIngredient(
 
 inline val Float.amount: IngredientAmount get() = IngredientAmount(this)
 inline val Int.amount: IngredientAmount get() = IngredientAmount(this.toFloat())
+fun String.toAmount(): IngredientAmount {
+    val thisVal = this.replace(',', '.')
+    return try {
+        this.apply {
+            if (try {
+                    thisVal.last() == '.'
+                } catch (e: Exception) {
+                    false
+                }
+            ) {
+                subSequence(0 until this.lastIndex)
+            }
+        }.toInt().amount
+    } catch (e: NumberFormatException) {
+        thisVal.toFloat().amount
+    }
+}
 
 @JvmInline
 @Serializable(with = AmountSerializer::class)
@@ -90,6 +127,8 @@ value class IngredientAmount(val value: Float) : Comparable<IngredientAmount> {
 
     operator fun div(other: Float) = IngredientAmount(value.div(other))
     operator fun div(other: Int) = IngredientAmount(value.div(other))
+
+
 }
 
 object AmountSerializer : KSerializer<IngredientAmount> {
@@ -160,6 +199,11 @@ enum class IngredientUnit(
             return ""
         }
 
+        @Composable
+        override fun menuDisplayValue(): String {
+            return stringResource(R.string.No_unit)
+        }
+
         override fun displayValue(): String {
             return ""
         }
@@ -169,6 +213,9 @@ enum class IngredientUnit(
 
     @Composable
     abstract fun displayValueLong(): String
+
+    @Composable
+    open fun menuDisplayValue() = displayValueLong()
 }
 
 class UnitRelation(

@@ -11,4 +11,12 @@
     <string name="milliliters">milliliters</string>
     <string name="liters">liters</string>
     <string name="portions">Portions</string>
+    <string name="Reorder_Ingredients">Reorder ingredients</string>
+    <string name="Reorder">Reorder</string>
+    <string name="Apply">Apply</string>
+    <string name="Cancel">Cancel</string>
+    <string name="Edit_ingredient">Edit Ingredient</string>
+    <string name="Name">Name</string>
+    <string name="Amount">Amount</string>
+    <string name="No_unit">No unit</string>
 </resources>

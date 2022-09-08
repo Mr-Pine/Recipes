@@ -3,12 +3,20 @@
     <string name="app_name">Recipes</string>
     <string name="Ingredients">Zutaten</string>
     <string name="by">Von</string>
-    <string name="grams">gramm</string>
-    <string name="kilograms">kilogramm</string>
+    <string name="grams">Gramm</string>
+    <string name="kilograms">Kilogramm</string>
     <string name="step_repeat">Schritt wiederholen</string>
     <string name="step_finish">Schritt abschließen</string>
     <string name="search">Suchen</string>
-    <string name="milliliters">milliliter</string>
-    <string name="liters">liter</string>
+    <string name="milliliters">Milliliter</string>
+    <string name="liters">Liter</string>
     <string name="portions">Portionen</string>
+    <string name="Reorder_Ingredients">Zutatenreihenfolge ändern</string>
+    <string name="Reorder">Reihenfolge bearbeiten</string>
+    <string name="Apply">Anwenden</string>
+    <string name="Cancel">Abbrechen</string>
+    <string name="Edit_ingredient">Zutat bearbeiten</string>
+    <string name="Name">Name</string>
+    <string name="Amount">Menge</string>
+    <string name="No_unit">Keine Einheit</string>
 </resources>

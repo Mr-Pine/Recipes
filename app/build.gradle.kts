@@ -4,9 +4,9 @@ plugins {
     kotlin("plugin.serialization") version "1.7.0"
 }
 
-val composeVersion = "1.3.0-alpha01"
-val composeCompilerVersion = "1.2.0"
-val lifecycleVersion = "2.6.0-alpha01"
+val composeVersion = "1.3.0-beta02"
+val composeCompilerVersion = "1.3.1"
+val lifecycleVersion = "2.6.0-alpha02"
 
 android {
     compileSdk = 33

@@ -59,6 +59,8 @@ class MainActivity : ComponentActivity() {
     var tryCloseNavigationDrawer: () -> Boolean = { false }
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        resources.openRawResource(R.raw.rezept).bufferedReader().readText()
+
         super.onCreate(savedInstanceState)
 
         WindowCompat.setDecorFitsSystemWindows(window, false)

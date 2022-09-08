@@ -1,5 +1,7 @@
 package de.mr_pine.recipes.models
 
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.runtime.toMutableStateList
 import kotlinx.serialization.KSerializer
@@ -20,6 +22,16 @@ class MutableStateListSerializer<T>(dataSerializer: KSerializer<T>): KSerializer
     override fun serialize(encoder: Encoder, value: SnapshotStateList<T>) {
         listSerializer.serialize(encoder, value)
     }
+}
 
+class MutableStateSerializer<T>(private val dataSerializer: KSerializer<T>): KSerializer<MutableState<T>> {
+    override val descriptor: SerialDescriptor = dataSerializer.descriptor
 
+    override fun deserialize(decoder: Decoder): MutableState<T> {
+        return mutableStateOf(dataSerializer.deserialize(decoder))
+    }
+
+    override fun serialize(encoder: Encoder, value: MutableState<T>) {
+        dataSerializer.serialize(encoder, value.value)
+    }
 }

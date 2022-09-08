@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.icons.Icons
@@ -14,7 +15,9 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.unit.dp
 import de.mr_pine.recipes.model_views.edit.IngredientsEditCard
+import de.mr_pine.recipes.model_views.view.MetaInfo
 import de.mr_pine.recipes.models.Recipe
 import de.mr_pine.recipes.viewModels.RecipeViewModel
 
@@ -49,7 +52,12 @@ fun RecipeView(viewModel: RecipeViewModel) {
 @ExperimentalAnimationApi
 @ExperimentalMaterial3Api
 @Composable
-fun RecipeView(recipe: Recipe, openDrawer: () -> Unit, loadRecipe: (Recipe) -> Unit, saveRecipe: (Recipe) -> Unit) {
+fun RecipeView(
+    recipe: Recipe,
+    openDrawer: () -> Unit,
+    loadRecipe: (Recipe) -> Unit,
+    saveRecipe: (Recipe) -> Unit
+) {
     val lazyListState = rememberLazyListState()
 
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(rememberTopAppBarState())
@@ -86,35 +94,35 @@ fun RecipeView(recipe: Recipe, openDrawer: () -> Unit, loadRecipe: (Recipe) -> U
                     contentDescription = null
                 )
             }
-        }) { innerPadding ->
+        }
+    ) { innerPadding ->
         Box(modifier = Modifier.padding(innerPadding)) {
 
 
-            recipe.ingredients.IngredientsEditCard()
-            /*LazyColumn(
-                    modifier = Modifier.padding(horizontal = 8.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp),
-                    contentPadding = PaddingValues(bottom = 16.dp),
-                    state = lazyListState
-                ) {
-                    item {
-                        recipe.metadata.MetaInfo()
-                    }
-                    item {
-                        recipe.ingredients.IngredientsCard()
-                    }
-                    item {
-                        recipe.ingredients.IngredientsEditCard()
-                    }
-
-                    fun setCurrentlyActiveIndex(index: Int) {
-                        recipe.instructions.currentlyActiveIndex = index
-                        *//*coroutineScope.launch {
-                        lazyListState.animateScrollToItem(index + 2, -300)
-                    }*//*
+            LazyColumn(
+                modifier = Modifier.padding(horizontal = 8.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+                contentPadding = PaddingValues(bottom = 16.dp),
+                state = lazyListState
+            ) {
+                item {
+                    recipe.metadata.MetaInfo()
+                }
+                item {
+                    //recipe.ingredients.IngredientsCard()
+                }
+                item {
+                    recipe.ingredients.IngredientsEditCard()
                 }
 
-                itemsIndexed(
+                fun setCurrentlyActiveIndex(index: Int) {
+                    recipe.instructions.currentlyActiveIndex = index
+                    /*coroutineScope.launch {
+                    lazyListState.animateScrollToItem(index + 2, -300)
+                    }*/
+                }
+
+                /*itemsIndexed(
                     recipe.instructions.instructions
                 ) { index, instruction ->
                     instruction.InstructionCard(
@@ -138,8 +146,8 @@ fun RecipeView(recipe: Recipe, openDrawer: () -> Unit, loadRecipe: (Recipe) -> U
                         },
                         getIngredientFraction = recipe.ingredients.let { it::getPartialIngredient }
                     )
-                }
-            }*/
+                }*/
+            }
         }
     }
 
