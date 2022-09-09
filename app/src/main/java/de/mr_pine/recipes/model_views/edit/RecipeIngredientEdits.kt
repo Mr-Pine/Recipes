@@ -9,9 +9,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.DragHandle
-import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.Reorder
+import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -53,7 +51,14 @@ fun RecipeIngredients.IngredientsEditCard() {
                 }
             }
             for (ingredient in ingredients) {
-                ingredient.IngredientEditRow()
+                ingredient.IngredientEditRow(deleteSelf = { ingredients.remove(ingredient) })
+            }
+            OutlinedButton(
+                onClick = { ingredients.add(RecipeIngredient()) },
+                modifier = Modifier.padding(horizontal = 4.dp)
+            ) {
+                Icon(imageVector = Icons.Default.Add, contentDescription = "Add")
+                Text(text = stringResource(R.string.Add))
             }
         }
 
@@ -99,7 +104,11 @@ fun RecipeIngredients.IngredientsEditCard() {
                                 reorderableState = reorderableLazyListState,
                                 key = it.name
                             ) { isDragging ->
-                                it.IngredientEditRow(reorderableLazyListState, isDragging)
+                                it.IngredientEditRow(
+                                    reorderableLazyListState,
+                                    isDragging = isDragging,
+
+                                    )
                             }
                         }
                     }
@@ -115,9 +124,12 @@ private const val TAG = "RecipeIngredientEdits"
 @Composable
 fun RecipeIngredient.IngredientEditRow(
     reorderableLazyListState: ReorderableLazyListState? = null,
+    deleteSelf: (() -> Unit)? = null,
     isDragging: Boolean = false
 ) {
-    var showEditDialog by remember { mutableStateOf(false) }
+    val isNew by remember { mutableStateOf(this.name.isEmpty()) }
+    var showEditDialog by remember { mutableStateOf(isNew) }
+    var showDeleteDialog by remember { mutableStateOf(false) }
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier
@@ -158,29 +170,32 @@ fun RecipeIngredient.IngredientEditRow(
 
         }
     }
+    fun dismissEdit() {
+        showEditDialog = false
+        if (isNew && deleteSelf != null) deleteSelf()
+    }
+
     if (showEditDialog) {
         val bufferIngredient = remember { this.copy() }
         AlertDialog(
-            onDismissRequest = {
-                showEditDialog = false
-            },
+            onDismissRequest = ::dismissEdit,
             confirmButton = {
                 TextButton(onClick = {
-                    if (with(bufferIngredient) { name.isNotEmpty() }) {
+                    if (with(bufferIngredient) { name.isNotEmpty() && amount != 0.amount && !amount.value.isNaN() }) {
                         this.copyFrom(bufferIngredient)
                         showEditDialog = false
                     }
                 }) {
-                    Text(text = stringResource(id = R.string.Apply))
+                    Text(text = stringResource(id = if(isNew) R.string.Add else R.string.Apply))
                 }
             },
             dismissButton = {
-                TextButton(onClick = { showEditDialog = false }) {
+                TextButton(onClick = ::dismissEdit) {
                     Text(stringResource(id = R.string.Cancel))
                 }
             },
             title = {
-                Text(text = stringResource(R.string.Edit_ingredient))
+                Text(text = stringResource(if(isNew) R.string.Add_Ingredient else R.string.Edit_ingredient))
             },
             text = {
                 Column() {
@@ -190,12 +205,22 @@ fun RecipeIngredient.IngredientEditRow(
                         label = {
                             Text(text = stringResource(R.string.Name))
                         },
-                        isError = bufferIngredient.name.isEmpty()
+                        isError = bufferIngredient.name.isEmpty(),
+                        trailingIcon = {
+                            if (bufferIngredient.name.isEmpty()) {
+                                Icon(Icons.Default.Delete, "delete", modifier = Modifier.clickable {
+                                    showEditDialog = false
+                                    showDeleteDialog = true
+                                })
+                            }
+                        }
                     )
                     var amountBuffer by remember { mutableStateOf(bufferIngredient.amount.toString()) }
+                    Spacer(modifier = Modifier.height(10.dp))
                     Row() {
                         TextField(
                             value = amountBuffer,
+                            modifier = Modifier.width(90.dp),
                             onValueChange = { newValue ->
                                 if (newValue == "") {
                                     bufferIngredient.amount = Float.NaN.amount
@@ -213,36 +238,74 @@ fun RecipeIngredient.IngredientEditRow(
                             },
                             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                             label = { Text(text = stringResource(R.string.Amount)) },
-                            isError = amountBuffer.isEmpty()
+                            isError = amountBuffer.isEmpty() || bufferIngredient.amount == 0.amount
                         )
-                    }
-                    var unitDropDownExtended by remember { mutableStateOf(false) }
-                    ExposedDropdownMenuBox(
-                        expanded = unitDropDownExtended,
-                        onExpandedChange = { unitDropDownExtended = !unitDropDownExtended }) {
-                        TextField(
-                            readOnly = true,
-                            value = bufferIngredient.unit.menuDisplayValue(),
-                            onValueChange = {},
-                            label = { Text("Label") },
-                            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = unitDropDownExtended) },
-                            colors = ExposedDropdownMenuDefaults.textFieldColors(),
-                        )
-                        Log.d(TAG, "IngredientEditRow: ${bufferIngredient.unit.menuDisplayValue()}")
-                        ExposedDropdownMenu(
+                        var unitDropDownExtended by remember { mutableStateOf(false) }
+                        Spacer(modifier = Modifier.width(10.dp))
+                        ExposedDropdownMenuBox(
                             expanded = unitDropDownExtended,
-                            onDismissRequest = { unitDropDownExtended = false }) {
-                            IngredientUnit.values().forEach { selectedOption ->
-                                DropdownMenuItem(
-                                    text = { Text(text = selectedOption.menuDisplayValue()) },
-                                    onClick = {
-                                        bufferIngredient.unit =
-                                            selectedOption; unitDropDownExtended = false
-                                    })
+                            onExpandedChange = { unitDropDownExtended = !unitDropDownExtended }) {
+                            TextField(
+                                readOnly = true,
+                                value = bufferIngredient.unit.menuDisplayValue(),
+                                onValueChange = {},
+                                label = { Text("Label") },
+                                trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = unitDropDownExtended) },
+                                colors = ExposedDropdownMenuDefaults.textFieldColors(),
+                            )
+                            Log.d(
+                                TAG,
+                                "IngredientEditRow: ${bufferIngredient.unit.menuDisplayValue()}"
+                            )
+                            ExposedDropdownMenu(
+                                expanded = unitDropDownExtended,
+                                onDismissRequest = { unitDropDownExtended = false }) {
+                                IngredientUnit.values().forEach { selectedOption ->
+                                    DropdownMenuItem(
+                                        text = { Text(text = selectedOption.menuDisplayValue()) },
+                                        onClick = {
+                                            bufferIngredient.unit =
+                                                selectedOption; unitDropDownExtended = false
+                                        })
+                                }
                             }
                         }
                     }
                 }
+            }
+        )
+    }
+    if (showDeleteDialog) {
+        AlertDialog(
+            onDismissRequest = { showDeleteDialog = false },
+            confirmButton = {
+                TextButton(onClick = { deleteSelf?.invoke(); showDeleteDialog = false }) {
+                    Text(text = stringResource(R.string.Delete))
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showEditDialog = false }) {
+                    Text(stringResource(id = R.string.Cancel))
+                }
+            },
+            title = {
+                Text(text = stringResource(R.string.Delete_ingredient_title))
+            },
+            text = {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.Center
+                ) {
+                    Text(
+                        text = String.format(
+                            stringResource(R.string.Delete_ingredient_text),
+                            name
+                        )
+                    )
+                }
+            },
+            icon = {
+                Icon(Icons.Default.Delete, "Delete")
             }
         )
     }

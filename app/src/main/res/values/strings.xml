@@ -19,4 +19,9 @@
     <string name="Name">Name</string>
     <string name="Amount">Amount</string>
     <string name="No_unit">No unit</string>
+    <string name="Delete">Delete</string>
+    <string name="Delete_ingredient_title">Delte ingredient</string>
+    <string name="Delete_ingredient_text">Do you want to delte the ingredient \"%1$s\"?</string>
+    <string name="Add">Add</string>
+    <string name="Add_Ingredient">Add Ingredient</string>
 </resources>

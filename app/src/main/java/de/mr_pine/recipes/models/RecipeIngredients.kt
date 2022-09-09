@@ -32,10 +32,10 @@ data class RecipeIngredients(
 class RecipeIngredient(
     @Serializable(with = MutableStateSerializer::class)
     @SerialName("name")
-    private val nameState: MutableState<String>,
+    private val nameState: MutableState<String> = mutableStateOf(""),
     @Serializable(with = MutableStateSerializer::class)
     @SerialName("amount")
-    private val amountState: MutableState<IngredientAmount> = mutableStateOf(0.amount),
+    private val amountState: MutableState<IngredientAmount> = mutableStateOf(Float.NaN.amount),
     @Serializable(with = MutableStateSerializer::class)
     @SerialName("unit")
     private val unitState: MutableState<IngredientUnit> = mutableStateOf(IngredientUnit.None)
@@ -57,7 +57,7 @@ class RecipeIngredient(
     }
 
     fun copy(): RecipeIngredient {
-        val temp = RecipeIngredient(mutableStateOf(""))
+        val temp = RecipeIngredient()
         temp.copyFrom(this)
         return temp
     }
@@ -112,7 +112,8 @@ fun String.toAmount(): IngredientAmount {
 @Serializable(with = AmountSerializer::class)
 value class IngredientAmount(val value: Float) : Comparable<IngredientAmount> {
     override fun toString(): String =
-        if (String.format("%.2f", value.roundToInt().toFloat()) == String.format("%.2f", value))
+        if(value.isNaN()) ""
+        else if (String.format("%.2f", value.roundToInt().toFloat()) == String.format("%.2f", value))
             value.roundToInt().toString()
         else
             String.format("%.2f", value)

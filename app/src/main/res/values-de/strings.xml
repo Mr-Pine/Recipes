@@ -19,4 +19,9 @@
     <string name="Name">Name</string>
     <string name="Amount">Menge</string>
     <string name="No_unit">Keine Einheit</string>
+    <string name="Delete">Löschen</string>
+    <string name="Delete_ingredient_title">Zutat löschen</string>
+    <string name="Delete_ingredient_text">Zutat \"%1$s\" löschen?</string>
+    <string name="Add">Hinzufügen</string>
+    <string name="Add_Ingredient">Zutat Hinzufügen</string>
 </resources>
