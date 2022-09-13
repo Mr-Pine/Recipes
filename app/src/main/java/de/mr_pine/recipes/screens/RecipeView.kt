@@ -5,6 +5,7 @@ import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.icons.Icons
@@ -17,6 +18,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.unit.dp
 import de.mr_pine.recipes.model_views.edit.IngredientsEditCard
+import de.mr_pine.recipes.model_views.view.InstructionCard
 import de.mr_pine.recipes.model_views.view.MetaInfo
 import de.mr_pine.recipes.models.Recipe
 import de.mr_pine.recipes.viewModels.RecipeViewModel
@@ -122,7 +124,7 @@ fun RecipeView(
                     }*/
                 }
 
-                /*itemsIndexed(
+                itemsIndexed(
                     recipe.instructions.instructions
                 ) { index, instruction ->
                     instruction.InstructionCard(
@@ -144,9 +146,9 @@ fun RecipeView(
                                 recipe.instructions.instructions.size
                             )
                         },
-                        getIngredientFraction = recipe.ingredients.let { it::getPartialIngredient }
+                        getIngredientFraction = recipe.ingredients::getPartialIngredient
                     )
-                }*/
+                }
             }
         }
     }

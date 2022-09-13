@@ -1,6 +1,5 @@
 package de.mr_pine.recipes.screens
 
-import android.util.Log
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -23,7 +22,6 @@ import de.mr_pine.recipes.R
 import de.mr_pine.recipes.models.Recipe
 import de.mr_pine.recipes.viewModels.RecipeViewModel
 
-private const val TAG = "Home"
 
 @ExperimentalMaterial3Api
 @Composable
@@ -45,8 +43,6 @@ fun Home(
     navigateToRecipe: (Recipe) -> Unit
 ) {
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(rememberTopAppBarState())
-
-    Log.d(TAG, "Home: ${MaterialTheme.colorScheme}")
 
     Scaffold(
         topBar = {

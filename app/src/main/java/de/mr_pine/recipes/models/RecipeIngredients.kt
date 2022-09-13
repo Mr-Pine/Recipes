@@ -12,6 +12,7 @@ import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
 import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
+import java.util.*
 import kotlin.math.roundToInt
 
 @Serializable
@@ -23,9 +24,9 @@ data class RecipeIngredients(
         ingredients.apply { add(to, removeAt(from)) }
     }
 
-    fun getPartialIngredient(name: String, fraction: Float) =
-        ingredients.find { name == it.name }?.getPartial(fraction)
-            ?: throw Exception("Ingredient $name not found")
+    fun getPartialIngredient(id: String, fraction: Float) =
+        ingredients.find { id == it.ingredientId }?.getPartial(fraction)
+            ?: throw Exception("Ingredient $id not found")
 }
 
 @Serializable
@@ -38,12 +39,14 @@ class RecipeIngredient(
     private val amountState: MutableState<IngredientAmount> = mutableStateOf(Float.NaN.amount),
     @Serializable(with = MutableStateSerializer::class)
     @SerialName("unit")
-    private val unitState: MutableState<IngredientUnit> = mutableStateOf(IngredientUnit.None)
+    private val unitState: MutableState<IngredientUnit> = mutableStateOf(IngredientUnit.None),
+    @SerialName("ID")
+    val ingredientId: String = UUID.randomUUID().toString()
 ) {
     var name by nameState
     var amount by amountState
-    var unit by unitState
 
+    var unit by unitState
     var isChecked by mutableStateOf(false)
 
     fun getPartial(fraction: Float): RecipeIngredient {

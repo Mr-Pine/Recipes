@@ -81,7 +81,8 @@ object AnnotatedSerializer : KSerializer<AnnotatedString> {
         var text = value.text
         val annotations = value.getStringAnnotations(0, value.lastIndex)
         annotations.forEachIndexed { index, range ->
-            text = text.replaceRange(range.start..range.end, "{{$index}}")
+            text =
+                text.replaceRange(range.start + 4 * index until range.end + 4 * index, "{{$index}}")
         }
         encoder.encodeString(text)
     }

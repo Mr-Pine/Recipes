@@ -57,27 +57,27 @@ interface InstructionSubmodels {
     @Serializable
     @SerialName("Ingredient")
     class IngredientModel(
-        @SerialName("name")
-        private val ingredientName: String,
+        @SerialName("ingredient_ID")
+        private val ingredientId: String,
         @SerialName("display")
-        private val displayName: String = ingredientName,
+        val displayName: String? = null,
         @SerialName("amount_fraction")
         private val amountFraction: Float = 1f,
         @SerialName("no_amount")
-        private val noAmount: Boolean = false
+        val noAmount: Boolean = false
     ) : EmbedTypeModel {
 
         @Transient
         var ingredient: RecipeIngredient? = null
 
         override val content: String
-            get() = ingredient?.let { "${if (!noAmount) "${it.amount} ${it.unit.displayValue()} " else ""}$displayName" }
+            get() = ingredient?.let { "${if (!noAmount) "${it.amount} ${it.unit.displayValue()} " else ""}${displayName ?: it.name}" }
                 ?: "???"
 
         fun receiveIngredient(
             getIngredientFraction: ((String, Float) -> RecipeIngredient)?
         ) {
-            ingredient = getIngredientFraction?.invoke(ingredientName, amountFraction)
+            ingredient = getIngredientFraction?.invoke(ingredientId, amountFraction)
         }
 
     }

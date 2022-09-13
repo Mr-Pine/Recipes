@@ -198,7 +198,7 @@ fun RecipeIngredient.IngredientEditRow(
                 Text(text = stringResource(if(isNew) R.string.Add_Ingredient else R.string.Edit_ingredient))
             },
             text = {
-                Column() {
+                Column {
                     TextField(
                         value = bufferIngredient.name,
                         onValueChange = { bufferIngredient.name = it },
@@ -217,7 +217,7 @@ fun RecipeIngredient.IngredientEditRow(
                     )
                     var amountBuffer by remember { mutableStateOf(bufferIngredient.amount.toString()) }
                     Spacer(modifier = Modifier.height(10.dp))
-                    Row() {
+                    Row {
                         TextField(
                             value = amountBuffer,
                             modifier = Modifier.width(90.dp),
@@ -252,10 +252,6 @@ fun RecipeIngredient.IngredientEditRow(
                                 label = { Text("Label") },
                                 trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = unitDropDownExtended) },
                                 colors = ExposedDropdownMenuDefaults.textFieldColors(),
-                            )
-                            Log.d(
-                                TAG,
-                                "IngredientEditRow: ${bufferIngredient.unit.menuDisplayValue()}"
                             )
                             ExposedDropdownMenu(
                                 expanded = unitDropDownExtended,

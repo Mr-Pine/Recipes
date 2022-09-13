@@ -124,7 +124,7 @@ fun RecipeInstruction.InstructionCard(
                         val data =
                             generateInlineContent(index.toString(), constraints = constraints) {
 
-                                if (embedData.embed is InstructionSubmodels.IngredientModel) {
+                                if (embedData.embed is InstructionSubmodels.IngredientModel && embedData.embed.ingredient == null) {
                                     embedData.embed.receiveIngredient(getIngredientFraction)
                                 }
 

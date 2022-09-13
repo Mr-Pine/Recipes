@@ -51,6 +51,10 @@
               "Liter",
               "None"
             ]
+          },
+          "ID": {
+            "description": "A unique id for the ingredient",
+            "type": "string"
           }
         },
         "required": [
@@ -89,8 +93,8 @@
                       "description": "The data for the ingredient",
                       "type": "object",
                       "properties": {
-                        "name": {
-                          "desription": "The name of the ingredient referenced",
+                        "ingredient_ID": {
+                          "desription": "The unique id of the ingredient referenced",
                           "type": "string"
                         },
                         "display": {
@@ -108,7 +112,7 @@
                           "type": "boolean"
                         }
                       },
-                      "required": ["name"],
+                      "required": ["ingredient_ID"],
                       "additionalProperties": false
                     }
                   ]
