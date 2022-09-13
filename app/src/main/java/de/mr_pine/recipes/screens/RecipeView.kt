@@ -18,7 +18,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.unit.dp
 import de.mr_pine.recipes.model_views.edit.IngredientsEditCard
-import de.mr_pine.recipes.model_views.view.InstructionCard
+import de.mr_pine.recipes.model_views.edit.InstructionEditCard
 import de.mr_pine.recipes.model_views.view.MetaInfo
 import de.mr_pine.recipes.models.Recipe
 import de.mr_pine.recipes.viewModels.RecipeViewModel
@@ -98,57 +98,53 @@ fun RecipeView(
             }
         }
     ) { innerPadding ->
-        Box(modifier = Modifier.padding(innerPadding)) {
+        LazyColumn(
+            modifier = Modifier.padding(horizontal = 8.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+            contentPadding = /*PaddingValues(bottom = 16.dp)*/ innerPadding,
+            state = lazyListState
+        ) {
+            item {
+                recipe.metadata.MetaInfo()
+            }
+            item {
+                //recipe.ingredients.IngredientsCard()
+            }
+            item {
+                recipe.ingredients.IngredientsEditCard()
+            }
 
+            fun setCurrentlyActiveIndex(index: Int) {
+                recipe.instructions.currentlyActiveIndex = index
+                /*coroutineScope.launch {
+                lazyListState.animateScrollToItem(index + 2, -300)
+                }*/
+            }
 
-            LazyColumn(
-                modifier = Modifier.padding(horizontal = 8.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp),
-                contentPadding = PaddingValues(bottom = 16.dp),
-                state = lazyListState
-            ) {
-                item {
-                    recipe.metadata.MetaInfo()
-                }
-                item {
-                    //recipe.ingredients.IngredientsCard()
-                }
-                item {
-                    recipe.ingredients.IngredientsEditCard()
-                }
-
-                fun setCurrentlyActiveIndex(index: Int) {
-                    recipe.instructions.currentlyActiveIndex = index
-                    /*coroutineScope.launch {
-                    lazyListState.animateScrollToItem(index + 2, -300)
-                    }*/
-                }
-
-                itemsIndexed(
-                    recipe.instructions.instructions
-                ) { index, instruction ->
-                    instruction.InstructionCard(
-                        index = index,
-                        currentlyActiveIndex = recipe.instructions.currentlyActiveIndex,
-                        recipeTitle = recipe.metadata.title,
-                        setCurrentlyActiveIndex = ::setCurrentlyActiveIndex,
-                        setNextActive = {
-                            for ((nextIndex, next) in recipe.instructions.instructions.subList(
-                                index + 1,
-                                recipe.instructions.instructions.size
-                            ).withIndex()) {
-                                if (!next.done) {
-                                    setCurrentlyActiveIndex(nextIndex + index + 1)
-                                    break
-                                }
+            itemsIndexed(
+                recipe.instructions.instructions
+            ) { index, instruction ->
+                instruction.InstructionEditCard(
+                    index = index,
+                    currentlyActiveIndex = recipe.instructions.currentlyActiveIndex,
+                    recipeTitle = recipe.metadata.title,
+                    setCurrentlyActiveIndex = ::setCurrentlyActiveIndex,
+                    setNextActive = {
+                        for ((nextIndex, next) in recipe.instructions.instructions.subList(
+                            index + 1,
+                            recipe.instructions.instructions.size
+                        ).withIndex()) {
+                            if (!next.done) {
+                                setCurrentlyActiveIndex(nextIndex + index + 1)
+                                break
                             }
-                            if (recipe.instructions.currentlyActiveIndex == index) setCurrentlyActiveIndex(
-                                recipe.instructions.instructions.size
-                            )
-                        },
-                        getIngredientFraction = recipe.ingredients::getPartialIngredient
-                    )
-                }
+                        }
+                        if (recipe.instructions.currentlyActiveIndex == index) setCurrentlyActiveIndex(
+                            recipe.instructions.instructions.size
+                        )
+                    },
+                    getIngredientFraction = recipe.ingredients::getPartialIngredient
+                )
             }
         }
     }

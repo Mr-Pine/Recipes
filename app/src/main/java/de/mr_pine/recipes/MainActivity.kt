@@ -11,7 +11,6 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.imePadding
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -146,7 +145,6 @@ class MainActivity : ComponentActivity() {
                                 ?: Destination.RECIPE) { navHostController.navigate(it.toString()); tryCloseNavigationDrawer() }
                     },
                     drawerState = drawerState,
-                    modifier = Modifier.imePadding()
                 ) {
                     Surface(
                         modifier = Modifier.fillMaxSize(),
