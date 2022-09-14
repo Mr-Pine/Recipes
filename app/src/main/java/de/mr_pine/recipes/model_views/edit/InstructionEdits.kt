@@ -1,11 +1,9 @@
 package de.mr_pine.recipes.model_views.edit
 
-import android.util.Log
-import androidx.compose.animation.*
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.QuestionMark
 import androidx.compose.material.icons.filled.Scale
 import androidx.compose.material.icons.filled.Timer
@@ -17,21 +15,16 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.layout.SubcomposeLayout
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import de.mr_pine.recipes.R
 import de.mr_pine.recipes.model_views.view.generateInlineContent
 import de.mr_pine.recipes.models.RecipeIngredient
 import de.mr_pine.recipes.models.instructions.InstructionSubmodels
 import de.mr_pine.recipes.models.instructions.RecipeInstruction
-import de.mr_pine.recipes.ui.theme.Extended
 
 private const val TAG = "InstructionViews"
 
-@ExperimentalAnimationApi
 @ExperimentalMaterial3Api
-@ExperimentalMaterialApi
 @Composable
 fun RecipeInstruction.InstructionEditCard(
     index: Int,
@@ -42,24 +35,6 @@ fun RecipeInstruction.InstructionEditCard(
     getIngredientFraction: ((String, Float) -> RecipeIngredient)?,
 ) {
 
-    val active = currentlyActiveIndex == index
-
-
-    fun toggleDone() {
-        done = !done
-        Log.d(
-            TAG,
-            "toggleDone: done: $done, index: $index, currentIndex: $currentlyActiveIndex"
-        )
-        if (active && done) {
-            setNextActive()
-        } else if (!done)
-            setCurrentlyActiveIndex(index)
-    }
-
-    val currentColor = if (done) Extended.revertOrange else Extended.doneGreen
-
-
     val containerColor = MaterialTheme.colorScheme.let {
         if (done) it.surface.copy(alpha = 0.38f)
             .compositeOver(it.surfaceColorAtElevation(1.dp)) else it.surface
@@ -69,110 +44,89 @@ fun RecipeInstruction.InstructionEditCard(
             .fillMaxWidth(),
         colors = CardDefaults.elevatedCardColors(
             containerColor = containerColor,
-            contentColor = contentColorFor(backgroundColor = containerColor).copy(alpha = if(done) 0.38f else 1f)
-        ),
-        onClick = {
-            setCurrentlyActiveIndex(index)
-        }
+            contentColor = contentColorFor(backgroundColor = containerColor).copy(alpha = if (done) 0.38f else 1f)
+        )
     ) {
 
-        Column(modifier = Modifier.padding(12.dp)) {
-            SubcomposeLayout { constraints ->
 
-                val inlineContent = inlineEmbeds.mapIndexed { index, embedData ->
-                    val data =
-                        generateInlineContent(index.toString(), constraints = constraints) {
+        Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth().padding(12.dp)) {
+            Column(modifier = Modifier.width(0.dp).weight(1f)) {
+                SubcomposeLayout { constraints ->
 
-                            if (embedData.embed is InstructionSubmodels.IngredientModel && embedData.embed.ingredient == null) {
-                                embedData.embed.receiveIngredient(getIngredientFraction)
-                            }
+                    val inlineContent = inlineEmbeds.mapIndexed { index, embedData ->
+                        val data =
+                            generateInlineContent(index.toString(), constraints = constraints) {
 
-                            val context = LocalContext.current
+                                if (embedData.embed is InstructionSubmodels.IngredientModel && embedData.embed.ingredient == null) {
+                                    embedData.embed.receiveIngredient(getIngredientFraction)
+                                }
 
-                            var enabled by remember(embedData.enabled) {
-                                mutableStateOf(embedData.enabled)
-                            }
+                                val context = LocalContext.current
 
-                            fun setEnabled(value: Boolean) {
-                                embedData.enabled = value; enabled = value
-                            }
+                                var enabled by remember(embedData.enabled) {
+                                    mutableStateOf(embedData.enabled)
+                                }
 
-                            val icon = @Composable {
-                                Icon(
-                                    imageVector = when (embedData.embed) {
-                                        is InstructionSubmodels.IngredientModel -> Icons.Default.Scale
-                                        is InstructionSubmodels.TimerModel -> Icons.Default.Timer
-                                        else -> Icons.Default.QuestionMark
+                                fun setEnabled(value: Boolean) {
+                                    embedData.enabled = value; enabled = value
+                                }
+
+                                val icon = @Composable {
+                                    Icon(
+                                        imageVector = when (embedData.embed) {
+                                            is InstructionSubmodels.IngredientModel -> Icons.Default.Scale
+                                            is InstructionSubmodels.TimerModel -> Icons.Default.Timer
+                                            else -> Icons.Default.QuestionMark
+                                        },
+                                        contentDescription = null,
+                                        modifier = Modifier.size(18.dp)
+                                    )
+                                }
+                                RecipeEditChip(
+                                    onClick = {
+                                        when (embedData.embed) {
+                                            is InstructionSubmodels.IngredientModel -> setEnabled(
+                                                !enabled
+                                            )
+                                            is InstructionSubmodels.TimerModel -> embedData.embed.call(
+                                                recipeTitle,
+                                                context
+                                            )
+                                            else -> {}
+                                        }
                                     },
-                                    contentDescription = null,
-                                    modifier = Modifier.size(18.dp)
+                                    selected = enabled,
+                                    enabled = !done,
+                                    icon = icon,
+                                    labelText = embedData.embed.content
                                 )
                             }
-                            RecipeEditChip(
-                                onClick = {
-                                    when (embedData.embed) {
-                                        is InstructionSubmodels.IngredientModel -> setEnabled(
-                                            !enabled
-                                        )
-                                        is InstructionSubmodels.TimerModel -> embedData.embed.call(
-                                            recipeTitle,
-                                            context
-                                        )
-                                        else -> {}
-                                    }
-                                },
-                                selected = enabled,
-                                enabled = !done,
-                                icon = icon,
-                                labelText = embedData.embed.content
-                            )
-                        }
-                    index.toString() to data
-                }.toMap()
+                        index.toString() to data
+                    }.toMap()
 
-                val contentPlaceable = subcompose("content") {
+                    val contentPlaceable = subcompose("content") {
 
-                    Text(
-                        text = content,
-                        inlineContent = inlineContent,
-                        style = MaterialTheme.typography.bodyLarge.copy(
-                            fontSize = 20.sp,
-                            lineHeight = 26.sp
-                        )
-                    )
-
-
-                }[0].measure(constraints)
-
-                layout(contentPlaceable.width, contentPlaceable.height) {
-                    contentPlaceable.place(0, 0)
-                }
-            }
-            AnimatedVisibility(
-                visible = active,
-                enter = scaleIn(initialScale = 0f) + expandVertically(expandFrom = Alignment.Top),
-                exit = scaleOut(targetScale = 0f) + shrinkVertically(shrinkTowards = Alignment.Top)
-            ) {
-                Row(
-                    horizontalArrangement = Arrangement.Center,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(top = 8.dp)
-                ) {
-                    Button(
-                        onClick = ::toggleDone,
-                        colors = ButtonDefaults.buttonColors(
-                            contentColor = currentColor.onAccentContainer,
-                            containerColor = currentColor.accentContainer
-                        )
-                    ) {
                         Text(
-                            text = if (done) stringResource(R.string.step_repeat) else stringResource(
-                                R.string.step_finish
+                            text = content,
+                            inlineContent = inlineContent,
+                            style = MaterialTheme.typography.bodyLarge.copy(
+                                fontSize = 20.sp,
+                                lineHeight = 26.sp
                             )
                         )
+
+                    }[0].measure(constraints)
+
+                    layout(contentPlaceable.width, contentPlaceable.height) {
+                        contentPlaceable.place(0, 0)
                     }
                 }
+            }
+            FilledTonalIconButton(
+                onClick = { /*TODO*/ },
+                modifier = Modifier.requiredWidth(40.dp)
+            ) {
+                Icon(imageVector = Icons.Default.Edit, contentDescription = "Edit")
             }
         }
     }
@@ -223,7 +177,9 @@ fun RecipeEditChip(
             border = FilterChipDefaults.filterChipBorder(
                 borderColor = Color.Transparent,
                 selectedBorderColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                disabledSelectedBorderColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.12f),
+                disabledSelectedBorderColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(
+                    alpha = 0.12f
+                ),
                 selectedBorderWidth = 1.dp
             )
         )

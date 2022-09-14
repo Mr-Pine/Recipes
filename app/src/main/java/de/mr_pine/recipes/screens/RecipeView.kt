@@ -1,7 +1,6 @@
 package de.mr_pine.recipes.screens
 
 import android.util.Log
-import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -26,7 +25,6 @@ import de.mr_pine.recipes.viewModels.RecipeViewModel
 @ExperimentalFoundationApi
 @ExperimentalMaterial3Api
 @ExperimentalMaterialApi
-@ExperimentalAnimationApi
 @Composable
 fun RecipeView(viewModel: RecipeViewModel) {
     val currentRecipe = viewModel.currentRecipe
@@ -49,9 +47,6 @@ fun RecipeView(viewModel: RecipeViewModel) {
     }
 }
 
-
-@ExperimentalMaterialApi
-@ExperimentalAnimationApi
 @ExperimentalMaterial3Api
 @Composable
 fun RecipeView(
@@ -88,7 +83,7 @@ fun RecipeView(
         },
         floatingActionButtonPosition = FabPosition.End,
         floatingActionButton = {
-            ExtendedFloatingActionButton(
+            FloatingActionButton(
                 onClick = { /*loadRecipe(recipe)*/saveRecipe(recipe) }
             ) {
                 Icon(
@@ -101,7 +96,7 @@ fun RecipeView(
         LazyColumn(
             modifier = Modifier.padding(horizontal = 8.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp),
-            contentPadding = /*PaddingValues(bottom = 16.dp)*/ innerPadding,
+            contentPadding = innerPadding,
             state = lazyListState
         ) {
             item {

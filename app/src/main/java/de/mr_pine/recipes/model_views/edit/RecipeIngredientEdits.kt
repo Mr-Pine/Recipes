@@ -147,7 +147,7 @@ fun RecipeIngredient.IngredientEditRow(
             .clip(CircleShape)
             .background(MaterialTheme.colorScheme.surfaceColorAtElevation(if (isDragging) 5.dp else 2.dp))
             .then(
-                if (reorderableLazyListState != null) Modifier.detectReorder(
+                if (reorderableLazyListState != null) Modifier.detectReorderAfterLongPress(
                     reorderableLazyListState
                 ) else Modifier.clickable { showEditDialog = true })
             .padding(horizontal = 1.dp)
@@ -156,15 +156,15 @@ fun RecipeIngredient.IngredientEditRow(
             if (reorderableLazyListState != null) Icon(
                 imageVector = Icons.Default.DragHandle,
                 contentDescription = "Reorder",
-                modifier = Modifier.padding(start = 2.dp)
+                modifier = Modifier.padding(start = 2.dp).detectReorder(reorderableLazyListState)
             )
             Spacer(modifier = Modifier.width(8.dp))
             Text(
                 text = "${name}: $amount ${unit.displayValue()}",
-                fontSize = 20.sp
+                fontSize = 20.sp,
+                modifier = Modifier.width(0.dp).weight(1f)
             )
             if (reorderableLazyListState == null) {
-                Spacer(modifier = Modifier.weight(1f))
                 Icon(imageVector = Icons.Default.Edit, contentDescription = "Edit")
             }
 
