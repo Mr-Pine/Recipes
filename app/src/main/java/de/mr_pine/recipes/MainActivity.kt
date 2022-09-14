@@ -15,7 +15,6 @@ import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
@@ -55,7 +54,7 @@ private const val TAG = "MainActivity"
 @ExperimentalMaterialApi
 class MainActivity : ComponentActivity() {
 
-    var tryCloseNavigationDrawer: () -> Boolean = { false }
+    var closeNavigationDrawer: () -> Unit = {}
 
     override fun onCreate(savedInstanceState: Bundle?) {
         resources.openRawResource(R.raw.rezept).bufferedReader().readText()
@@ -66,7 +65,7 @@ class MainActivity : ComponentActivity() {
 
         val onBackPressedCallback = object : OnBackPressedCallback(false) {
             override fun handleOnBackPressed() {
-                tryCloseNavigationDrawer()
+                closeNavigationDrawer()
             }
         }
         onBackPressedDispatcher.addCallback(onBackPressedCallback)
@@ -120,29 +119,35 @@ class MainActivity : ComponentActivity() {
             HarmonizedTheme {
                 val coroutineScope = rememberCoroutineScope()
 
-                val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
-                tryCloseNavigationDrawer = remember(drawerState) {
-                    {
-                        val open = drawerState.isOpen
-                        coroutineScope.launch { drawerState.close() }
-                        open
-                    }
-                }
 
                 val navHostController = rememberNavController()
 
-                recipeViewModel.showNavDrawer =
-                    { coroutineScope.launch { drawerState.open() } }
-                recipeViewModel.navigate = { navHostController.navigate(it.toString()) }
+                val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed) {
+                    onBackPressedCallback.isEnabled = it == DrawerValue.Open
+                    navHostController.enableOnBackPressed(it == DrawerValue.Closed)
+                    true
+                }
 
-                onBackPressedCallback.isEnabled = drawerState.isOpen
+                closeNavigationDrawer = {
+                    coroutineScope.launch { drawerState.close() }
+                    onBackPressedCallback.isEnabled = false
+                    navHostController.enableOnBackPressed(true)
+                }
+
+
+                recipeViewModel.showNavDrawer = {
+                    coroutineScope.launch { drawerState.open() }
+                    onBackPressedCallback.isEnabled = true
+                    navHostController.enableOnBackPressed(false)
+                }
+                recipeViewModel.navigate = { navHostController.navigate(it.toString()) }
 
                 ModalNavigationDrawer(
                     drawerContent = {
                         NavDrawerContent(
                             currentDestination = Destination.values()
                                 .find { it.toString() == navHostController.currentBackStackEntryAsState().value?.destination?.route }
-                                ?: Destination.RECIPE) { navHostController.navigate(it.toString()); tryCloseNavigationDrawer() }
+                                ?: Destination.RECIPE) { navHostController.navigate(it.toString()); closeNavigationDrawer() }
                     },
                     drawerState = drawerState,
                 ) {
