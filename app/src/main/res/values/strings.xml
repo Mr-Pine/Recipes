@@ -30,4 +30,5 @@
     <string name="Timer">Timer</string>
     <string name="Ingredient">Ingredient</string>
     <string name="Type">Type</string>
+    <string name="Duration">Duration</string>
 </resources>

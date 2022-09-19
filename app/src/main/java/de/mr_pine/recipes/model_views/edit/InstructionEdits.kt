@@ -19,10 +19,8 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.SubcomposeLayout
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
-import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.input.OffsetMapping
-import androidx.compose.ui.text.input.TransformedText
-import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.text.TextRange
+import androidx.compose.ui.text.input.*
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -35,7 +33,10 @@ import de.mr_pine.recipes.models.instructions.InstructionSubmodels.EmbedTypeEnum
 import de.mr_pine.recipes.models.instructions.InstructionSubmodels.EmbedTypeModel.Companion.getEnum
 import de.mr_pine.recipes.models.instructions.RecipeInstruction
 import de.mr_pine.recipes.models.instructions.encodeInstructionString
-import kotlin.math.round
+import java.lang.Integer.min
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.hours
+import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds
 
 @ExperimentalMaterial3Api
@@ -221,11 +222,11 @@ private fun RecipeInstruction.EmbedData.RecipeEditChipStateful(
     }
 
     if (isEditing) {
-        val buffer by remember { mutableStateOf(this.copy()) }
+        val buffer by remember { mutableStateOf(this.copy(embedState = mutableStateOf(embed.copy()))) }
         val typeBuffers = remember {
             values().map {
                 it to when (it) {
-                    TIMER -> InstructionSubmodels.TimerModel(0.seconds)
+                    TIMER -> InstructionSubmodels.TimerModel(mutableStateOf(0.seconds))
                     UNDEFINED -> InstructionSubmodels.UndefinedEmbedTypeModel()
                     INGREDIENT -> InstructionSubmodels.IngredientModel("")
                 }
@@ -239,10 +240,15 @@ private fun RecipeInstruction.EmbedData.RecipeEditChipStateful(
                 onDismissRequest = dismiss,
                 confirmButton = {
                     TextButton(onClick = {
-                        embed = buffer.embed
-                        enabled = buffer.enabled
-                        isEditing = false
-                        hideNew = false
+                        if (
+                            !(buffer.embed is InstructionSubmodels.TimerModel && (buffer.embed as InstructionSubmodels.TimerModel).duration == 0.seconds) &&
+                            buffer.embed !is InstructionSubmodels.UndefinedEmbedTypeModel
+                        ) {
+                            embed = buffer.embed.copy()
+                            enabled = buffer.enabled
+                            isEditing = false
+                            hideNew = false
+                        }
                     }) {
                         Text(text = stringResource(id = if (hideNew) R.string.Add else R.string.Apply))
                     }
@@ -321,16 +327,48 @@ private fun RecipeInstruction.EmbedData.RecipeEditChipStateful(
                 EditEmbedDialog {
                     TypeDropDown()
                     Spacer(modifier = Modifier.height(10.dp))
-                    var test by remember { mutableStateOf("0123456") }
+                    var test by remember(
+                        try {
+                            (embed as InstructionSubmodels.TimerModel).duration
+                        } catch (e: Exception) {
+                            embed
+                        }
+                    ) {
+                        mutableStateOf((buffer.embed as InstructionSubmodels.TimerModel).duration.toComponents { hours, minutes, seconds, nanoseconds ->
+                            (hours.toString().padStart(2, '0') + minutes.toString()
+                                .padStart(2, '0') + seconds.toString().padStart(2, '0')).let {
+                                TextFieldValue(it, TextRange(it.length))
+                            }
+                        })
+                    }
                     TextField(
                         value = test,
-                        modifier = Modifier.width(90.dp),
                         onValueChange = { newValue ->
-                            test = newValue
+                            val newText = newValue.text.trimStart('0').padStart(6, '0')
+                            try {
+                                val hours = newText.substring(0, newText.length - 4).toInt().hours
+                                val minutes =
+                                    newText.substring(newText.length - 4, newText.length - 2)
+                                        .toInt().minutes
+                                val seconds = newText.substring(newText.length - 2).toInt().seconds
+                                val duration = hours + minutes + seconds
+                                (buffer.embed as InstructionSubmodels.TimerModel).duration =
+                                    duration
+                            } catch (e: NumberFormatException) {
+                                (buffer.embed as InstructionSubmodels.TimerModel).duration =
+                                    Duration.ZERO
+                            }
+                            test = test.copy(
+                                newText,
+                                if (!newValue.selection.collapsed) newValue.selection else TextRange(
+                                    newText.length
+                                )
+                            )
                         },
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                        label = { Text(text = stringResource(R.string.Amount)) },
-                        visualTransformation = DurationVisualTransformation()
+                        label = { Text(text = stringResource(R.string.Duration)) },
+                        visualTransformation = DurationVisualTransformation(),
+                        isError = (buffer.embed as InstructionSubmodels.TimerModel).duration == 0.seconds
                     )
                 }
             }
@@ -352,7 +390,7 @@ class DurationVisualTransformation : VisualTransformation {
             text = AnnotatedString(text.text.let {
                 var buffer = it.reversed()
                 if (buffer.isNotEmpty()) {
-                    val range = 1 until buffer.lastIndex step 2
+                    val range = 1 until min(buffer.lastIndex, 4) step 2
                     for (i in range) {
                         val transformedIndex = (i * 1.5).toInt()
                         buffer =
@@ -366,23 +404,23 @@ class DurationVisualTransformation : VisualTransformation {
             }),
             offsetMapping = object :
                 OffsetMapping { //    0:12:34 01234  //365 //0123456 //0:12:34:56| -> |65:43:21:0
-                override fun originalToTransformed(offset: Int) = ((offset * 1.5).toInt() - (1-text.length % 2)).coerceAtLeast(0)
-                /* {
-                    val transformedLength = (text.length * 1.5).toInt() - ((1-text.length % 2).takeIf { text.isNotEmpty() } ?: 0)
+                override fun originalToTransformed(offset: Int): Int {
+                    val transformedLength =
+                        ((text.length * 1.5).toInt() - (1 - text.length % 2)).coerceAtMost(text.length + 2)
                     val reversed = text.length - offset
-                    val new = reversed + (reversed/2)
+                    val new = reversed + (reversed / 2)
                     val rereversed = transformedLength - new
-                    return rereversed
-                }*/
+                    return rereversed.coerceAtLeast(0)
+                }
 
-                override fun transformedToOriginal(offset: Int): Int = round((1-text.length % 2 + offset) * 2.0/3).toInt()
-                /*{
-                    val transformedLength = (text.length * 1.5).toInt() - (1-text.length % 2)
+                override fun transformedToOriginal(offset: Int): Int {
+                    val transformedLength =
+                        ((text.length * 1.5).toInt() - (1 - text.length % 2)).coerceAtMost(text.length + 2)
                     val reversed = transformedLength - offset
-                    val new = reversed - (reversed/3)
+                    val new = reversed - (reversed / 3)
                     val rereversed = text.length - new
                     return rereversed.coerceAtLeast(0)
-                }*/
+                }
 
             }
         )

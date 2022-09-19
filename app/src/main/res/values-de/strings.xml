@@ -30,4 +30,5 @@
     <string name="Undefined">Undefiniert</string>
     <string name="Ingredient">Zutat</string>
     <string name="Type">Typ</string>
+    <string name="Duration">Dauer</string>
 </resources>
