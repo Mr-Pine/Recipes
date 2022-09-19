@@ -124,8 +124,8 @@ fun RecipeInstruction.InstructionCard(
                         val data =
                             generateInlineContent(index.toString(), constraints = constraints) {
 
-                                if (embedData.embed is InstructionSubmodels.IngredientModel && embedData.embed.ingredient == null) {
-                                    embedData.embed.receiveIngredient(getIngredientFraction)
+                                if (embedData.embed is InstructionSubmodels.IngredientModel && (embedData.embed as InstructionSubmodels.IngredientModel).ingredient == null) {
+                                    (embedData.embed as InstructionSubmodels.IngredientModel).receiveIngredient(getIngredientFraction)
                                 }
 
                                 val context = LocalContext.current
@@ -155,7 +155,7 @@ fun RecipeInstruction.InstructionCard(
                                             is InstructionSubmodels.IngredientModel -> setEnabled(
                                                 !enabled
                                             )
-                                            is InstructionSubmodels.TimerModel -> embedData.embed.call(
+                                            is InstructionSubmodels.TimerModel -> (embedData.embed as InstructionSubmodels.TimerModel).call(
                                                 recipeTitle,
                                                 context
                                             )

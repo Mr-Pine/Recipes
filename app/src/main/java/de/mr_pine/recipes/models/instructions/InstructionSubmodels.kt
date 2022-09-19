@@ -3,34 +3,58 @@ package de.mr_pine.recipes.models.instructions
 import android.content.Context
 import android.content.Intent
 import android.provider.AlarmClock
+import androidx.annotation.StringRes
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.QuestionMark
+import androidx.compose.material.icons.filled.Scale
+import androidx.compose.material.icons.filled.Timer
+import androidx.compose.ui.graphics.vector.ImageVector
+import de.mr_pine.recipes.R
 import de.mr_pine.recipes.models.RecipeIngredient
-import kotlinx.serialization.KSerializer
+import kotlinx.serialization.Contextual
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
-import kotlinx.serialization.descriptors.PrimitiveKind
-import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
-import kotlinx.serialization.descriptors.SerialDescriptor
-import kotlinx.serialization.encoding.Decoder
-import kotlinx.serialization.encoding.Encoder
 import kotlin.time.Duration
-import kotlin.time.Duration.Companion.seconds
-import kotlin.time.DurationUnit
-
-private const val TAG = "InstructionSubmodels"
 
 interface InstructionSubmodels {
 
+    enum class EmbedTypeEnum(
+        val icon: ImageVector,
+        @StringRes val modelNameId: Int,
+        val selectable: Boolean = true
+    ) {
+
+        UNDEFINED(Icons.Default.QuestionMark, R.string.Undefined, false),
+        TIMER(Icons.Default.Timer, R.string.Timer),
+        INGREDIENT(Icons.Default.Scale, R.string.Ingredient);
+    }
 
     interface EmbedTypeModel {
         val content: String
+
+        companion object {
+            fun EmbedTypeModel.getEnum() =
+                when(this) {
+                    is TimerModel -> EmbedTypeEnum.TIMER
+                    is IngredientModel -> EmbedTypeEnum.INGREDIENT
+                    else -> EmbedTypeEnum.UNDEFINED
+                }
+        }
+    }
+
+    @Serializable
+    @SerialName("Undefined")
+    class UndefinedEmbedTypeModel : EmbedTypeModel {
+        override val content = ""
     }
 
     @Serializable
     @SerialName("Timer")
-    class TimerModel(@Serializable(with = SecondsSerializer::class) val duration: Duration) : EmbedTypeModel {
+    //TODO(With Kotlin 1.7.20, this @Contextual annotation should be unnecessary)
+    class TimerModel(@Contextual val duration: Duration) : EmbedTypeModel {
 
-        override val content: String = duration.toString()
+        override val content = duration.toString()
 
         fun call(title: String, context: Context) {
             val intent = Intent(AlarmClock.ACTION_SET_TIMER).apply {
@@ -40,18 +64,7 @@ interface InstructionSubmodels {
             }
             context.startActivity(intent)
         }
-    }
 
-    object SecondsSerializer: KSerializer<Duration> {
-        override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("Duration", PrimitiveKind.FLOAT)
-
-        override fun deserialize(decoder: Decoder): Duration {
-            return decoder.decodeInt().seconds
-        }
-
-        override fun serialize(encoder: Encoder, value: Duration) {
-            encoder.encodeInt(value.toInt(DurationUnit.SECONDS))
-        }
     }
 
     @Serializable
@@ -81,4 +94,5 @@ interface InstructionSubmodels {
         }
 
     }
+
 }

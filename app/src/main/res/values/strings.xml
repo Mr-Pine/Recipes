@@ -24,4 +24,10 @@
     <string name="Delete_ingredient_text">Do you want to delte the ingredient \"%1$s\"?</string>
     <string name="Add">Add</string>
     <string name="Add_Ingredient">Add Ingredient</string>
+    <string name="Add_Embed">Add Embed</string>
+    <string name="Edit_Embed">Edit Embed</string>
+    <string name="Undefined">Undefined</string>
+    <string name="Timer">Timer</string>
+    <string name="Ingredient">Ingredient</string>
+    <string name="Type">Type</string>
 </resources>

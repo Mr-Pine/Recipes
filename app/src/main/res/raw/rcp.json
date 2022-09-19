@@ -130,8 +130,8 @@
                       "type": "object",
                       "properties": {
                         "duration": {
-                          "descriotion": "The number of seconds this timer runs for",
-                          "type": "number"
+                          "descriotion": "The duration this timer runs for, formatted as ISO-8601-2",
+                          "type": "string"
                         }
                       },
                       "required": ["duration"],

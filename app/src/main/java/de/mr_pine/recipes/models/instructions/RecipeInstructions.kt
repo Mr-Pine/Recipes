@@ -1,11 +1,11 @@
 package de.mr_pine.recipes.models.instructions
 
 import androidx.compose.foundation.text.appendInlineContent
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.*
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.buildAnnotatedString
+import de.mr_pine.recipes.models.MutableStateListSerializer
 import kotlinx.serialization.*
 import kotlinx.serialization.descriptors.PrimitiveKind
 import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
@@ -32,8 +32,9 @@ class RecipeInstruction(
     @SerialName("text")
     @Serializable(with = AnnotatedSerializer::class)
     val content: AnnotatedString,
+    @Serializable(with = MutableStateListSerializer::class)
     @SerialName("replacements")
-    val inlineEmbeds: List<EmbedData> = listOf()
+    val inlineEmbeds: SnapshotStateList<EmbedData> = mutableStateListOf()
 ) : InstructionSubmodels {
 
     var done by mutableStateOf(false)
@@ -41,13 +42,16 @@ class RecipeInstruction(
     @Serializable(with = EmbedDataSerializer::class)
     data class EmbedData(
         @Transient var enabled: Boolean = true,
-        val embed: InstructionSubmodels.EmbedTypeModel
-    )
+        @SerialName("embed")
+        private var embedState: MutableState<InstructionSubmodels.EmbedTypeModel>
+    ) {
+        var embed by embedState
+    }
 
     private object EmbedDataSerializer : KSerializer<EmbedData> {
         override fun deserialize(decoder: Decoder): EmbedData {
             return EmbedData(
-                embed = serializer<InstructionSubmodels.EmbedTypeModel>().deserialize(decoder)
+                embedState = mutableStateOf(serializer<InstructionSubmodels.EmbedTypeModel>().deserialize(decoder))
             )
         }
 
@@ -65,28 +69,34 @@ object AnnotatedSerializer : KSerializer<AnnotatedString> {
         PrimitiveSerialDescriptor("AnnotatedString", PrimitiveKind.STRING)
 
     override fun deserialize(decoder: Decoder): AnnotatedString {
-        return buildAnnotatedString {
-            val unannotated = decoder.decodeString()
-            val elements = unannotated.split(regex = "[{][{]\\d+[}][}]".toRegex())
-            elements.forEachIndexed { index, element ->
-                append(element)
-                if (index != elements.lastIndex) {
-                    appendInlineContent(index.toString())
-                }
-            }
-        }
+        val unannotated = decoder.decodeString()
+        return decodeInstructionString(unannotated)
     }
 
     override fun serialize(encoder: Encoder, value: AnnotatedString) {
-        var text = value.text
-        val annotations = value.getStringAnnotations(0, value.lastIndex)
-        annotations.forEachIndexed { index, range ->
-            text =
-                text.replaceRange(range.start + 4 * index until range.end + 4 * index, "{{$index}}")
-        }
-        encoder.encodeString(text)
+
+        encoder.encodeString(encodeInstructionString(value))
     }
 }
 
+fun decodeInstructionString(encoded: String) = buildAnnotatedString {
+    val elements = encoded.split(regex = "[{][{]\\d+[}][}]".toRegex())
+    elements.forEachIndexed { index, element ->
+        append(element)
+        if (index != elements.lastIndex) {
+            appendInlineContent(index.toString())
+        }
+    }
+}
+
+fun encodeInstructionString(decoded: AnnotatedString): String {
+    var text = decoded.text
+    val annotations = decoded.getStringAnnotations(0, decoded.lastIndex)
+    annotations.forEachIndexed { index, range ->
+        text =
+            text.replaceRange(range.start + 4 * index until range.end + 4 * index, "{{$index}}")
+    }
+    return text
+}
 
 

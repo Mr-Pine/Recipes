@@ -47,11 +47,11 @@ import java.io.File
 private const val TAG = "MainActivity"
 
 
+@ExperimentalMaterialApi
 @ExperimentalSerializationApi
 @ExperimentalFoundationApi
 @ExperimentalMaterial3Api
 @ExperimentalAnimationApi
-@ExperimentalMaterialApi
 class MainActivity : ComponentActivity() {
 
     var closeNavigationDrawer: () -> Unit = {}

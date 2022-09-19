@@ -24,4 +24,10 @@
     <string name="Delete_ingredient_text">Zutat \"%1$s\" löschen?</string>
     <string name="Add">Hinzufügen</string>
     <string name="Add_Ingredient">Zutat Hinzufügen</string>
+    <string name="Add_Embed">Einbettung hinzufügen</string>
+    <string name="Edit_Embed">Einbettung bearbeiten</string>
+    <string name="Timer">Timer</string>
+    <string name="Undefined">Undefiniert</string>
+    <string name="Ingredient">Zutat</string>
+    <string name="Type">Typ</string>
 </resources>

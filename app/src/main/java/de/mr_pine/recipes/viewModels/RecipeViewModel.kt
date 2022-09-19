@@ -10,18 +10,22 @@ import de.mr_pine.recipes.screens.Destination
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.serialization.builtins.serializer
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.modules.SerializersModule
+import kotlinx.serialization.modules.plus
 import net.pwall.json.schema.JSONSchema
 import java.io.File
 import java.io.FileFilter
+import kotlin.time.Duration
 
 private const val TAG = "RecipeViewModel"
 
 class RecipeViewModel(private val recipeFolder: File, private val recipeSchema: JSONSchema) :
     ViewModel() {
-    private val json = Json { ignoreUnknownKeys = true; serializersModule = module }
+    private val json = Json { ignoreUnknownKeys = true; serializersModule = module + SerializersModule { contextual(Duration::class, Duration.serializer()) } }
 
     var currentRecipe: Recipe? by mutableStateOf(null)
 

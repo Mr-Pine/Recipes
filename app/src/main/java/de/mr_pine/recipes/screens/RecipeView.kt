@@ -1,6 +1,7 @@
 package de.mr_pine.recipes.screens
 
 import android.util.Log
+import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -22,6 +23,7 @@ import de.mr_pine.recipes.model_views.view.MetaInfo
 import de.mr_pine.recipes.models.Recipe
 import de.mr_pine.recipes.viewModels.RecipeViewModel
 
+@ExperimentalAnimationApi
 @ExperimentalFoundationApi
 @ExperimentalMaterial3Api
 @ExperimentalMaterialApi
@@ -47,6 +49,8 @@ fun RecipeView(viewModel: RecipeViewModel) {
     }
 }
 
+@ExperimentalMaterialApi
+@ExperimentalAnimationApi
 @ExperimentalMaterial3Api
 @Composable
 fun RecipeView(
@@ -62,7 +66,7 @@ fun RecipeView(
     Scaffold(
         modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = {
-            SmallTopAppBar(
+            TopAppBar(
                 title = {
                     Text(
                         recipe.metadata.title

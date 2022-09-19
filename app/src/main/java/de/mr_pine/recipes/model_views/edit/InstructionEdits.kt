@@ -1,28 +1,42 @@
 package de.mr_pine.recipes.model_views.edit
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.QuestionMark
-import androidx.compose.material.icons.filled.Scale
-import androidx.compose.material.icons.filled.Timer
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.compositeOver
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.SubcomposeLayout
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.OffsetMapping
+import androidx.compose.ui.text.input.TransformedText
+import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.google.accompanist.flowlayout.FlowRow
+import de.mr_pine.recipes.R
 import de.mr_pine.recipes.model_views.view.generateInlineContent
 import de.mr_pine.recipes.models.RecipeIngredient
 import de.mr_pine.recipes.models.instructions.InstructionSubmodels
+import de.mr_pine.recipes.models.instructions.InstructionSubmodels.EmbedTypeEnum.*
+import de.mr_pine.recipes.models.instructions.InstructionSubmodels.EmbedTypeModel.Companion.getEnum
 import de.mr_pine.recipes.models.instructions.RecipeInstruction
-
-private const val TAG = "InstructionViews"
+import de.mr_pine.recipes.models.instructions.encodeInstructionString
+import kotlin.math.round
+import kotlin.time.Duration.Companion.seconds
 
 @ExperimentalMaterial3Api
 @Composable
@@ -48,87 +62,330 @@ fun RecipeInstruction.InstructionEditCard(
         )
     ) {
 
+        var isEditingText by remember { mutableStateOf(false) }
 
-        Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth().padding(12.dp)) {
-            Column(modifier = Modifier.width(0.dp).weight(1f)) {
-                SubcomposeLayout { constraints ->
 
-                    val inlineContent = inlineEmbeds.mapIndexed { index, embedData ->
-                        val data =
-                            generateInlineContent(index.toString(), constraints = constraints) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically, modifier = Modifier
+                .fillMaxWidth()
+                .padding(12.dp)
+        ) {
+            val instructionTextStyle = MaterialTheme.typography.bodyLarge.copy(
+                fontSize = 22.sp,
+                lineHeight = 27.sp
+            )
+            if (isEditingText) {
 
-                                if (embedData.embed is InstructionSubmodels.IngredientModel && embedData.embed.ingredient == null) {
-                                    embedData.embed.receiveIngredient(getIngredientFraction)
-                                }
+                var bufferText by remember {
+                    mutableStateOf(
+                        encodeInstructionString(content)
+                    )
+                }
 
-                                val context = LocalContext.current
-
-                                var enabled by remember(embedData.enabled) {
-                                    mutableStateOf(embedData.enabled)
-                                }
-
-                                fun setEnabled(value: Boolean) {
-                                    embedData.enabled = value; enabled = value
-                                }
-
-                                val icon = @Composable {
+                Column {
+                    FlowRow(mainAxisSpacing = 6.dp, crossAxisSpacing = 6.dp) {
+                        inlineEmbeds.forEachIndexed { index, embedData ->
+                            embedData.RecipeEditChipStateful(
+                                getIngredientFraction = getIngredientFraction,
+                                done = done,
+                                editIndex = index,
+                                inlineEmbeds::remove
+                            )
+                        }
+                        Row(modifier = Modifier.height(32.dp)) {
+                            FilterChip(
+                                onClick = {
+                                    inlineEmbeds.add(
+                                        RecipeInstruction.EmbedData(
+                                            true,
+                                            mutableStateOf(InstructionSubmodels.UndefinedEmbedTypeModel())
+                                        )
+                                    )
+                                },
+                                label = { Text(text = stringResource(id = R.string.Add)) },
+                                selected = true,
+                                border = FilterChipDefaults.filterChipBorder(
+                                    borderColor = Color.Transparent,
+                                    selectedBorderColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    disabledSelectedBorderColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(
+                                        alpha = 0.12f
+                                    ),
+                                    selectedBorderWidth = 1.dp
+                                ),
+                                leadingIcon = {
                                     Icon(
-                                        imageVector = when (embedData.embed) {
-                                            is InstructionSubmodels.IngredientModel -> Icons.Default.Scale
-                                            is InstructionSubmodels.TimerModel -> Icons.Default.Timer
-                                            else -> Icons.Default.QuestionMark
-                                        },
-                                        contentDescription = null,
-                                        modifier = Modifier.size(18.dp)
+                                        imageVector = Icons.Default.Add,
+                                        contentDescription = "Add"
                                     )
                                 }
-                                RecipeEditChip(
-                                    onClick = {
-                                        when (embedData.embed) {
-                                            is InstructionSubmodels.IngredientModel -> setEnabled(
-                                                !enabled
-                                            )
-                                            is InstructionSubmodels.TimerModel -> embedData.embed.call(
-                                                recipeTitle,
-                                                context
-                                            )
-                                            else -> {}
-                                        }
-                                    },
-                                    selected = enabled,
-                                    enabled = !done,
-                                    icon = icon,
-                                    labelText = embedData.embed.content
-                                )
-                            }
-                        index.toString() to data
-                    }.toMap()
-
-                    val contentPlaceable = subcompose("content") {
-
-                        Text(
-                            text = content,
-                            inlineContent = inlineContent,
-                            style = MaterialTheme.typography.bodyLarge.copy(
-                                fontSize = 20.sp,
-                                lineHeight = 26.sp
                             )
-                        )
-
-                    }[0].measure(constraints)
-
-                    layout(contentPlaceable.width, contentPlaceable.height) {
-                        contentPlaceable.place(0, 0)
+                        }
+                    }
+                    Spacer(modifier = Modifier.height(6.dp))
+                    TextField(
+                        value = bufferText,
+                        onValueChange = {
+                            bufferText = it
+                        },
+                        textStyle = instructionTextStyle
+                    )
+                    Row(
+                        horizontalArrangement = Arrangement.End,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        TextButton(onClick = { /*TODO*/ }) {
+                            Text(text = stringResource(id = R.string.Apply))
+                        }
+                        TextButton(onClick = {
+                            bufferText = encodeInstructionString(content); isEditingText = false
+                        }) {
+                            Text(stringResource(id = R.string.Cancel))
+                        }
                     }
                 }
-            }
-            FilledTonalIconButton(
-                onClick = { /*TODO*/ },
-                modifier = Modifier.requiredWidth(40.dp)
-            ) {
-                Icon(imageVector = Icons.Default.Edit, contentDescription = "Edit")
+
+            } else {
+                Column(
+                    modifier = Modifier
+                        .width(0.dp)
+                        .weight(1f)
+                ) {
+                    SubcomposeLayout { constraints ->
+
+                        val inlineContent = inlineEmbeds.mapIndexed { index, embedData ->
+                            val data =
+                                generateInlineContent(
+                                    index.toString(),
+                                    constraints = constraints,
+                                    content = {
+                                        embedData.RecipeEditChipStateful(
+                                            getIngredientFraction = getIngredientFraction,
+                                            done = done,
+                                            removeEmbed = inlineEmbeds::remove
+                                        )
+                                    })
+                            index.toString() to data
+                        }.toMap()
+
+                        val contentPlaceable = subcompose("content") {
+
+                            Text(
+                                text = content,
+                                inlineContent = inlineContent,
+                                style = instructionTextStyle
+                            )
+
+                        }[0].measure(constraints)
+
+                        layout(contentPlaceable.width, contentPlaceable.height) {
+                            contentPlaceable.place(0, 0)
+                        }
+                    }
+                }
+                FilledTonalIconButton(
+                    onClick = { isEditingText = !isEditingText }
+                ) {
+                    Icon(imageVector = Icons.Default.Edit, contentDescription = "Edit")
+                }
+
             }
         }
+    }
+}
+
+@ExperimentalMaterial3Api
+@Composable
+private fun RecipeInstruction.EmbedData.RecipeEditChipStateful(
+    getIngredientFraction: ((String, Float) -> RecipeIngredient)?,
+    done: Boolean,
+    editIndex: Int? = null,
+    removeEmbed: (RecipeInstruction.EmbedData) -> Unit
+) {
+
+    if (embed is InstructionSubmodels.IngredientModel && (embed as InstructionSubmodels.IngredientModel).ingredient == null) {
+        (embed as InstructionSubmodels.IngredientModel).receiveIngredient(getIngredientFraction)
+    }
+
+    var hideNew by remember { mutableStateOf(embed is InstructionSubmodels.UndefinedEmbedTypeModel) }
+    var isEditing by remember { mutableStateOf(hideNew) }
+
+    if (!hideNew) {
+        RecipeEditChip(
+            onClick = { isEditing = true },
+            selected = true,
+            enabled = !done,
+            icon = embed.getEnum().icon,
+            labelText = embed.content,
+            editIndex = editIndex
+        )
+    }
+
+    if (isEditing) {
+        val buffer by remember { mutableStateOf(this.copy()) }
+        val typeBuffers = remember {
+            values().map {
+                it to when (it) {
+                    TIMER -> InstructionSubmodels.TimerModel(0.seconds)
+                    UNDEFINED -> InstructionSubmodels.UndefinedEmbedTypeModel()
+                    INGREDIENT -> InstructionSubmodels.IngredientModel("")
+                }
+            }.toMutableStateMap()
+        }
+        typeBuffers[buffer.embed.getEnum()] = buffer.embed
+        @Composable
+        fun EditEmbedDialog(content: @Composable ColumnScope.() -> Unit) {
+            val dismiss = { isEditing = false; if (hideNew) removeEmbed(this) }
+            AlertDialog(
+                onDismissRequest = dismiss,
+                confirmButton = {
+                    TextButton(onClick = {
+                        embed = buffer.embed
+                        enabled = buffer.enabled
+                        isEditing = false
+                        hideNew = false
+                    }) {
+                        Text(text = stringResource(id = if (hideNew) R.string.Add else R.string.Apply))
+                    }
+                },
+                dismissButton = {
+                    TextButton(onClick = dismiss) {
+                        Text(text = stringResource(id = R.string.Cancel))
+                    }
+                },
+                title = {
+                    Text(text = stringResource(id = if (hideNew) R.string.Add_Embed else R.string.Edit_Embed))
+                },
+                text = { Column(content = content) }
+            )
+        }
+
+        @Composable
+        fun TypeDropDown() {
+            var modelTypeDropdownExpanded by remember { mutableStateOf(false) }
+            var selectedType: InstructionSubmodels.EmbedTypeEnum? by remember {
+                mutableStateOf(
+                    buffer.embed.getEnum().takeIf { it.selectable }
+                )
+            }
+            ExposedDropdownMenuBox(
+                expanded = modelTypeDropdownExpanded,
+                onExpandedChange = {
+                    modelTypeDropdownExpanded = !modelTypeDropdownExpanded
+                }) {
+                TextField(
+                    readOnly = true,
+                    value = selectedType?.let { stringResource(id = it.modelNameId) } ?: "",
+                    leadingIcon =
+                    selectedType?.let {
+                        {
+                            Icon(
+                                it.icon,
+                                contentDescription = null
+                            )
+                        }
+                    },
+                    onValueChange = {},
+                    label = { Text(stringResource(R.string.Type)) },
+                    trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = modelTypeDropdownExpanded) },
+                    colors = ExposedDropdownMenuDefaults.textFieldColors(),
+                )
+                ExposedDropdownMenu(
+                    expanded = modelTypeDropdownExpanded,
+                    onDismissRequest = { modelTypeDropdownExpanded = false }) {
+                    values().filter { it.selectable }
+                        .forEach { embedType ->
+                            DropdownMenuItem(
+                                text = {
+                                    Row(verticalAlignment = Alignment.CenterVertically) {
+                                        Icon(
+                                            imageVector = embedType.icon,
+                                            contentDescription = ""
+                                        )
+                                        Spacer(modifier = Modifier.width(8.dp))
+                                        Text(text = stringResource(id = embedType.modelNameId))
+                                    }
+                                },
+                                onClick = {
+                                    selectedType = embedType
+                                    buffer.embed = typeBuffers[embedType]!!
+                                    modelTypeDropdownExpanded = false
+                                })
+                        }
+                }
+            }
+        }
+
+        //Different Dialogs necessary because of https://issuetracker.google.com/issues/221643630
+        when (remember(buffer.embed) { buffer.embed.getEnum() }) {
+            TIMER -> {
+                EditEmbedDialog {
+                    TypeDropDown()
+                    Spacer(modifier = Modifier.height(10.dp))
+                    var test by remember { mutableStateOf("0123456") }
+                    TextField(
+                        value = test,
+                        modifier = Modifier.width(90.dp),
+                        onValueChange = { newValue ->
+                            test = newValue
+                        },
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                        label = { Text(text = stringResource(R.string.Amount)) },
+                        visualTransformation = DurationVisualTransformation()
+                    )
+                }
+            }
+            INGREDIENT -> {
+
+            }
+            UNDEFINED -> {
+                EditEmbedDialog {
+                    TypeDropDown()
+                }
+            }
+        }
+    }
+}
+
+class DurationVisualTransformation : VisualTransformation {
+    override fun filter(text: AnnotatedString): TransformedText {
+        return TransformedText(
+            text = AnnotatedString(text.text.let {
+                var buffer = it.reversed()
+                if (buffer.isNotEmpty()) {
+                    val range = 1 until buffer.lastIndex step 2
+                    for (i in range) {
+                        val transformedIndex = (i * 1.5).toInt()
+                        buffer =
+                            buffer.replaceRange(
+                                transformedIndex..transformedIndex,
+                                buffer[transformedIndex] + ":"
+                            )
+                    }
+                }
+                buffer.reversed()
+            }),
+            offsetMapping = object :
+                OffsetMapping { //    0:12:34 01234  //365 //0123456 //0:12:34:56| -> |65:43:21:0
+                override fun originalToTransformed(offset: Int) = ((offset * 1.5).toInt() - (1-text.length % 2)).coerceAtLeast(0)
+                /* {
+                    val transformedLength = (text.length * 1.5).toInt() - ((1-text.length % 2).takeIf { text.isNotEmpty() } ?: 0)
+                    val reversed = text.length - offset
+                    val new = reversed + (reversed/2)
+                    val rereversed = transformedLength - new
+                    return rereversed
+                }*/
+
+                override fun transformedToOriginal(offset: Int): Int = round((1-text.length % 2 + offset) * 2.0/3).toInt()
+                /*{
+                    val transformedLength = (text.length * 1.5).toInt() - (1-text.length % 2)
+                    val reversed = transformedLength - offset
+                    val new = reversed - (reversed/3)
+                    val rereversed = text.length - new
+                    return rereversed.coerceAtLeast(0)
+                }*/
+
+            }
+        )
     }
 }
 
@@ -139,8 +396,9 @@ fun RecipeEditChip(
     modifier: Modifier = Modifier,
     selected: Boolean,
     enabled: Boolean,
-    icon: @Composable () -> Unit,
-    labelText: String
+    icon: ImageVector,
+    labelText: String,
+    editIndex: Int?
 ) {
     val colors = FilterChipDefaults.elevatedFilterChipColors(
         selectedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
@@ -161,27 +419,56 @@ fun RecipeEditChip(
 
     Box(
         modifier = modifier
-            .height(30.dp)
+            .height(32.dp)
             .clickable(onClick = onClick)
     ) {
-        ElevatedFilterChip(
-            onClick = onClick,
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
             modifier = modifier
-                .padding(horizontal = 3.dp, vertical = 2.dp),
-            selected = selected,
-            enabled = enabled,
-            leadingIcon = icon,
-            label = { Text(text = labelText) },
-            colors = colors,
-            elevation = elevation,
-            border = FilterChipDefaults.filterChipBorder(
-                borderColor = Color.Transparent,
-                selectedBorderColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                disabledSelectedBorderColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(
-                    alpha = 0.12f
-                ),
-                selectedBorderWidth = 1.dp
+                .then(
+                    if (editIndex != null)
+                        Modifier
+                            .clip(MaterialTheme.shapes.small)
+                            .border(
+                                1.dp,
+                                MaterialTheme.colorScheme.onSurfaceVariant,
+                                MaterialTheme.shapes.small
+                            )
+                            .background(MaterialTheme.colorScheme.secondaryContainer)
+                    else
+                        Modifier.padding(horizontal = 3.dp, vertical = 2.dp)
+                )
+        ) {
+            if (editIndex != null) {
+                Text(
+                    text = "{{${editIndex}}}",
+                    modifier = Modifier.padding(horizontal = 2.dp),
+                    textAlign = TextAlign.Center
+                )
+            }
+            ElevatedFilterChip(
+                onClick = onClick,
+                selected = selected,
+                enabled = enabled,
+                leadingIcon = {
+                    Icon(
+                        imageVector = icon,
+                        contentDescription = null,
+                        modifier = Modifier.size(18.dp)
+                    )
+                },
+                label = { Text(text = labelText) },
+                colors = colors,
+                elevation = elevation,
+                border = FilterChipDefaults.filterChipBorder(
+                    borderColor = Color.Transparent,
+                    selectedBorderColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                    disabledSelectedBorderColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(
+                        alpha = 0.12f
+                    ),
+                    selectedBorderWidth = 1.dp
+                )
             )
-        )
+        }
     }
 }

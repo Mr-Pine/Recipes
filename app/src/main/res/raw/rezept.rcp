@@ -123,7 +123,7 @@
               [
                   "Timer",
                   {
-                      "duration": 600
+                      "duration": "PT10M"
                   }
               ],
               [
@@ -140,7 +140,7 @@
               [
                   "Timer",
                   {
-                      "duration": 780
+                      "duration": "PT13M"
                   }
               ],
               [
