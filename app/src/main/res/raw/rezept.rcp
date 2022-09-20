@@ -6,50 +6,65 @@
   "ingredients": [
       {
           "name": "Butter",
-          "amount": 75.0,
-          "unit": "Gram",
+          "unit_amount": {
+              "amount": 75.0,
+              "unit": "Gram"
+          },
           "ID": "0d7aadd0-3519-4955-a73e-d3e360e79a4f"
       },
       {
           "name": "Zwiebel",
-          "amount": 0.5,
-          "unit": "None",
+          "unit_amount": {
+              "amount": 0.5
+          },
           "ID": "9039d24f-4c33-4d69-99fc-6f176beb215c"
       },
       {
           "name": "Weißwein",
-          "amount": 150.0,
-          "unit": "Milliliter",
+          "unit_amount": {
+              "amount": 150.0,
+              "unit": "Milliliter"
+          },
           "ID": "0a05350b-aa24-41d0-a3f3-8ad3018feda8"
       },
       {
           "name": "Hühnerbrühe",
-          "amount": 1.0,
-          "unit": "Liter",
+          "unit_amount": {
+              "amount": 1.0,
+              "unit": "Liter"
+          },
           "ID": "32b8fa92-0677-4d64-903a-d791d8267da5"
       },
       {
           "name": "Carnarolireis",
-          "amount": 200.0,
-          "unit": "Gram",
+          "unit_amount": {
+              "amount": 200,
+              "unit": "Gram"
+          },
           "ID": "e0803bb1-dfe6-42d7-822b-7f685adabacc"
       },
       {
           "name": "Parmesan",
-          "amount": 50.0,
-          "unit": "Gram",
+          "unit_amount": {
+              "amount": 50,
+              "unit": "Gram"
+          },
           "ID": "7d41d0f7-62c5-4224-ae31-584781cabf8c"
       },
       {
           "name": "Speck (opt.)",
-          "amount": 70.0,
-          "unit": "Gram",
+          "unit_amount": {
+              "amount": 70,
+              "unit": "Gram"
+          },
           "ID": "a9f15498-b425-44a7-bea1-e7656bbd9cc6"
       },
       {
           "name": "Paprika o.ä. (opt.) ca.",
-          "amount": 100.0,
-          "unit": "Gram",
+          "unit_amount": {
+              "amount": 100,
+              "unit": "Gram"
+          },
           "ID": "aef6e179-9ed8-4a13-a62e-769d18c9e15d"
       }
   ],

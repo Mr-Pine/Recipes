@@ -142,7 +142,8 @@ fun RecipeView(
                             recipe.instructions.instructions.size
                         )
                     },
-                    getIngredientFraction = recipe.ingredients::getPartialIngredient
+                    getIngredientFraction = recipe.ingredients::getPartialIngredient,
+                    ingredients = recipe.ingredients.ingredients
                 )
             }
         }

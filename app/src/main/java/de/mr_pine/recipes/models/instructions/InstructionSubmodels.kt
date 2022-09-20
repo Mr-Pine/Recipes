@@ -14,6 +14,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.vector.ImageVector
 import de.mr_pine.recipes.R
+import de.mr_pine.recipes.models.MutableStateSerializer
 import de.mr_pine.recipes.models.RecipeIngredient
 import kotlinx.serialization.*
 import kotlinx.serialization.builtins.serializer
@@ -107,20 +108,32 @@ interface InstructionSubmodels {
     @SerialName("Ingredient")
     class IngredientModel(
         @SerialName("ingredient_ID")
-        private val ingredientId: String,
+        val ingredientId: String,
+        @Serializable(with = MutableStateSerializer::class)
         @SerialName("display")
-        val displayName: String? = null,
+        val displayNameState: MutableState<String?>,
+        @Serializable(with = MutableStateSerializer::class)
         @SerialName("amount_fraction")
-        private val amountFraction: Float = 1f,
+        val amountFractionState: MutableState<Float> = mutableStateOf(1f),
         @SerialName("no_amount")
         val noAmount: Boolean = false
     ) : EmbedTypeModel {
+
+        constructor(
+            ingredientId: String = "",
+            displayName: String? = null,
+            amountFraction: Float = 1f,
+            noAmount: Boolean = false
+        ) : this(ingredientId, mutableStateOf(displayName), mutableStateOf(amountFraction), noAmount)
+
+        var displayName by displayNameState
+        var amountFraction by amountFractionState
 
         @Transient
         var ingredient: RecipeIngredient? = null
 
         override val content: String
-            get() = ingredient?.let { "${if (!noAmount) "${it.amount} ${it.unit.displayValue()} " else ""}${displayName ?: it.name}" }
+            get() = ingredient?.let { "${if (!noAmount) "${it.unitAmount.amount} ${it.unitAmount.unit.displayValue()} " else ""}${displayName ?: it.name}" }
                 ?: "???"
 
         fun receiveIngredient(
@@ -132,6 +145,10 @@ interface InstructionSubmodels {
         override fun copy() = IngredientModel(
             ingredientId, displayName, amountFraction, noAmount
         )
+
+        companion object {
+            val NO_INGREDIENT = IngredientModel("", null)
+        }
 
     }
 

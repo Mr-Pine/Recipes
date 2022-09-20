@@ -4,7 +4,9 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.runtime.toMutableStateList
+import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.KSerializer
+import kotlinx.serialization.Serializer
 import kotlinx.serialization.builtins.ListSerializer
 import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.encoding.Decoder
@@ -24,6 +26,8 @@ class MutableStateListSerializer<T>(dataSerializer: KSerializer<T>): KSerializer
     }
 }
 
+@OptIn(ExperimentalSerializationApi::class)
+@Serializer(forClass = MutableState::class)
 class MutableStateSerializer<T>(private val dataSerializer: KSerializer<T>): KSerializer<MutableState<T>> {
     override val descriptor: SerialDescriptor = dataSerializer.descriptor
 

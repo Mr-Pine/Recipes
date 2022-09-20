@@ -37,20 +37,26 @@
             "description": "The name of the ingredient",
             "type": "string"
           },
-          "amount": {
-            "description": "The amount of this ingredient",
-            "type": "number"
-          },
-          "unit": {
-            "description": "The unit the amount is specipied in",
-            "type": "string",
-            "enum": [
-              "Gram",
-              "Kilogram",
-              "Milliliter",
-              "Liter",
-              "None"
-            ]
+          "unit_amount": {
+            "type": "object",
+            "properties": {
+              "amount": {
+                "description": "The amount of this ingredient",
+                "type": "number"
+              },
+              "unit": {
+                "description": "The unit the amount is specipied in",
+                "type": "string",
+                "enum": [
+                  "Gram",
+                  "Kilogram",
+                  "Milliliter",
+                  "Liter",
+                  "None"
+                ]
+              }
+            },
+            "required": ["amount"]
           },
           "ID": {
             "description": "A unique id for the ingredient",
@@ -59,7 +65,7 @@
         },
         "required": [
           "name",
-          "amount"
+          "unit_amount"
         ],
         "additionalProperties": false
       }
@@ -99,13 +105,13 @@
                         },
                         "display": {
                           "description": "If specified, this name is shown in the embed instead of the name of the ingredient",
-                          "type": "string"
+                          "type": ["string", "null"]
                         },
                         "amount_fraction": {
                           "description": "A fraction of the ingredient to be used in this step. If not specified it is 1",
                           "type": "number",
                           "exclusiveMinimum": 0,
-                          "exclusiveMaximum": 1
+                          "inclusiveMaximum": 1
                         },
                         "no_amount": {
                           "description": "If true the amount of the ingredient will not be shown",

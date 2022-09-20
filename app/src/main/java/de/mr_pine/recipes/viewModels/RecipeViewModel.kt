@@ -25,7 +25,10 @@ private const val TAG = "RecipeViewModel"
 
 class RecipeViewModel(private val recipeFolder: File, private val recipeSchema: JSONSchema) :
     ViewModel() {
-    private val json = Json { ignoreUnknownKeys = true; serializersModule = module + SerializersModule { contextual(Duration::class, Duration.serializer()) } }
+    private val json = Json {
+        ignoreUnknownKeys = true; serializersModule =
+        module + SerializersModule { contextual(Duration::class, Duration.serializer()) }
+    }
 
     var currentRecipe: Recipe? by mutableStateOf(null)
 

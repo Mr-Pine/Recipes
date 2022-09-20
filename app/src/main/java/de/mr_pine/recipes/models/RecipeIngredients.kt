@@ -35,28 +35,27 @@ class RecipeIngredient(
     @SerialName("name")
     private val nameState: MutableState<String> = mutableStateOf(""),
     @Serializable(with = MutableStateSerializer::class)
-    @SerialName("amount")
-    private val amountState: MutableState<IngredientAmount> = mutableStateOf(Float.NaN.amount),
-    @Serializable(with = MutableStateSerializer::class)
-    @SerialName("unit")
-    private val unitState: MutableState<IngredientUnit> = mutableStateOf(IngredientUnit.None),
+    @SerialName("unit_amount")
+    private val unitAmountState: MutableState<UnitAmount> = mutableStateOf(UnitAmount.NaN),
     @SerialName("ID")
     val ingredientId: String = UUID.randomUUID().toString()
 ) {
     var name by nameState
-    var amount by amountState
 
-    var unit by unitState
+    var unitAmount by unitAmountState
+
     var isChecked by mutableStateOf(false)
 
     fun getPartial(fraction: Float): RecipeIngredient {
-        return RecipeIngredient(mutableStateOf(name), mutableStateOf(amount * fraction), mutableStateOf(unit))
+        return RecipeIngredient(
+            mutableStateOf(name),
+            mutableStateOf(unitAmount.copy(amount = unitAmount.amount * fraction))
+        )
     }
 
     fun copyFrom(from: RecipeIngredient) {
         this.name = from.name
-        this.amount = from.amount
-        this.unit = from.unit
+        this.unitAmount = from.unitAmount
     }
 
     fun copy(): RecipeIngredient {
@@ -66,28 +65,56 @@ class RecipeIngredient(
     }
 
     init {
-        adjustUnit()
+        unitAmount = unitAmount.adjustUnit()
     }
 
-    private fun adjustUnit() {
-        if (amount < 1.amount) {
-            val relation = unit.unitRelation
-            if (relation != null) {
-                amount *= relation.conversionFactor
-                unit = relation.other
-            }
-        } else {
-            IngredientUnit.values().map { it.unitRelation }.find { it?.other == unit }
-                ?.let { relation ->
-                    if (amount > relation.conversionFactor.amount && (amount / relation.conversionFactor * 10).let {
-                            it == it
-                        }) {
-                        amount /= relation.conversionFactor
-                        unit = IngredientUnit.values().find { it.unitRelation == relation }!!
-                    }
-                }
-        }
+
+}
+
+@Serializable
+class UnitAmount(
+    @Serializable(with = MutableStateSerializer::class)
+    @SerialName("amount")
+    private val amountState: MutableState<IngredientAmount>,
+    @Serializable(with = MutableStateSerializer::class)
+    @SerialName("unit")
+    private val unitState: MutableState<IngredientUnit> = mutableStateOf(IngredientUnit.None)
+) : Comparable<UnitAmount> {
+
+    constructor(amount: IngredientAmount, unit: IngredientUnit) : this(
+        mutableStateOf(amount),
+        mutableStateOf(unit)
+    )
+
+    var amount by amountState
+    var unit by unitState
+
+    fun adjustUnit(): UnitAmount {
+        val newUnit = IngredientUnit.values().filter {
+            it.unitType == unit.unitType && (!unit.unitType.enforceBiggerOne || it.baseFactor < unit.asBaseUnit(
+                amount
+            ).value)
+        }.takeIf { it.isNotEmpty() }?.minBy { unit.asBaseUnit(amount) / it.baseFactor } ?: unit
+        return UnitAmount(unit.asBaseUnit(amount) / newUnit.baseFactor, newUnit)
     }
+
+    companion object {
+        val NaN = UnitAmount(Float.NaN.amount, IngredientUnit.None)
+    }
+
+    fun copy(
+        amount: IngredientAmount = this.amount.value.amount,
+        unit: IngredientUnit = this.unit
+    ) =
+        UnitAmount(amount, unit)
+
+    fun asBaseUnit() =
+        UnitAmount(unit.asBaseUnit(amount), unit.unitType.baseUnit)
+
+    override fun compareTo(other: UnitAmount) =
+        asBaseUnit().amount.compareTo(other.asBaseUnit().amount)
+
+    operator fun div(other: UnitAmount): Float = asBaseUnit().amount.div(other.asBaseUnit().amount)
 }
 
 
@@ -115,8 +142,12 @@ fun String.toAmount(): IngredientAmount {
 @Serializable(with = AmountSerializer::class)
 value class IngredientAmount(val value: Float) : Comparable<IngredientAmount> {
     override fun toString(): String =
-        if(value.isNaN()) ""
-        else if (String.format("%.2f", value.roundToInt().toFloat()) == String.format("%.2f", value))
+        if (value.isNaN()) ""
+        else if (String.format("%.2f", value.roundToInt().toFloat()) == String.format(
+                "%.2f",
+                value
+            )
+        )
             value.roundToInt().toString()
         else
             String.format("%.2f", value)
@@ -131,7 +162,7 @@ value class IngredientAmount(val value: Float) : Comparable<IngredientAmount> {
 
     operator fun div(other: Float) = IngredientAmount(value.div(other))
     operator fun div(other: Int) = IngredientAmount(value.div(other))
-
+    operator fun div(other: IngredientAmount) = value.div(other.value)
 
 }
 
@@ -149,9 +180,10 @@ object AmountSerializer : KSerializer<IngredientAmount> {
 }
 
 enum class IngredientUnit(
-    val unitRelation: UnitRelation? = null
+    val unitType: UnitType,
+    val baseFactor: Float
 ) {
-    Gram {
+    Gram(UnitType.MASS, 0.001f) {
         @Composable
         override fun displayValueLong(): String {
             return stringResource(R.string.grams)
@@ -162,7 +194,8 @@ enum class IngredientUnit(
         }
     },
     Kilogram(
-        unitRelation = UnitRelation(1000f, Gram)
+        UnitType.MASS,
+        1f
     ) {
         @Composable
         override fun displayValueLong(): String {
@@ -173,7 +206,10 @@ enum class IngredientUnit(
             return "kg"
         }
     },
-    Milliliter {
+    Milliliter(
+        UnitType.VOLUME,
+        0.001f
+    ) {
         override fun displayValue(): String {
             return "ml"
         }
@@ -185,7 +221,8 @@ enum class IngredientUnit(
 
     },
     Liter(
-        unitRelation = UnitRelation(1000f, Milliliter)
+        UnitType.VOLUME,
+        1f
     ) {
         override fun displayValue(): String {
             return "l"
@@ -197,7 +234,7 @@ enum class IngredientUnit(
         }
 
     },
-    None {
+    None(UnitType.NONE, 1f) {
         @Composable
         override fun displayValueLong(): String {
             return ""
@@ -220,9 +257,23 @@ enum class IngredientUnit(
 
     @Composable
     open fun menuDisplayValue() = displayValueLong()
+
+    fun asBaseUnit(amount: IngredientAmount) = amount * baseFactor
 }
 
-class UnitRelation(
-    val conversionFactor: Float,
-    val other: IngredientUnit
-)
+enum class UnitType(val enforceBiggerOne: Boolean) {
+    NONE(false) {
+        override val baseUnit: IngredientUnit
+            get() = IngredientUnit.None
+    },
+    VOLUME(true) {
+        override val baseUnit: IngredientUnit
+            get() = IngredientUnit.Liter
+    },
+    MASS(true) {
+        override val baseUnit: IngredientUnit
+            get() = IngredientUnit.Kilogram
+    };
+
+    abstract val baseUnit: IngredientUnit
+}

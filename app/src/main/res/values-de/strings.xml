@@ -31,4 +31,6 @@
     <string name="Ingredient">Zutat</string>
     <string name="Type">Typ</string>
     <string name="Duration">Dauer</string>
+    <string name="Unit">Einheit</string>
+    <string name="Display_name">Anzeigename</string>
 </resources>

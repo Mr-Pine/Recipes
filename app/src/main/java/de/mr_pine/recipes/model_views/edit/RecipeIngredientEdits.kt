@@ -156,13 +156,17 @@ fun RecipeIngredient.IngredientEditRow(
             if (reorderableLazyListState != null) Icon(
                 imageVector = Icons.Default.DragHandle,
                 contentDescription = "Reorder",
-                modifier = Modifier.padding(start = 2.dp).detectReorder(reorderableLazyListState)
+                modifier = Modifier
+                    .padding(start = 2.dp)
+                    .detectReorder(reorderableLazyListState)
             )
             Spacer(modifier = Modifier.width(8.dp))
             Text(
-                text = "${name}: $amount ${unit.displayValue()}",
+                text = "${name}: ${unitAmount.amount} ${unitAmount.unit.displayValue()}",
                 fontSize = 20.sp,
-                modifier = Modifier.width(0.dp).weight(1f)
+                modifier = Modifier
+                    .width(0.dp)
+                    .weight(1f)
             )
             if (reorderableLazyListState == null) {
                 Icon(imageVector = Icons.Default.Edit, contentDescription = "Edit")
@@ -181,8 +185,9 @@ fun RecipeIngredient.IngredientEditRow(
             onDismissRequest = ::dismissEdit,
             confirmButton = {
                 TextButton(onClick = {
-                    if (with(bufferIngredient) { name.isNotEmpty() && amount != 0.amount && !amount.value.isNaN() }) {
+                    if (with(bufferIngredient) { name.isNotEmpty() && unitAmount.amount != 0.amount && !unitAmount.amount.value.isNaN() }) {
                         this.copyFrom(bufferIngredient)
+                        unitAmount = unitAmount.adjustUnit()
                         showEditDialog = false
                     }
                 }) {
@@ -215,19 +220,19 @@ fun RecipeIngredient.IngredientEditRow(
                             }
                         }
                     )
-                    var amountBuffer by remember { mutableStateOf(bufferIngredient.amount.toString()) }
                     Spacer(modifier = Modifier.height(10.dp))
+                    var amountBuffer by remember { mutableStateOf(bufferIngredient.unitAmount.amount.toString()) }
                     Row {
                         TextField(
                             value = amountBuffer,
                             modifier = Modifier.width(90.dp),
                             onValueChange = { newValue ->
                                 if (newValue == "") {
-                                    bufferIngredient.amount = Float.NaN.amount
+                                    bufferIngredient.unitAmount.amount = Float.NaN.amount
                                     amountBuffer = newValue
                                 }
                                 try {
-                                    bufferIngredient.amount = newValue.toAmount()
+                                    bufferIngredient.unitAmount.amount = newValue.toAmount()
                                     amountBuffer = newValue
                                 } catch (e: NumberFormatException) {
                                     Log.w(
@@ -238,7 +243,7 @@ fun RecipeIngredient.IngredientEditRow(
                             },
                             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                             label = { Text(text = stringResource(R.string.Amount)) },
-                            isError = amountBuffer.isEmpty() || bufferIngredient.amount == 0.amount
+                            isError = amountBuffer.isEmpty() || bufferIngredient.unitAmount.amount == 0.amount
                         )
                         var unitDropDownExtended by remember { mutableStateOf(false) }
                         Spacer(modifier = Modifier.width(10.dp))
@@ -247,9 +252,9 @@ fun RecipeIngredient.IngredientEditRow(
                             onExpandedChange = { unitDropDownExtended = !unitDropDownExtended }) {
                             TextField(
                                 readOnly = true,
-                                value = bufferIngredient.unit.menuDisplayValue(),
+                                value = bufferIngredient.unitAmount.unit.menuDisplayValue(),
                                 onValueChange = {},
-                                label = { Text("Label") },
+                                label = { Text(stringResource(id = R.string.Unit)) },
                                 trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = unitDropDownExtended) },
                                 colors = ExposedDropdownMenuDefaults.textFieldColors(),
                             )
@@ -260,7 +265,7 @@ fun RecipeIngredient.IngredientEditRow(
                                     DropdownMenuItem(
                                         text = { Text(text = selectedOption.menuDisplayValue()) },
                                         onClick = {
-                                            bufferIngredient.unit =
+                                            bufferIngredient.unitAmount.unit =
                                                 selectedOption; unitDropDownExtended = false
                                         })
                                 }

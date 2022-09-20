@@ -55,7 +55,7 @@ fun RecipeIngredient.IngredientRow() {
             modifier = Modifier.size(LocalViewConfiguration.current.minimumTouchTargetSize)
         )
         Text(
-            text = "${name}: $amount ${unit.displayValue()}",
+            text = "${name}: ${unitAmount.amount} ${unitAmount.unit.displayValue()}",
             fontSize = 20.sp
         )
     }

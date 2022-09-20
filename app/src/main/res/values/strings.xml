@@ -31,4 +31,6 @@
     <string name="Ingredient">Ingredient</string>
     <string name="Type">Type</string>
     <string name="Duration">Duration</string>
+    <string name="Unit">Unit</string>
+    <string name="Display_name">Display name</string>
 </resources>

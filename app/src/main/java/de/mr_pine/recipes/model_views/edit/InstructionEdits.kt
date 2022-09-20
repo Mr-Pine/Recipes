@@ -1,5 +1,6 @@
 package de.mr_pine.recipes.model_views.edit
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -27,13 +28,14 @@ import androidx.compose.ui.unit.sp
 import com.google.accompanist.flowlayout.FlowRow
 import de.mr_pine.recipes.R
 import de.mr_pine.recipes.model_views.view.generateInlineContent
-import de.mr_pine.recipes.models.RecipeIngredient
-import de.mr_pine.recipes.models.instructions.InstructionSubmodels
+import de.mr_pine.recipes.models.*
+import de.mr_pine.recipes.models.instructions.InstructionSubmodels.*
 import de.mr_pine.recipes.models.instructions.InstructionSubmodels.EmbedTypeEnum.*
 import de.mr_pine.recipes.models.instructions.InstructionSubmodels.EmbedTypeModel.Companion.getEnum
 import de.mr_pine.recipes.models.instructions.RecipeInstruction
 import de.mr_pine.recipes.models.instructions.encodeInstructionString
 import java.lang.Integer.min
+import kotlin.math.roundToInt
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.hours
 import kotlin.time.Duration.Companion.minutes
@@ -48,6 +50,7 @@ fun RecipeInstruction.InstructionEditCard(
     setCurrentlyActiveIndex: (Int) -> Unit,
     setNextActive: () -> Unit,
     getIngredientFraction: ((String, Float) -> RecipeIngredient)?,
+    ingredients: List<RecipeIngredient>
 ) {
 
     val containerColor = MaterialTheme.colorScheme.let {
@@ -90,7 +93,8 @@ fun RecipeInstruction.InstructionEditCard(
                                 getIngredientFraction = getIngredientFraction,
                                 done = done,
                                 editIndex = index,
-                                inlineEmbeds::remove
+                                inlineEmbeds::remove,
+                                ingredients
                             )
                         }
                         Row(modifier = Modifier.height(32.dp)) {
@@ -99,7 +103,7 @@ fun RecipeInstruction.InstructionEditCard(
                                     inlineEmbeds.add(
                                         RecipeInstruction.EmbedData(
                                             true,
-                                            mutableStateOf(InstructionSubmodels.UndefinedEmbedTypeModel())
+                                            mutableStateOf(UndefinedEmbedTypeModel())
                                         )
                                     )
                                 },
@@ -162,7 +166,8 @@ fun RecipeInstruction.InstructionEditCard(
                                         embedData.RecipeEditChipStateful(
                                             getIngredientFraction = getIngredientFraction,
                                             done = done,
-                                            removeEmbed = inlineEmbeds::remove
+                                            removeEmbed = inlineEmbeds::remove,
+                                            ingredients = ingredients
                                         )
                                     })
                             index.toString() to data
@@ -194,20 +199,23 @@ fun RecipeInstruction.InstructionEditCard(
     }
 }
 
+private const val TAG = "InstructionEdits"
+
 @ExperimentalMaterial3Api
 @Composable
 private fun RecipeInstruction.EmbedData.RecipeEditChipStateful(
     getIngredientFraction: ((String, Float) -> RecipeIngredient)?,
     done: Boolean,
     editIndex: Int? = null,
-    removeEmbed: (RecipeInstruction.EmbedData) -> Unit
+    removeEmbed: (RecipeInstruction.EmbedData) -> Unit,
+    ingredients: List<RecipeIngredient>
 ) {
 
-    if (embed is InstructionSubmodels.IngredientModel && (embed as InstructionSubmodels.IngredientModel).ingredient == null) {
-        (embed as InstructionSubmodels.IngredientModel).receiveIngredient(getIngredientFraction)
+    if (embed is IngredientModel && (embed as IngredientModel).ingredient == null) {
+        (embed as IngredientModel).receiveIngredient(getIngredientFraction)
     }
 
-    var hideNew by remember { mutableStateOf(embed is InstructionSubmodels.UndefinedEmbedTypeModel) }
+    var hideNew by remember { mutableStateOf(embed is UndefinedEmbedTypeModel) }
     var isEditing by remember { mutableStateOf(hideNew) }
 
     if (!hideNew) {
@@ -224,27 +232,40 @@ private fun RecipeInstruction.EmbedData.RecipeEditChipStateful(
     if (isEditing) {
         val buffer by remember { mutableStateOf(this.copy(embedState = mutableStateOf(embed.copy()))) }
         val typeBuffers = remember {
-            values().map {
+            EmbedTypeEnum.values().map {
                 it to when (it) {
-                    TIMER -> InstructionSubmodels.TimerModel(mutableStateOf(0.seconds))
-                    UNDEFINED -> InstructionSubmodels.UndefinedEmbedTypeModel()
-                    INGREDIENT -> InstructionSubmodels.IngredientModel("")
+                    TIMER -> TimerModel(mutableStateOf(0.seconds))
+                    UNDEFINED -> UndefinedEmbedTypeModel()
+                    INGREDIENT -> IngredientModel.NO_INGREDIENT
                 }
             }.toMutableStateMap()
         }
+        val ingredientBuffers = remember {
+            mutableStateMapOf<RecipeIngredient, IngredientModel>()
+            /*ingredients.map {
+                it to IngredientModel(it.ingredientId)
+            }.toMutableStateMap()*/
+        }
+        LaunchedEffect(key1 = ingredients) {
+            ingredients.forEach { ingredient ->
+                if (!ingredientBuffers.containsKey(ingredient)) ingredientBuffers[ingredient] =
+                    IngredientModel(ingredient.ingredientId, null)
+            }
+        }
+
         typeBuffers[buffer.embed.getEnum()] = buffer.embed
         @Composable
-        fun EditEmbedDialog(content: @Composable ColumnScope.() -> Unit) {
+        fun EditEmbedDialog(applyBufferConfirm: EmbedTypeModel.() -> Unit = {}, content: @Composable ColumnScope.() -> Unit) {
             val dismiss = { isEditing = false; if (hideNew) removeEmbed(this) }
             AlertDialog(
                 onDismissRequest = dismiss,
                 confirmButton = {
                     TextButton(onClick = {
                         if (
-                            !(buffer.embed is InstructionSubmodels.TimerModel && (buffer.embed as InstructionSubmodels.TimerModel).duration == 0.seconds) &&
-                            buffer.embed !is InstructionSubmodels.UndefinedEmbedTypeModel
+                            !(buffer.embed is TimerModel && (buffer.embed as TimerModel).duration == 0.seconds) &&
+                            buffer.embed !is UndefinedEmbedTypeModel
                         ) {
-                            embed = buffer.embed.copy()
+                            embed = buffer.embed.copy().apply(applyBufferConfirm)
                             enabled = buffer.enabled
                             isEditing = false
                             hideNew = false
@@ -268,7 +289,7 @@ private fun RecipeInstruction.EmbedData.RecipeEditChipStateful(
         @Composable
         fun TypeDropDown() {
             var modelTypeDropdownExpanded by remember { mutableStateOf(false) }
-            var selectedType: InstructionSubmodels.EmbedTypeEnum? by remember {
+            var selectedType: EmbedTypeEnum? by remember {
                 mutableStateOf(
                     buffer.embed.getEnum().takeIf { it.selectable }
                 )
@@ -329,12 +350,12 @@ private fun RecipeInstruction.EmbedData.RecipeEditChipStateful(
                     Spacer(modifier = Modifier.height(10.dp))
                     var test by remember(
                         try {
-                            (embed as InstructionSubmodels.TimerModel).duration
+                            (embed as TimerModel).duration
                         } catch (e: Exception) {
                             embed
                         }
                     ) {
-                        mutableStateOf((buffer.embed as InstructionSubmodels.TimerModel).duration.toComponents { hours, minutes, seconds, nanoseconds ->
+                        mutableStateOf((buffer.embed as TimerModel).duration.toComponents { hours, minutes, seconds, _ ->
                             (hours.toString().padStart(2, '0') + minutes.toString()
                                 .padStart(2, '0') + seconds.toString().padStart(2, '0')).let {
                                 TextFieldValue(it, TextRange(it.length))
@@ -352,10 +373,10 @@ private fun RecipeInstruction.EmbedData.RecipeEditChipStateful(
                                         .toInt().minutes
                                 val seconds = newText.substring(newText.length - 2).toInt().seconds
                                 val duration = hours + minutes + seconds
-                                (buffer.embed as InstructionSubmodels.TimerModel).duration =
+                                (buffer.embed as TimerModel).duration =
                                     duration
                             } catch (e: NumberFormatException) {
-                                (buffer.embed as InstructionSubmodels.TimerModel).duration =
+                                (buffer.embed as TimerModel).duration =
                                     Duration.ZERO
                             }
                             test = test.copy(
@@ -368,12 +389,165 @@ private fun RecipeInstruction.EmbedData.RecipeEditChipStateful(
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                         label = { Text(text = stringResource(R.string.Duration)) },
                         visualTransformation = DurationVisualTransformation(),
-                        isError = (buffer.embed as InstructionSubmodels.TimerModel).duration == 0.seconds
+                        isError = (buffer.embed as TimerModel).duration == 0.seconds
                     )
                 }
             }
             INGREDIENT -> {
+                var selectedIngredient: RecipeIngredient? by remember {
+                    mutableStateOf(
+                        ingredients.find { (buffer.embed as IngredientModel).ingredientId == it.ingredientId }
+                    )
+                }
+                var unitAmountBuffer by remember(selectedIngredient) {
+                    mutableStateOf(
+                        selectedIngredient?.unitAmount?.copy(amount = selectedIngredient!!.unitAmount.amount * (buffer.embed as IngredientModel).amountFraction)
+                            ?: UnitAmount.NaN
+                    )
+                }
+                EditEmbedDialog({
+                    selectedIngredient?.unitAmount?.let {
+                        (this as IngredientModel).amountFraction = unitAmountBuffer / it
+                    }
+                }) {
+                    TypeDropDown()
 
+                    Spacer(modifier = Modifier.height(10.dp))
+
+                    var ingredientDropdrownExpanded by remember { mutableStateOf(false) }
+                    ExposedDropdownMenuBox(
+                        expanded = ingredientDropdrownExpanded,
+                        onExpandedChange = {
+                            ingredientDropdrownExpanded = !ingredientDropdrownExpanded
+                        }) {
+                        TextField(
+                            readOnly = true,
+                            value = selectedIngredient?.name ?: "",
+                            onValueChange = {},
+                            label = { Text(stringResource(R.string.Ingredient)) },
+                            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = ingredientDropdrownExpanded) },
+                            colors = ExposedDropdownMenuDefaults.textFieldColors(),
+                        )
+                        ExposedDropdownMenu(
+                            expanded = ingredientDropdrownExpanded,
+                            onDismissRequest = { ingredientDropdrownExpanded = false }) {
+                            ingredients.forEach { ingredient ->
+                                DropdownMenuItem(
+                                    text = {
+                                        Text(text = ingredient.name)
+                                    },
+                                    onClick = {
+                                        selectedIngredient = ingredient
+                                        buffer.embed = ingredientBuffers[ingredient]!!
+                                        ingredientDropdrownExpanded = false
+                                    })
+                            }
+                        }
+                    }
+                    Spacer(modifier = Modifier.height(10.dp))
+                    Row {
+                        TextField(
+                            value = unitAmountBuffer.amount.takeIf { !it.value.isNaN() }?.toString()
+                                ?: "",
+                            modifier = Modifier.weight(1f),
+                            onValueChange = { newValue ->
+                                if (newValue == "") {
+                                    unitAmountBuffer.amount = Float.NaN.amount
+                                }
+                                try {
+                                    unitAmountBuffer.amount = newValue.toAmount()
+                                } catch (e: NumberFormatException) {
+                                    Log.w(
+                                        TAG,
+                                        "IngredientEditRow: Couldn't convert $newValue to IngredientAmount"
+                                    )
+                                }
+                            },
+                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                            label = { Text(text = stringResource(R.string.Amount)) },
+                            isError = unitAmountBuffer.amount.value.isNaN() || unitAmountBuffer.amount == 0.amount || selectedIngredient?.unitAmount?.let { it < unitAmountBuffer } ?: false,
+                            enabled = selectedIngredient != null
+                        )
+                        var unitDropDownExtended by remember { mutableStateOf(false) }
+                        Spacer(modifier = Modifier.width(10.dp))
+                        ExposedDropdownMenuBox(
+                            modifier = Modifier.weight(2f),
+                            expanded = unitDropDownExtended,
+                            onExpandedChange = {
+                                if (selectedIngredient != null) unitDropDownExtended =
+                                    !unitDropDownExtended
+                            }) {
+                            TextField(
+                                readOnly = true,
+                                value = unitAmountBuffer.takeIf { it != UnitAmount.NaN }?.unit?.displayValue()
+                                    ?: "",
+                                onValueChange = {},
+                                label = { Text(stringResource(R.string.Unit)) },
+                                trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = unitDropDownExtended) },
+                                colors = ExposedDropdownMenuDefaults.textFieldColors(),
+                                enabled = selectedIngredient != null
+                            )
+                            ExposedDropdownMenu(
+                                expanded = unitDropDownExtended,
+                                onDismissRequest = { unitDropDownExtended = false }) {
+                                IngredientUnit.values()
+                                    .filter { it.unitType == unitAmountBuffer.unit.unitType }
+                                    .forEach { unit ->
+                                        DropdownMenuItem(
+                                            text = { Text(text = unit.menuDisplayValue()) },
+                                            onClick = {
+                                                unitAmountBuffer.unit = unit
+                                                unitDropDownExtended = false
+                                            })
+                                    }
+                            }
+                        }
+                    }
+                    Spacer(modifier = Modifier.height(10.dp))
+                    TextField(
+                        value = selectedIngredient?.let { unitAmountBuffer.asBaseUnit().amount / it.unitAmount.asBaseUnit().amount * 100 }
+                            ?.let{
+                                if(it.isNaN())
+                                    "0"
+                                else if (String.format("%.2f", it.roundToInt().toFloat()) == String.format(
+                                        "%.2f",
+                                        it
+                                    )
+                                )
+                                    it.roundToInt().toString()
+                                else
+                                    String.format("%.2f", it)
+                            } ?: "",
+                        onValueChange = { newPercentage ->
+                            try {
+                                val fraction = newPercentage.replace(',', '.').padStart(1, '0').toFloat() * 0.01f
+                                selectedIngredient?.let{
+                                    unitAmountBuffer = it.unitAmount.asBaseUnit().apply { amount *= fraction }.adjustUnit()
+                                }
+                            } catch (_: NumberFormatException) {}
+                        },
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                        label = { Text(text = "${stringResource(R.string.Amount)} (%)") },
+                        isError = selectedIngredient?.unitAmount?.let { it < unitAmountBuffer } ?: false,
+                        enabled = selectedIngredient != null,
+                        visualTransformation = PercentVisualTransformation()
+                    )
+                    Spacer(modifier = Modifier.height(10.dp))
+                    TextField(
+                        value = (buffer.embed as IngredientModel).displayName ?: "",
+                        placeholder = {
+                            Text(
+                                text = selectedIngredient?.name ?: ""
+                            )
+                        },
+                        onValueChange = {
+                            (buffer.embed as IngredientModel).displayName =
+                                it.takeIf { it.isNotEmpty() }
+                        },
+                        enabled = selectedIngredient != null,
+                        label = { Text(text = stringResource(R.string.Display_name)) }
+                    )
+                }
             }
             UNDEFINED -> {
                 EditEmbedDialog {
@@ -382,6 +556,21 @@ private fun RecipeInstruction.EmbedData.RecipeEditChipStateful(
             }
         }
     }
+}
+
+class PercentVisualTransformation : VisualTransformation {
+    override fun filter(text: AnnotatedString): TransformedText {
+        return TransformedText(
+            text = AnnotatedString(text = text.text + " %"),
+            offsetMapping = object : OffsetMapping {
+                override fun originalToTransformed(offset: Int) = offset
+
+                override fun transformedToOriginal(offset: Int) = offset.coerceAtMost(text.length)
+
+            }
+        )
+    }
+
 }
 
 class DurationVisualTransformation : VisualTransformation {
