@@ -35,4 +35,5 @@
     <string name="Display_name">Display name</string>
     <string name="Add_step">Add step</string>
     <string name="Edit">Edit</string>
+    <string name="Save_and_exit">Save &amp; exit</string>
 </resources>

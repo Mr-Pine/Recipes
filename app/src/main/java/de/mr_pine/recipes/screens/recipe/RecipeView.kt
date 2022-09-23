@@ -51,19 +51,13 @@ fun RecipeView(
                         )
                     }
                 },
-                scrollBehavior = scrollBehavior
+                scrollBehavior = scrollBehavior,
+                actions = {
+                    IconButton(onClick = toggleEditRecipe) {
+                        Icon(imageVector = Icons.Default.Edit, contentDescription = "Edit")
+                    }
+                }
             )
-        },
-        floatingActionButtonPosition = FabPosition.End,
-        floatingActionButton = {
-            FloatingActionButton(
-                onClick = toggleEditRecipe
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Edit,
-                    contentDescription = null
-                )
-            }
         }
     ) { innerPadding ->
 

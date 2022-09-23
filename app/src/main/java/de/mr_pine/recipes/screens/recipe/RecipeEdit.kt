@@ -1,16 +1,14 @@
 package de.mr_pine.recipes.screens.recipe
 
 import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Menu
-import androidx.compose.material.icons.filled.Save
+import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
@@ -39,14 +37,35 @@ fun RecipeEdit(
 
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(rememberTopAppBarState())
 
+    val lazyListStartOffset = 2
+
+    val reorderState = rememberReorderableLazyListState(
+        onMove = { from, to ->
+            recipe.instructions.instructions.add(
+                to.index - lazyListStartOffset,
+                recipe.instructions.instructions.removeAt(from.index - lazyListStartOffset)
+            )
+        }, canDragOver = {
+            it.index in lazyListStartOffset..(recipe.instructions.instructions.lastIndex + lazyListStartOffset)
+        }
+    )
+
     Scaffold(
         modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = {
             TopAppBar(
                 title = {
-                    Text(
-                        recipe.metadata.title
-                    )
+                    Row(Modifier.clickable { /*TODO: Edit Metadata*/ }, verticalAlignment = Alignment.CenterVertically) {
+                        Text(
+                            recipe.metadata.title
+                        )
+                        IconButton(onClick = { /*TODO*/ }) {
+                            Icon(
+                                imageVector = Icons.Default.Edit,
+                                contentDescription = "Edit Metadata"
+                            )
+                        }
+                    }
                 },
                 navigationIcon = {
                     IconButton(
@@ -58,34 +77,43 @@ fun RecipeEdit(
                         )
                     }
                 },
-                scrollBehavior = scrollBehavior
+                scrollBehavior = scrollBehavior,
             )
         },
         floatingActionButtonPosition = FabPosition.End,
         floatingActionButton = {
-            FloatingActionButton(
-                onClick = { saveRecipe(recipe); toggleEditRecipe() }
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Save,
-                    contentDescription = null
+            Column(modifier = Modifier.navigationBarsPadding(), horizontalAlignment = Alignment.End) {
+                SmallFloatingActionButton(onClick = { saveRecipe(recipe) }) {
+                    Icon(imageVector = Icons.Default.Save, contentDescription = "Save")
+                }
+                SmallFloatingActionButton(onClick = { /*TODO*/ }) {
+                    Icon(imageVector = Icons.Default.Cancel, contentDescription = "Cancel")
+                }
+                
+                Spacer(modifier = Modifier.height(8.dp))
+
+                val expandedFab by remember {
+                    derivedStateOf {
+                        reorderState.listState.firstVisibleItemIndex == 0
+                    }
+                }
+
+                ExtendedFloatingActionButton(
+                    onClick = { saveRecipe(recipe); toggleEditRecipe() },
+                    expanded = expandedFab,
+                    icon = {
+                        Icon(
+                            imageVector = Icons.Default.EditOff,
+                            contentDescription = null
+                        )
+                    },
+                    text = {
+                        Text(text = stringResource(R.string.Save_and_exit))
+                    }
                 )
             }
         }
     ) { innerPadding ->
-
-        val lazyListStartOffset = 2
-
-        val reorderState = rememberReorderableLazyListState(
-            onMove = { from, to ->
-                recipe.instructions.instructions.add(
-                    to.index - lazyListStartOffset,
-                    recipe.instructions.instructions.removeAt(from.index - lazyListStartOffset)
-                )
-            }, canDragOver = {
-                it.index in lazyListStartOffset..(recipe.instructions.instructions.lastIndex + lazyListStartOffset)
-            }
-        )
 
         LazyColumn(
             modifier = Modifier
