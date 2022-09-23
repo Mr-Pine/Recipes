@@ -6,6 +6,7 @@ import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.buildAnnotatedString
 import de.mr_pine.recipes.models.MutableStateListSerializer
+import de.mr_pine.recipes.models.MutableStateSerializer
 import kotlinx.serialization.*
 import kotlinx.serialization.descriptors.PrimitiveKind
 import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
@@ -17,8 +18,11 @@ private const val TAG = "RecipeInstructions"
 
 @Serializable
 class RecipeInstructions(
-    var instructions: List<RecipeInstruction>
+    @Serializable(with = MutableStateListSerializer::class)
+    var instructions: SnapshotStateList<RecipeInstruction>
 ) {
+
+    constructor(instructions: List<RecipeInstruction>): this(instructions.toMutableStateList())
 
     var currentlyActiveIndex by mutableStateOf(0)
 
@@ -30,14 +34,21 @@ class RecipeInstructions(
 @Serializable
 class RecipeInstruction(
     @SerialName("text")
-    @Serializable(with = AnnotatedSerializer::class)
-    val content: AnnotatedString,
+    @Serializable(with = MutableStateSerializer::class)
+    val contentState: MutableState<@Serializable(with = AnnotatedSerializer::class) AnnotatedString>,
     @Serializable(with = MutableStateListSerializer::class)
     @SerialName("replacements")
     val inlineEmbeds: SnapshotStateList<EmbedData> = mutableStateListOf()
 ) : InstructionSubmodels {
 
+    constructor(
+        content: AnnotatedString,
+        inlineEmbeds: SnapshotStateList<EmbedData>
+    ): this(mutableStateOf(content), inlineEmbeds)
+
     var done by mutableStateOf(false)
+
+    var content by contentState
 
     @Serializable(with = EmbedDataSerializer::class)
     data class EmbedData(
@@ -51,7 +62,11 @@ class RecipeInstruction(
     private object EmbedDataSerializer : KSerializer<EmbedData> {
         override fun deserialize(decoder: Decoder): EmbedData {
             return EmbedData(
-                embedState = mutableStateOf(serializer<InstructionSubmodels.EmbedTypeModel>().deserialize(decoder))
+                embedState = mutableStateOf(
+                    serializer<InstructionSubmodels.EmbedTypeModel>().deserialize(
+                        decoder
+                    )
+                )
             )
         }
 
@@ -91,7 +106,7 @@ fun decodeInstructionString(encoded: String) = buildAnnotatedString {
 
 fun encodeInstructionString(decoded: AnnotatedString): String {
     var text = decoded.text
-    val annotations = decoded.getStringAnnotations(0, decoded.lastIndex)
+    val annotations = decoded.getStringAnnotations(0, decoded.length)
     annotations.forEachIndexed { index, range ->
         text =
             text.replaceRange(range.start + 4 * index until range.end + 4 * index, "{{$index}}")

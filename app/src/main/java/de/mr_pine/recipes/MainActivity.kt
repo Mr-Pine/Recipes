@@ -13,11 +13,9 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.core.view.WindowCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.currentBackStackEntryAsState
@@ -25,7 +23,6 @@ import androidx.navigation.compose.rememberNavController
 import de.mr_pine.recipes.screens.Destination
 import de.mr_pine.recipes.screens.RecipeNavHost
 import de.mr_pine.recipes.ui.theme.HarmonizedTheme
-import de.mr_pine.recipes.ui.theme.RecipesTheme
 import de.mr_pine.recipes.viewModels.RecipeViewModel
 import de.mr_pine.recipes.viewModels.RecipeViewModelFactory
 import kotlinx.coroutines.launch
@@ -34,6 +31,7 @@ import net.pwall.json.schema.JSONSchema
 import java.io.File
 
 /*
+ * TODO: Implement custom TextToolbar for Instruction editing: https://stackoverflow.com/a/68966424/11921893
  * TODO: Splash screen: https://developer.android.com/guide/topics/ui/splash-screen
  * TODO: Maybe animated icons: https://www.youtube.com/watch?v=hiDaPrcZbco
  * TODO: Think about navigation: https://developer.android.com/jetpack/compose/navigation, JetNews
@@ -89,6 +87,7 @@ class MainActivity : ComponentActivity() {
                 recipeViewModel.loadRecipeFiles()
             }
 
+            rememberCoroutineScope()
 
             val recipeImporter =
                 rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
@@ -102,15 +101,15 @@ class MainActivity : ComponentActivity() {
                             }
                     }
                     if (filename?.endsWith(".rcp") == true) {
-                        val content = contentResolver.openInputStream(uri)?.reader()?.readText()
-                        content?.let {
+                        contentResolver.openInputStream(uri)?.use {
+                            val content = it.reader().readText()
                             recipeViewModel.saveRecipeFileContent(
-                                it,
+                                content,
                                 filename,
                                 true
                             )
+                            Log.d(TAG, "onCreate: importing $content")
                         }
-                        Log.d(TAG, "onCreate: importing $content")
                     }
                 }
 
@@ -155,8 +154,6 @@ class MainActivity : ComponentActivity() {
                         modifier = Modifier.fillMaxSize(),
                         color = MaterialTheme.colorScheme.surface
                     ) {
-                        //Home(viewModel = recipeViewModel)
-                        //RecipeView(viewModel = recipeViewModel)
                         RecipeNavHost(
                             navController = navHostController,
                             viewModel = recipeViewModel
@@ -165,18 +162,5 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
-    }
-}
-
-@Composable
-fun Greeting(name: String) {
-    Text(text = "Hello $name!")
-}
-
-@Preview(showBackground = true)
-@Composable
-fun DefaultPreview() {
-    RecipesTheme {
-        Greeting("Android")
     }
 }

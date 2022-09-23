@@ -5,23 +5,29 @@ import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Error
 import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.filled.Save
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.unit.dp
+import de.mr_pine.recipes.R
 import de.mr_pine.recipes.model_views.edit.IngredientsEditCard
-import de.mr_pine.recipes.model_views.edit.InstructionEditCard
+import de.mr_pine.recipes.model_views.edit.instructions.instructionsEditList
 import de.mr_pine.recipes.model_views.view.MetaInfo
 import de.mr_pine.recipes.models.Recipe
+import de.mr_pine.recipes.models.instructions.RecipeInstruction
 import de.mr_pine.recipes.viewModels.RecipeViewModel
+import org.burnoutcrew.reorderable.rememberReorderableLazyListState
+import org.burnoutcrew.reorderable.reorderable
 
 @ExperimentalAnimationApi
 @ExperimentalFoundationApi
@@ -59,9 +65,8 @@ fun RecipeView(
     loadRecipe: (Recipe) -> Unit,
     saveRecipe: (Recipe) -> Unit
 ) {
-    val lazyListState = rememberLazyListState()
 
-    val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(rememberTopAppBarState())
+    val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(rememberTopAppBarState())
 
     Scaffold(
         modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
@@ -91,27 +96,70 @@ fun RecipeView(
                 onClick = { /*loadRecipe(recipe)*/saveRecipe(recipe) }
             ) {
                 Icon(
-                    imageVector = Icons.Default.Edit,
+                    imageVector = Icons.Default.Save,
                     contentDescription = null
                 )
             }
         }
     ) { innerPadding ->
+
+        val lazyListStartOffset = 2
+
+        val reorderState = rememberReorderableLazyListState(
+            onMove = { from, to ->
+                recipe.instructions.instructions.add(
+                    to.index - lazyListStartOffset,
+                    recipe.instructions.instructions.removeAt(from.index - lazyListStartOffset)
+                )
+            }, canDragOver = {
+                it.index in lazyListStartOffset..(recipe.instructions.instructions.lastIndex + lazyListStartOffset)
+            }
+        )
+
         LazyColumn(
-            modifier = Modifier.padding(horizontal = 8.dp),
+            modifier = Modifier
+                .padding(top = innerPadding.calculateTopPadding())
+                .padding(horizontal = 8.dp)
+                .reorderable(reorderState),
             verticalArrangement = Arrangement.spacedBy(8.dp),
-            contentPadding = innerPadding,
-            state = lazyListState
+            state = reorderState.listState
         ) {
             item {
                 recipe.metadata.MetaInfo()
             }
-            item {
-                //recipe.ingredients.IngredientsCard()
-            }
+            /*item {
+                recipe.ingredients.IngredientsCard()
+            }*/
             item {
                 recipe.ingredients.IngredientsEditCard()
             }
+
+            instructionsEditList(
+                instructionList = recipe.instructions.instructions,
+                getPartialIngredient = recipe.ingredients::getPartialIngredient,
+                ingredientList = recipe.ingredients.ingredients,
+                reorderableState = reorderState,
+                removeInstruction = recipe.instructions.instructions::remove
+            )
+            item {
+                FilledTonalButton(
+                    onClick = {
+                        recipe.instructions.instructions.add(
+                            RecipeInstruction(
+                                AnnotatedString(""),
+                                mutableStateListOf()
+                            )
+                        )
+                    },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(imageVector = Icons.Default.Add, contentDescription = "Add")
+                        Text(text = stringResource(R.string.Add_step))
+                    }
+                }
+            }
+            /*
 
             fun setCurrentlyActiveIndex(index: Int) {
                 recipe.instructions.currentlyActiveIndex = index
@@ -119,7 +167,6 @@ fun RecipeView(
                 lazyListState.animateScrollToItem(index + 2, -300)
                 }*/
             }
-
             itemsIndexed(
                 recipe.instructions.instructions
             ) { index, instruction ->
@@ -144,6 +191,17 @@ fun RecipeView(
                     },
                     getIngredientFraction = recipe.ingredients::getPartialIngredient,
                     ingredients = recipe.ingredients.ingredients
+                )
+            }*/
+            item {
+                Spacer(
+                    modifier = Modifier.padding(
+                        bottom = try {
+                            innerPadding.calculateBottomPadding() - 8.dp
+                        } catch (e: java.lang.IllegalArgumentException) {
+                            0.dp
+                        }
+                    )
                 )
             }
         }

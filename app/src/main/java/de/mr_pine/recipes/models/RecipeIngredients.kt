@@ -20,10 +20,6 @@ data class RecipeIngredients(
     @Serializable(with = MutableStateListSerializer::class)
     var ingredients: SnapshotStateList<RecipeIngredient>
 ) {
-    fun reorderIngredients(from: Int, to: Int) {
-        ingredients.apply { add(to, removeAt(from)) }
-    }
-
     fun getPartialIngredient(id: String, fraction: Float) =
         ingredients.find { id == it.ingredientId }?.getPartial(fraction)
             ?: throw Exception("Ingredient $id not found")
