@@ -1,18 +1,16 @@
-package de.mr_pine.recipes.screens
+package de.mr_pine.recipes.screens.recipe
 
-import android.util.Log
 import androidx.compose.animation.ExperimentalAnimationApi
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Error
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Save
 import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
@@ -25,48 +23,21 @@ import de.mr_pine.recipes.model_views.edit.instructions.instructionsEditList
 import de.mr_pine.recipes.model_views.view.MetaInfo
 import de.mr_pine.recipes.models.Recipe
 import de.mr_pine.recipes.models.instructions.RecipeInstruction
-import de.mr_pine.recipes.viewModels.RecipeViewModel
 import org.burnoutcrew.reorderable.rememberReorderableLazyListState
 import org.burnoutcrew.reorderable.reorderable
 
-@ExperimentalAnimationApi
-@ExperimentalFoundationApi
-@ExperimentalMaterial3Api
-@ExperimentalMaterialApi
-@Composable
-fun RecipeView(viewModel: RecipeViewModel) {
-    val currentRecipe = viewModel.currentRecipe
-    if (currentRecipe != null) {
-        RecipeView(
-            recipe = currentRecipe,
-            openDrawer = viewModel.showNavDrawer,
-            viewModel::loadRecipe,
-            viewModel::SaveRecipeToFile
-        )
-    } else {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .statusBarsPadding(),
-            horizontalArrangement = Arrangement.Center
-        ) {
-            Text(text = "Missing Recipe")
-        }
-    }
-}
-
 @ExperimentalMaterialApi
 @ExperimentalAnimationApi
 @ExperimentalMaterial3Api
 @Composable
-fun RecipeView(
+fun RecipeEdit(
     recipe: Recipe,
     openDrawer: () -> Unit,
-    loadRecipe: (Recipe) -> Unit,
-    saveRecipe: (Recipe) -> Unit
+    saveRecipe: (Recipe) -> Unit,
+    toggleEditRecipe: () -> Unit
 ) {
 
-    val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(rememberTopAppBarState())
+    val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(rememberTopAppBarState())
 
     Scaffold(
         modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
@@ -93,7 +64,7 @@ fun RecipeView(
         floatingActionButtonPosition = FabPosition.End,
         floatingActionButton = {
             FloatingActionButton(
-                onClick = { /*loadRecipe(recipe)*/saveRecipe(recipe) }
+                onClick = { saveRecipe(recipe); toggleEditRecipe() }
             ) {
                 Icon(
                     imageVector = Icons.Default.Save,
@@ -127,13 +98,9 @@ fun RecipeView(
             item {
                 recipe.metadata.MetaInfo()
             }
-            /*item {
-                recipe.ingredients.IngredientsCard()
-            }*/
             item {
                 recipe.ingredients.IngredientsEditCard()
             }
-
             instructionsEditList(
                 instructionList = recipe.instructions.instructions,
                 getPartialIngredient = recipe.ingredients::getPartialIngredient,
@@ -159,40 +126,7 @@ fun RecipeView(
                     }
                 }
             }
-            /*
 
-            fun setCurrentlyActiveIndex(index: Int) {
-                recipe.instructions.currentlyActiveIndex = index
-                /*coroutineScope.launch {
-                lazyListState.animateScrollToItem(index + 2, -300)
-                }*/
-            }
-            itemsIndexed(
-                recipe.instructions.instructions
-            ) { index, instruction ->
-                instruction.InstructionEditCard(
-                    index = index,
-                    currentlyActiveIndex = recipe.instructions.currentlyActiveIndex,
-                    recipeTitle = recipe.metadata.title,
-                    setCurrentlyActiveIndex = ::setCurrentlyActiveIndex,
-                    setNextActive = {
-                        for ((nextIndex, next) in recipe.instructions.instructions.subList(
-                            index + 1,
-                            recipe.instructions.instructions.size
-                        ).withIndex()) {
-                            if (!next.done) {
-                                setCurrentlyActiveIndex(nextIndex + index + 1)
-                                break
-                            }
-                        }
-                        if (recipe.instructions.currentlyActiveIndex == index) setCurrentlyActiveIndex(
-                            recipe.instructions.instructions.size
-                        )
-                    },
-                    getIngredientFraction = recipe.ingredients::getPartialIngredient,
-                    ingredients = recipe.ingredients.ingredients
-                )
-            }*/
             item {
                 Spacer(
                     modifier = Modifier.padding(
@@ -206,32 +140,4 @@ fun RecipeView(
             }
         }
     }
-
 }
-
-@Composable
-fun ShowError(error: Exception) {
-    var shown by remember {
-        Log.e(
-            "Recipe Error",
-            "ShowError: ${error.message ?: ""}${error.stackTrace.joinToString("\n")}",
-        ); mutableStateOf(true)
-    }
-    if (shown) AlertDialog(
-        onDismissRequest = { shown = false },
-        title = { Text(text = "Error Occurred") },
-        text = { Text(text = error.message ?: "") },
-        icon = {
-            Icon(
-                imageVector = Icons.Default.Error,
-                contentDescription = "Error"
-            )
-        },
-        dismissButton = {
-            Button(onClick = { shown = false }) {
-                Text(text = "Close")
-            }
-        },
-        confirmButton = {})
-}
-
