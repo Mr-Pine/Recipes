@@ -33,4 +33,6 @@
     <string name="Duration">Dauer</string>
     <string name="Unit">Einheit</string>
     <string name="Display_name">Anzeigename</string>
+    <string name="Add_step">Schritt hinzufügen</string>
+    <string name="Edit">Bearbeiten</string>
 </resources>
