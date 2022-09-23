@@ -60,7 +60,7 @@ class RecipeViewModel(private val recipeFolder: File, private val recipeSchema: 
         return recipe
     }
 
-    fun SaveRecipeToFile(recipe: Recipe, file: File = recipe.metadata.file!!) {
+    fun saveRecipeToFile(recipe: Recipe, file: File = recipe.metadata.file!!) {
         file.parentFile?.mkdirs()
         file.apply {
             createNewFile()
