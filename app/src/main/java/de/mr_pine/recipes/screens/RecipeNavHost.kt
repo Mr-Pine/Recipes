@@ -10,6 +10,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import de.mr_pine.recipes.screens.Destination.HOME
 import de.mr_pine.recipes.screens.Destination.RECIPE
+import de.mr_pine.recipes.screens.recipe.RecipeScreen
 import de.mr_pine.recipes.viewModels.RecipeViewModel
 
 @ExperimentalAnimationApi
@@ -23,7 +24,7 @@ fun RecipeNavHost(navController: NavHostController, viewModel: RecipeViewModel) 
             Home(viewModel = viewModel)
         }
         composable(RECIPE.toString()) {
-            RecipeView(viewModel = viewModel)
+            RecipeScreen(viewModel = viewModel)
         }
     }
 }

@@ -10,23 +10,32 @@ import de.mr_pine.recipes.screens.Destination
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.serialization.builtins.serializer
 import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.modules.SerializersModule
+import kotlinx.serialization.modules.plus
 import net.pwall.json.schema.JSONSchema
 import java.io.File
 import java.io.FileFilter
+import kotlin.time.Duration
 
 private const val TAG = "RecipeViewModel"
 
 class RecipeViewModel(private val recipeFolder: File, private val recipeSchema: JSONSchema) :
     ViewModel() {
-    private val json = Json { ignoreUnknownKeys = true; serializersModule = module }
+    private val json = Json {
+        ignoreUnknownKeys = true; serializersModule =
+        module + SerializersModule { contextual(Duration::class, Duration.serializer()) }
+    }
 
     var currentRecipe: Recipe? by mutableStateOf(null)
 
     var recipeFiles = mutableStateListOf<File>()
 
     var recipes = mutableStateListOf<Recipe>()
+
 
     private val ioCoroutineScope = CoroutineScope(Dispatchers.IO)
 
@@ -41,9 +50,51 @@ class RecipeViewModel(private val recipeFolder: File, private val recipeSchema: 
             }.distinctBy { it.name }.toMutableStateList()
             recipes = mutableStateListOf()
             recipeFiles.forEach { recipeFile ->
-                getRecipeFromString(recipeFile.readText())?.let { recipes.add(it) }
+                getRecipeFromFile(recipeFile)?.let { recipes.add(it) }
             }
         }
+    }
+
+    fun getRecipeFromFile(file: File): Recipe? {
+        val recipe = getRecipeFromString(file.readText())
+        recipe?.metadata?.file = file
+        return recipe
+    }
+
+    fun deleteRecipe(recipe: Recipe) {
+        recipes.remove(recipe)
+        recipe.metadata.file?.delete()
+    }
+
+    fun saveRecipeToFile(
+        recipe: Recipe,
+        file: File =
+            recipe.metadata.file ?: File(
+                recipeFolder,
+                "${
+                    recipe.metadata.title.replace(
+                        "[^a-zA-Z0-9-_\\.]".toRegex(),
+                        "_"
+                    )
+                }.rcp"
+            ).takeIf { !it.exists() } ?: generateSequence(1) { it + 1 }.map {
+                File(
+                    recipeFolder,
+                    "${
+                        recipe.metadata.title.replace(
+                            "[^a-zA-Z0-9-_.]".toRegex(),
+                            "_"
+                        )
+                    }_$it.rcp"
+                )
+            }.first { !it.exists() }
+    ) {
+        file.parentFile?.mkdirs()
+        file.apply {
+            createNewFile()
+            writeText(json.encodeToString(recipe))
+        }
+        recipe.metadata.file = file
     }
 
     fun getRecipeFromString(raw: String): Recipe? {
@@ -57,13 +108,14 @@ class RecipeViewModel(private val recipeFolder: File, private val recipeSchema: 
                 null
             }
         } catch (e: Exception) {
-            Log.e(TAG, "getRecipeFromString: Error while validating", e)
+            Log.e(TAG, "getRecipeFromString: Error while validating or decoding", e)
             null
         }
     }
 
-    fun saveRecipeFile(content: String, fileName: String, loadRecipe: Boolean = false) {
+    fun saveRecipeFileContent(content: String, fileName: String, loadRecipe: Boolean = false) {
         val fileNameExtension = "$fileName${if (fileName.endsWith(".rcp")) "" else ".rcp"}"
+        recipeFolder.mkdirs()
         val recipeFile = File(recipeFolder, fileNameExtension)
         recipeFile.apply {
             createNewFile()

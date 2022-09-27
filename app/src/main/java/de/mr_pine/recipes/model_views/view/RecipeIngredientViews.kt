@@ -1,8 +1,11 @@
-package de.mr_pine.recipes.model_views
+package de.mr_pine.recipes.model_views.view
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.material3.*
+import androidx.compose.material3.Card
+import androidx.compose.material3.Checkbox
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -17,14 +20,12 @@ import de.mr_pine.recipes.R
 import de.mr_pine.recipes.models.RecipeIngredient
 import de.mr_pine.recipes.models.RecipeIngredients
 
-@ExperimentalMaterial3Api
 @Composable
 fun RecipeIngredients.IngredientsCard() {
     Card(
         modifier = Modifier
             .padding(2.dp)
-            .fillMaxWidth(),
-        colors = CardDefaults.cardColors()
+            .fillMaxWidth()
     ) {
         Column(modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp)) {
             Text(
@@ -38,7 +39,6 @@ fun RecipeIngredients.IngredientsCard() {
     }
 }
 
-@ExperimentalMaterial3Api
 @Composable
 fun RecipeIngredient.IngredientRow() {
     Row(
@@ -55,7 +55,7 @@ fun RecipeIngredient.IngredientRow() {
             modifier = Modifier.size(LocalViewConfiguration.current.minimumTouchTargetSize)
         )
         Text(
-            text = "$name: $amount ${unit.displayValue()}",
+            text = "${name}: ${unitAmount.amount} ${unitAmount.unit.displayValue()}",
             fontSize = 20.sp
         )
     }

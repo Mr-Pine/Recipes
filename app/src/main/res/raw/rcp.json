@@ -16,11 +16,11 @@
         },
         "author": {
           "description": "The author of this recipe",
-          "type": "string"
+          "type": ["string", "null"]
         },
         "portions": {
           "description": "The number of portions",
-          "type": "number"
+          "type": ["number", "null"]
         }
       },
       "required": [
@@ -37,25 +37,35 @@
             "description": "The name of the ingredient",
             "type": "string"
           },
-          "amount": {
-            "description": "The amount of this ingredient",
-            "type": "number"
+          "unit_amount": {
+            "type": "object",
+            "properties": {
+              "amount": {
+                "description": "The amount of this ingredient",
+                "type": "number"
+              },
+              "unit": {
+                "description": "The unit the amount is specipied in",
+                "type": "string",
+                "enum": [
+                  "Gram",
+                  "Kilogram",
+                  "Milliliter",
+                  "Liter",
+                  "None"
+                ]
+              }
+            },
+            "required": ["amount"]
           },
-          "unit": {
-            "description": "The unit the amount is specipied in",
-            "type": "string",
-            "enum": [
-              "Gram",
-              "Kilogram",
-              "Milliliter",
-              "Liter",
-              "None"
-            ]
+          "ID": {
+            "description": "A unique id for the ingredient",
+            "type": "string"
           }
         },
         "required": [
           "name",
-          "amount"
+          "unit_amount"
         ],
         "additionalProperties": false
       }
@@ -89,26 +99,26 @@
                       "description": "The data for the ingredient",
                       "type": "object",
                       "properties": {
-                        "name": {
-                          "desription": "The name of the ingredient referenced",
+                        "ingredient_ID": {
+                          "desription": "The unique id of the ingredient referenced",
                           "type": "string"
                         },
                         "display": {
                           "description": "If specified, this name is shown in the embed instead of the name of the ingredient",
-                          "type": "string"
+                          "type": ["string", "null"]
                         },
                         "amount_fraction": {
                           "description": "A fraction of the ingredient to be used in this step. If not specified it is 1",
                           "type": "number",
                           "exclusiveMinimum": 0,
-                          "exclusiveMaximum": 1
+                          "inclusiveMaximum": 1
                         },
                         "no_amount": {
                           "description": "If true the amount of the ingredient will not be shown",
                           "type": "boolean"
                         }
                       },
-                      "required": ["name"],
+                      "required": ["ingredient_ID"],
                       "additionalProperties": false
                     }
                   ]
@@ -126,8 +136,8 @@
                       "type": "object",
                       "properties": {
                         "duration": {
-                          "descriotion": "The number of seconds this timer runs for",
-                          "type": "number"
+                          "descriotion": "The duration this timer runs for, formatted as ISO-8601-2",
+                          "type": "string"
                         }
                       },
                       "required": ["duration"],

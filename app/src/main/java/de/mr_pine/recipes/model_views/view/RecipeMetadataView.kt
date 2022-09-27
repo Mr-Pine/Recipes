@@ -1,7 +1,6 @@
-package de.mr_pine.recipes.model_views
+package de.mr_pine.recipes.model_views.view
 
-import androidx.compose.foundation.layout.Row
-import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.foundation.layout.Column
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -12,10 +11,9 @@ import de.mr_pine.recipes.R
 import de.mr_pine.recipes.models.RecipeMetadata
 import de.mr_pine.recipes.models.amount
 
-@ExperimentalMaterial3Api
 @Composable
 fun RecipeMetadata.MetaInfo() {
-    Row{
+    Column{
         if (author != null) Text(
             text = "${stringResource(R.string.by)} $author",
             style = MaterialTheme.typography.labelMedium.copy(
