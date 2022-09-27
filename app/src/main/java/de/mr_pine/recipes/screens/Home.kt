@@ -6,11 +6,13 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -20,6 +22,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import de.mr_pine.recipes.R
 import de.mr_pine.recipes.models.Recipe
+import de.mr_pine.recipes.models.RecipeIngredients
+import de.mr_pine.recipes.models.RecipeMetadata
+import de.mr_pine.recipes.models.instructions.RecipeInstructions
 import de.mr_pine.recipes.viewModels.RecipeViewModel
 
 
@@ -29,6 +34,7 @@ fun Home(viewModel: RecipeViewModel) {
     Home(
         { viewModel.showNavDrawer() },
         viewModel.recipes,
+        viewModel.recipes::add,
         importRecipe = { viewModel.importRecipe() },
         navigateToRecipe = viewModel::navigateToRecipe
     )
@@ -39,6 +45,7 @@ fun Home(viewModel: RecipeViewModel) {
 fun Home(
     showNavDrawer: () -> Unit,
     recipeList: List<Recipe>,
+    addRecipe: (Recipe) -> Unit,
     importRecipe: () -> Unit,
     navigateToRecipe: (Recipe) -> Unit
 ) {
@@ -106,6 +113,27 @@ fun Home(
                                 text = recipe.metadata.title,
                                 style = MaterialTheme.typography.titleLarge
                             )
+                        }
+                    }
+                }
+                item {
+                    FilledTonalButton(
+                        onClick = {
+                            val newRecipe = Recipe(
+                                RecipeInstructions(listOf()),
+                                RecipeMetadata(""),
+                                RecipeIngredients(mutableStateListOf())
+                            )
+
+                            addRecipe(newRecipe)
+
+                            navigateToRecipe(newRecipe)
+                        },
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Icon(imageVector = Icons.Default.Add, contentDescription = "Add")
+                            Text(text = stringResource(R.string.Add_recipe))
                         }
                     }
                 }

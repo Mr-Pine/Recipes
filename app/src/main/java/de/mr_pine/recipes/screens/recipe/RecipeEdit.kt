@@ -39,7 +39,9 @@ fun RecipeEdit(
     recipe: Recipe,
     openDrawer: () -> Unit,
     saveRecipe: (Recipe) -> Unit,
-    toggleEditRecipe: () -> Unit
+    toggleEditRecipe: () -> Unit,
+    remove: () -> Unit,
+    isNew: Boolean
 ) {
 
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(rememberTopAppBarState())
@@ -57,7 +59,11 @@ fun RecipeEdit(
         }
     )
 
-    var showMetadataEditDialog by remember { mutableStateOf(false) }
+    var showMetadataEditDialog by remember { mutableStateOf(isNew) }
+    val recipeBuffer = remember { recipe.copy() }
+
+    val metadataBuffer =
+        remember(showMetadataEditDialog, recipeBuffer) { recipeBuffer.metadata.copy() }
 
     Scaffold(
         modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
@@ -75,7 +81,8 @@ fun RecipeEdit(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
-                            recipe.metadata.title
+                            recipeBuffer.metadata.title.takeIf { it.isNotBlank() }
+                                ?: stringResource(R.string.Add_title)
                         )
                         IconButton(onClick = editMetadata) {
                             Icon(
@@ -104,10 +111,15 @@ fun RecipeEdit(
                 modifier = Modifier.navigationBarsPadding(),
                 horizontalAlignment = Alignment.End
             ) {
-                SmallFloatingActionButton(onClick = { saveRecipe(recipe) }) {
+                SmallFloatingActionButton(onClick = {
+                    recipe.copyFrom(recipeBuffer)
+                    saveRecipe(recipe)
+                }) {
                     Icon(imageVector = Icons.Default.Save, contentDescription = "Save")
                 }
-                SmallFloatingActionButton(onClick = { /*TODO*/ }) {
+                SmallFloatingActionButton(onClick = {
+                    if(isNew) remove() else toggleEditRecipe()
+                }) {
                     Icon(imageVector = Icons.Default.Cancel, contentDescription = "Cancel")
                 }
 
@@ -120,30 +132,33 @@ fun RecipeEdit(
                 }
 
                 ExtendedFloatingActionButton(
-                    onClick = { saveRecipe(recipe); toggleEditRecipe() },
+                    onClick = {
+                        recipe.copyFrom(recipeBuffer)
+                        saveRecipe(recipe)
+                        toggleEditRecipe()
+                    },
                     expanded = expandedFab,
                     icon = {
                         Icon(
-                            imageVector = Icons.Default.EditOff,
+                            imageVector = if(isNew) Icons.Default.Add else Icons.Default.EditOff,
                             contentDescription = null
                         )
                     },
                     text = {
-                        Text(text = stringResource(R.string.Save_and_exit))
+                        Text(text = stringResource(if(isNew) R.string.Add_and_exit else R.string.Save_and_exit))
                     }
                 )
             }
         }
     ) { innerPadding ->
 
-        val metadataBuffer = remember(showMetadataEditDialog) { recipe.metadata.copy() }
 
         if (showMetadataEditDialog) {
             AlertDialog(
                 onDismissRequest = { showMetadataEditDialog = false },
                 confirmButton = {
                     TextButton(onClick = {
-                        recipe.metadata.copyFrom(metadataBuffer)
+                        recipeBuffer.metadata.copyFrom(metadataBuffer)
                         showMetadataEditDialog = false
                     }) {
                         Text(text = stringResource(id = R.string.Apply))
@@ -217,22 +232,22 @@ fun RecipeEdit(
             state = reorderState.listState
         ) {
             item {
-                recipe.metadata.MetaInfo()
+                recipeBuffer.metadata.MetaInfo()
             }
             item {
-                recipe.ingredients.IngredientsEditCard()
+                recipeBuffer.ingredients.IngredientsEditCard()
             }
             instructionsEditList(
-                instructionList = recipe.instructions.instructions,
-                getPartialIngredient = recipe.ingredients::getPartialIngredient,
-                ingredientList = recipe.ingredients.ingredients,
+                instructionList = recipeBuffer.instructions.instructions,
+                getPartialIngredient = recipeBuffer.ingredients::getPartialIngredient,
+                ingredientList = recipeBuffer.ingredients.ingredients,
                 reorderableState = reorderState,
-                removeInstruction = recipe.instructions.instructions::remove
+                removeInstruction = recipeBuffer.instructions.instructions::remove
             )
             item {
                 FilledTonalButton(
                     onClick = {
-                        recipe.instructions.instructions.add(
+                        recipeBuffer.instructions.instructions.add(
                             RecipeInstruction(
                                 AnnotatedString(""),
                                 mutableStateListOf()

@@ -40,4 +40,7 @@
     <string name="Title">Title</string>
     <string name="Portions">Portions</string>
     <string name="Author">Author</string>
+    <string name="Add_recipe">Add recipe</string>
+    <string name="Add_title">Add title</string>
+    <string name="Add_and_exit">Add and Exit</string>
 </resources>

@@ -10,6 +10,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import de.mr_pine.recipes.screens.Destination
 import de.mr_pine.recipes.viewModels.RecipeViewModel
 
 @ExperimentalMaterial3Api
@@ -18,7 +19,11 @@ import de.mr_pine.recipes.viewModels.RecipeViewModel
 @Composable
 fun RecipeScreen(viewModel: RecipeViewModel) {
     val currentRecipe = viewModel.currentRecipe
-    var editRecipe by remember { mutableStateOf(false) }
+    var isNew by remember {
+        mutableStateOf(currentRecipe?.let { it.instructions.instructions.isEmpty() && it.ingredients.ingredients.isEmpty() && it.metadata.title.isBlank() }
+            ?: false)
+    }
+    var editRecipe by remember { mutableStateOf(isNew) }
     fun setEditMode(value: Boolean = !editRecipe) {
         editRecipe = value
     }
@@ -27,8 +32,16 @@ fun RecipeScreen(viewModel: RecipeViewModel) {
             RecipeEdit(
                 recipe = currentRecipe,
                 openDrawer = viewModel.showNavDrawer,
-                viewModel::saveRecipeToFile,
-                toggleEditRecipe = ::setEditMode
+                saveRecipe = {
+                    viewModel.saveRecipeToFile(it)
+                    isNew = false
+                },
+                toggleEditRecipe = ::setEditMode,
+                remove = {
+                    viewModel.recipes.remove(currentRecipe)
+                    viewModel.navigate(Destination.HOME)
+                },
+                isNew = isNew
             )
         } else {
             RecipeView(

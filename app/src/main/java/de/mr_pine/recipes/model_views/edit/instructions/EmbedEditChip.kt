@@ -61,7 +61,7 @@ fun RecipeInstruction.EmbedData.RecipeEditChipStateful(
     }
 
     if (isEditing) {
-        val buffer by remember { mutableStateOf(this.copy(embedState = mutableStateOf(embed.copy()))) }
+        val buffer by remember { mutableStateOf(this.copy()) }
         val typeBuffers = remember {
             InstructionSubmodels.EmbedTypeEnum.values().map {
                 it to when (it) {

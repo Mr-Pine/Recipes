@@ -36,6 +36,7 @@ class RecipeViewModel(private val recipeFolder: File, private val recipeSchema: 
 
     var recipes = mutableStateListOf<Recipe>()
 
+
     private val ioCoroutineScope = CoroutineScope(Dispatchers.IO)
 
     fun loadRecipeFiles() {

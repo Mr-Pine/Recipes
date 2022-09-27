@@ -22,7 +22,10 @@ class RecipeInstructions(
     var instructions: SnapshotStateList<RecipeInstruction>
 ) {
 
-    constructor(instructions: List<RecipeInstruction>): this(instructions.toMutableStateList())
+    constructor(instructions: List<RecipeInstruction>) : this(instructions.toMutableStateList())
+
+    fun copy(instructions: List<RecipeInstruction> = this.instructions.map { it.copy() }) =
+        RecipeInstructions(instructions)
 
     var currentlyActiveIndex by mutableStateOf(0)
 
@@ -43,20 +46,26 @@ class RecipeInstruction(
 
     constructor(
         content: AnnotatedString,
-        inlineEmbeds: SnapshotStateList<EmbedData>
-    ): this(mutableStateOf(content), inlineEmbeds)
+        inlineEmbeds: List<EmbedData>
+    ) : this(mutableStateOf(content), inlineEmbeds.toMutableStateList())
 
     var done by mutableStateOf(false)
 
     var content by contentState
 
+    fun copy(content: AnnotatedString = this.content.copy(), inlineEmbeds: List<EmbedData> = this.inlineEmbeds.map { it.copy() }) = RecipeInstruction(content, inlineEmbeds)
+
     @Serializable(with = EmbedDataSerializer::class)
-    data class EmbedData(
+    class EmbedData(
         @Transient var enabled: Boolean = true,
         @SerialName("embed")
         private var embedState: MutableState<InstructionSubmodels.EmbedTypeModel>
     ) {
+        constructor(enabled: Boolean, embed: InstructionSubmodels.EmbedTypeModel): this(enabled, mutableStateOf(embed))
+
         var embed by embedState
+
+        fun copy(enabled: Boolean = this.enabled, embed: InstructionSubmodels.EmbedTypeModel = this.embed.copy()): EmbedData = EmbedData(enabled, embed)
     }
 
     private object EmbedDataSerializer : KSerializer<EmbedData> {
@@ -92,6 +101,10 @@ object AnnotatedSerializer : KSerializer<AnnotatedString> {
 
         encoder.encodeString(encodeInstructionString(value))
     }
+}
+
+fun AnnotatedString.copy() = buildAnnotatedString {
+    append(this@copy)
 }
 
 fun decodeInstructionString(encoded: String) = buildAnnotatedString {
