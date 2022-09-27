@@ -51,7 +51,7 @@ class RecipeIngredient(
 
     fun copyFrom(from: RecipeIngredient) {
         this.name = from.name
-        this.unitAmount = from.unitAmount
+        this.unitAmount = from.unitAmount.copy()
     }
 
     fun copy(): RecipeIngredient {

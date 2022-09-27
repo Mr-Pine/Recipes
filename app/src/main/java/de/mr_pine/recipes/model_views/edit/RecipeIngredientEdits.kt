@@ -130,48 +130,53 @@ fun RecipeIngredient.IngredientEditRow(
     val isNew by remember { mutableStateOf(this.name.isEmpty()) }
     var showEditDialog by remember { mutableStateOf(isNew) }
     var showDeleteDialog by remember { mutableStateOf(false) }
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
-        modifier = Modifier
-            .padding(4.dp)
-            .fillMaxWidth()
-            .then(
-                if (isDragging) Modifier.graphicsLayer(
-                    scaleX = 1.1f,
-                    scaleY = 1.1f,
-                    transformOrigin = TransformOrigin(0f, 1f),
-                    translationX = 2f,
-                    translationY = 2f
-                ) else Modifier
-            )
-            .clip(CircleShape)
-            .background(MaterialTheme.colorScheme.surfaceColorAtElevation(if (isDragging) 5.dp else 2.dp))
-            .then(
-                if (reorderableLazyListState != null) Modifier.detectReorderAfterLongPress(
-                    reorderableLazyListState
-                ) else Modifier.clickable { showEditDialog = true })
-            .padding(horizontal = 1.dp)
-    ) {
-        Row(modifier = Modifier.padding(12.dp), verticalAlignment = Alignment.CenterVertically) {
-            if (reorderableLazyListState != null) Icon(
-                imageVector = Icons.Default.DragHandle,
-                contentDescription = "Reorder",
-                modifier = Modifier
-                    .padding(start = 2.dp)
-                    .detectReorder(reorderableLazyListState)
-            )
-            Spacer(modifier = Modifier.width(8.dp))
-            Text(
-                text = "${name}: ${unitAmount.amount} ${unitAmount.unit.displayValue()}",
-                fontSize = 20.sp,
-                modifier = Modifier
-                    .width(0.dp)
-                    .weight(1f)
-            )
-            if (reorderableLazyListState == null) {
-                Icon(imageVector = Icons.Default.Edit, contentDescription = "Edit")
-            }
+    if (name.isNotBlank() && unitAmount != UnitAmount.NaN) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier
+                .padding(4.dp)
+                .fillMaxWidth()
+                .then(
+                    if (isDragging) Modifier.graphicsLayer(
+                        scaleX = 1.1f,
+                        scaleY = 1.1f,
+                        transformOrigin = TransformOrigin(0f, 1f),
+                        translationX = 2f,
+                        translationY = 2f
+                    ) else Modifier
+                )
+                .clip(CircleShape)
+                .background(MaterialTheme.colorScheme.surfaceColorAtElevation(if (isDragging) 5.dp else 2.dp))
+                .then(
+                    if (reorderableLazyListState != null) Modifier.detectReorderAfterLongPress(
+                        reorderableLazyListState
+                    ) else Modifier.clickable { showEditDialog = true })
+                .padding(horizontal = 1.dp)
+        ) {
+            Row(
+                modifier = Modifier.padding(12.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                if (reorderableLazyListState != null) Icon(
+                    imageVector = Icons.Default.DragHandle,
+                    contentDescription = "Reorder",
+                    modifier = Modifier
+                        .padding(start = 2.dp)
+                        .detectReorder(reorderableLazyListState)
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(
+                    text = "${name}: ${unitAmount.amount} ${unitAmount.unit.displayValue()}",
+                    fontSize = 20.sp,
+                    modifier = Modifier
+                        .width(0.dp)
+                        .weight(1f)
+                )
+                if (reorderableLazyListState == null) {
+                    Icon(imageVector = Icons.Default.Edit, contentDescription = "Edit")
+                }
 
+            }
         }
     }
     fun dismissEdit() {
@@ -191,7 +196,7 @@ fun RecipeIngredient.IngredientEditRow(
                         showEditDialog = false
                     }
                 }) {
-                    Text(text = stringResource(id = if(isNew) R.string.Add else R.string.Apply))
+                    Text(text = stringResource(id = if (isNew) R.string.Add else R.string.Apply))
                 }
             },
             dismissButton = {
@@ -200,7 +205,7 @@ fun RecipeIngredient.IngredientEditRow(
                 }
             },
             title = {
-                Text(text = stringResource(if(isNew) R.string.Add_Ingredient else R.string.Edit_ingredient))
+                Text(text = stringResource(if (isNew) R.string.Add_Ingredient else R.string.Edit_ingredient))
             },
             text = {
                 Column {

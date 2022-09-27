@@ -1,18 +1,16 @@
 package de.mr_pine.recipes.screens
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Menu
-import androidx.compose.material.icons.filled.Search
-import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -28,6 +26,7 @@ import de.mr_pine.recipes.models.instructions.RecipeInstructions
 import de.mr_pine.recipes.viewModels.RecipeViewModel
 
 
+@ExperimentalFoundationApi
 @ExperimentalMaterial3Api
 @Composable
 fun Home(viewModel: RecipeViewModel) {
@@ -36,10 +35,12 @@ fun Home(viewModel: RecipeViewModel) {
         viewModel.recipes,
         viewModel.recipes::add,
         importRecipe = { viewModel.importRecipe() },
-        navigateToRecipe = viewModel::navigateToRecipe
+        navigateToRecipe = viewModel::navigateToRecipe,
+        deleteRecipe = viewModel::deleteRecipe
     )
 }
 
+@ExperimentalFoundationApi
 @ExperimentalMaterial3Api
 @Composable
 fun Home(
@@ -47,9 +48,12 @@ fun Home(
     recipeList: List<Recipe>,
     addRecipe: (Recipe) -> Unit,
     importRecipe: () -> Unit,
-    navigateToRecipe: (Recipe) -> Unit
+    navigateToRecipe: (Recipe) -> Unit,
+    deleteRecipe: (Recipe) -> Unit
 ) {
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(rememberTopAppBarState())
+
+    var deletableRecipe by remember { mutableStateOf<Recipe?>(null) }
 
     Scaffold(
         topBar = {
@@ -105,8 +109,16 @@ fun Home(
                 item { Box(modifier = Modifier.height(2.dp)) }
                 items(recipeList) { recipe ->
                     ElevatedCard(
-                        onClick = { navigateToRecipe(recipe) },
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(MaterialTheme.shapes.medium)
+                            .combinedClickable(
+                                onClick = {
+                                    navigateToRecipe(recipe)
+                                },
+                                onLongClick = {
+                                    deletableRecipe = recipe
+                                })
                     ) {
                         Row(modifier = Modifier.padding(12.dp)) {
                             Text(
@@ -139,6 +151,43 @@ fun Home(
                 }
                 item { Box(modifier = Modifier.height(2.dp)) }
             }
+        }
+
+        if (deletableRecipe != null) {
+            AlertDialog(
+                onDismissRequest = { deletableRecipe = null },
+                confirmButton = {
+                    TextButton(onClick = {
+                        deleteRecipe(deletableRecipe!!); deletableRecipe = null
+                    }) {
+                        Text(text = stringResource(R.string.Delete))
+                    }
+                },
+                dismissButton = {
+                    TextButton(onClick = { deletableRecipe = null }) {
+                        Text(stringResource(id = R.string.Cancel))
+                    }
+                },
+                title = {
+                    Text(text = stringResource(R.string.Delete_recipe))
+                },
+                text = {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.Center
+                    ) {
+                        Text(
+                            text = String.format(
+                                stringResource(R.string.Delete_recipe_text),
+                                deletableRecipe?.metadata?.title ?: ""
+                            )
+                        )
+                    }
+                },
+                icon = {
+                    Icon(Icons.Default.Delete, "Delete")
+                }
+            )
         }
     }
 }

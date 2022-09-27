@@ -4,7 +4,7 @@ plugins {
     kotlin("plugin.serialization") version "1.7.10"
 }
 
-val composeVersion = "1.3.0-beta02"
+val composeVersion = "1.3.0-beta03"
 val composeCompilerVersion = "1.3.1"
 val lifecycleVersion = "2.6.0-alpha02"
 
@@ -52,12 +52,12 @@ android {
 }
 
 dependencies {
-    implementation("androidx.constraintlayout:constraintlayout-compose:1.1.0-alpha03")
+    implementation("androidx.constraintlayout:constraintlayout-compose:1.1.0-alpha04")
 
     implementation("androidx.compose.ui:ui:$composeVersion")
     implementation("androidx.compose.material:material-icons-extended:$composeVersion")
     implementation("androidx.compose.material:material:$composeVersion")
-    implementation("androidx.compose.material3:material3:1.0.0-beta02")
+    implementation("androidx.compose.material3:material3:1.0.0-beta03")
 
     implementation("com.google.android.material:material:1.8.0-alpha01")
 
@@ -66,7 +66,7 @@ dependencies {
     implementation("androidx.core:core-ktx:1.9.0")
     implementation("androidx.appcompat:appcompat:1.6.0-rc01")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:$lifecycleVersion")
-    implementation("androidx.activity:activity-compose:1.6.0-rc02")
+    implementation("androidx.activity:activity-compose:1.6.0")
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:$lifecycleVersion")
 
     debugImplementation("androidx.compose.ui:ui-tooling:$composeVersion")
@@ -79,7 +79,7 @@ dependencies {
     androidTestImplementation("androidx.test.espresso:espresso-core:3.5.0-alpha07")
     androidTestImplementation("androidx.compose.ui:ui-test-junit4:$composeVersion")
 
-    implementation("com.google.accompanist:accompanist-flowlayout:0.26.3-beta")
+    implementation("com.google.accompanist:accompanist-flowlayout:0.26.4-beta")
 
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.4.0")
     implementation("net.pwall.json:json-kotlin-schema:0.36")

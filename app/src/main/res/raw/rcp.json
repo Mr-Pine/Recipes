@@ -16,11 +16,11 @@
         },
         "author": {
           "description": "The author of this recipe",
-          "type": "string"
+          "type": ["string", "null"]
         },
         "portions": {
           "description": "The number of portions",
-          "type": "number"
+          "type": ["number", "null"]
         }
       },
       "required": [

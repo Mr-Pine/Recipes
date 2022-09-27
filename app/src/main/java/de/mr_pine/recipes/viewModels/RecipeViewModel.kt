@@ -61,12 +61,40 @@ class RecipeViewModel(private val recipeFolder: File, private val recipeSchema: 
         return recipe
     }
 
-    fun saveRecipeToFile(recipe: Recipe, file: File = recipe.metadata.file!!) {
+    fun deleteRecipe(recipe: Recipe) {
+        recipes.remove(recipe)
+        recipe.metadata.file?.delete()
+    }
+
+    fun saveRecipeToFile(
+        recipe: Recipe,
+        file: File =
+            recipe.metadata.file ?: File(
+                recipeFolder,
+                "${
+                    recipe.metadata.title.replace(
+                        "[^a-zA-Z0-9-_\\.]".toRegex(),
+                        "_"
+                    )
+                }.rcp"
+            ).takeIf { !it.exists() } ?: generateSequence(1) { it + 1 }.map {
+                File(
+                    recipeFolder,
+                    "${
+                        recipe.metadata.title.replace(
+                            "[^a-zA-Z0-9-_.]".toRegex(),
+                            "_"
+                        )
+                    }_$it.rcp"
+                )
+            }.first { !it.exists() }
+    ) {
         file.parentFile?.mkdirs()
         file.apply {
             createNewFile()
             writeText(json.encodeToString(recipe))
         }
+        recipe.metadata.file = file
     }
 
     fun getRecipeFromString(raw: String): Recipe? {

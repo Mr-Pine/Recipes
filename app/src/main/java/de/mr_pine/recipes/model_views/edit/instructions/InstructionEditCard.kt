@@ -134,7 +134,7 @@ fun RecipeInstruction.InstructionEditCard(
                             Text(stringResource(id = R.string.Cancel))
                         }
                         TextButton(onClick = {
-                            if (content.text.isBlank()) {
+                            if (content.text.isNotBlank()) {
                                 content = decodeInstructionString(bufferText)
                                 isEditingText = false
                             }

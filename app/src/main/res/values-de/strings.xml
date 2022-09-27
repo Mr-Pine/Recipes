@@ -40,4 +40,9 @@
     <string name="Title">Titel</string>
     <string name="Portions">Portionen</string>
     <string name="Author">Autor</string>
+    <string name="Add_recipe">Rezept hinzufügen</string>
+    <string name="Add_title">Titel hinzufügen</string>
+    <string name="Add_and_exit">Hinzufügen &amp; schließen</string>
+    <string name="Delete_recipe">Rezept löschen</string>
+    <string name="Delete_recipe_text">Rezept \"%1$s\" löschen?</string>
 </resources>
