@@ -219,7 +219,7 @@ fun RecipeInstruction.EmbedData.RecipeEditChipStateful(
                                 )
                             )
                         },
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                        keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
                         label = { Text(text = stringResource(R.string.Duration)) },
                         visualTransformation = DurationVisualTransformation(),
                         isError = (buffer.embed as InstructionSubmodels.TimerModel).duration == 0.seconds
@@ -296,7 +296,7 @@ fun RecipeInstruction.EmbedData.RecipeEditChipStateful(
                                     )
                                 }
                             },
-                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                            keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
                             label = { Text(text = stringResource(R.string.Amount)) },
                             isError = unitAmountBuffer.amount.value.isNaN() || unitAmountBuffer.amount == 0.amount || selectedIngredient?.unitAmount?.let { it < unitAmountBuffer } ?: false,
                             enabled = selectedIngredient != null
@@ -359,7 +359,7 @@ fun RecipeInstruction.EmbedData.RecipeEditChipStateful(
                                 }
                             } catch (_: NumberFormatException) {}
                         },
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                        keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
                         label = { Text(text = "${stringResource(R.string.Amount)} (%)") },
                         isError = selectedIngredient?.unitAmount?.let { it < unitAmountBuffer } ?: false,
                         enabled = selectedIngredient != null,

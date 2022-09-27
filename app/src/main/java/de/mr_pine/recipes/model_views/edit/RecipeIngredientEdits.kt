@@ -241,7 +241,7 @@ fun RecipeIngredient.IngredientEditRow(
                                     )
                                 }
                             },
-                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                            keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
                             label = { Text(text = stringResource(R.string.Amount)) },
                             isError = amountBuffer.isEmpty() || bufferIngredient.unitAmount.amount == 0.amount
                         )

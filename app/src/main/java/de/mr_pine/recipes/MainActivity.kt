@@ -32,6 +32,8 @@ import java.io.File
 
 /*
  * TODO: Implement custom TextToolbar for Instruction editing: https://stackoverflow.com/a/68966424/11921893
+ * TODO: Delete/reorder/clean up Embeds
+ * TODO: Delete Instruction
  * TODO: Splash screen: https://developer.android.com/guide/topics/ui/splash-screen
  * TODO: Maybe animated icons: https://www.youtube.com/watch?v=hiDaPrcZbco
  * TODO: Think about navigation: https://developer.android.com/jetpack/compose/navigation, JetNews

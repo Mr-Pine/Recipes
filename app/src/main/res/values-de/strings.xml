@@ -36,4 +36,8 @@
     <string name="Add_step">Schritt hinzufügen</string>
     <string name="Edit">Bearbeiten</string>
     <string name="Save_and_exit">Speichern &amp; schließen</string>
+    <string name="Edit_Metadata">Metadaten bearbeiten</string>
+    <string name="Title">Titel</string>
+    <string name="Portions">Portionen</string>
+    <string name="Author">Autor</string>
 </resources>
