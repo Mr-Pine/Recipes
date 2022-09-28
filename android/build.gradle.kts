@@ -7,7 +7,7 @@ plugins {
 group "de.mr_pine.recipes"
 version "1.1"
 
-val composeVersion = "1.3.0-beta03"
+val composeVersion = extra["compose.version"] as String
 val composeCompilerVersion = "1.3.1"
 val lifecycleVersion = "2.6.0-alpha02"
 
