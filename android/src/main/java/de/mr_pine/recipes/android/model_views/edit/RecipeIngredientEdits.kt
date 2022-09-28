@@ -23,7 +23,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import de.mr_pine.recipes.android.R
-import de.mr_pine.recipes.android.models.*
+import de.mr_pine.recipes.common.models.*
 import org.burnoutcrew.reorderable.*
 
 @ExperimentalMaterial3Api

@@ -1,16 +1,14 @@
 plugins {
     id("com.android.application")
-    kotlin("plugin.serialization") version "1.7.0"
+    kotlin("plugin.serialization") version "1.7.10"
     kotlin("android")
 }
-
-group "de.mr_pine.recipes"
-version "1.1"
 
 val composeVersion = extra["compose.version"] as String
 val composeCompilerVersion = "1.3.1"
 val lifecycleVersion = "2.6.0-alpha02"
 
+@Suppress("UnstableApiUsage")
 android {
     compileSdk = 33
 

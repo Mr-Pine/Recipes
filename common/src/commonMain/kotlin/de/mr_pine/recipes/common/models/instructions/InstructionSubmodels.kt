@@ -1,9 +1,5 @@
-package de.mr_pine.recipes.android.models.instructions
+package de.mr_pine.recipes.common.models.instructions
 
-import android.content.Context
-import android.content.Intent
-import android.provider.AlarmClock
-import androidx.annotation.StringRes
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.QuestionMark
 import androidx.compose.material.icons.filled.Scale
@@ -13,9 +9,10 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.vector.ImageVector
-import de.mr_pine.recipes.android.R
-import de.mr_pine.recipes.android.models.MutableStateSerializer
-import de.mr_pine.recipes.android.models.RecipeIngredient
+import de.mr_pine.recipes.common.models.MutableStateSerializer
+import de.mr_pine.recipes.common.models.RecipeIngredient
+import de.mr_pine.recipes.common.translation.ITranslation
+import de.mr_pine.recipes.common.translation.Translation
 import kotlinx.serialization.*
 import kotlinx.serialization.builtins.serializer
 import kotlinx.serialization.descriptors.PrimitiveKind
@@ -29,13 +26,13 @@ interface InstructionSubmodels {
 
     enum class EmbedTypeEnum(
         val icon: ImageVector,
-        @StringRes val modelNameId: Int,
+        val modelName: ITranslation,
         val selectable: Boolean = true
     ) {
 
-        UNDEFINED(Icons.Default.QuestionMark, R.string.Undefined, false),
-        TIMER(Icons.Default.Timer, R.string.Timer),
-        INGREDIENT(Icons.Default.Scale, R.string.Ingredient);
+        UNDEFINED(Icons.Default.QuestionMark, Translation.undefined, false),
+        TIMER(Icons.Default.Timer, Translation.timer),
+        INGREDIENT(Icons.Default.Scale, Translation.timer);
     }
 
     interface EmbedTypeModel {
@@ -75,14 +72,7 @@ interface InstructionSubmodels {
         override val content
             get() = duration.toString()
 
-        fun call(title: String, context: Context) {
-            val intent = Intent(AlarmClock.ACTION_SET_TIMER).apply {
-                putExtra(AlarmClock.EXTRA_MESSAGE, title)
-                putExtra(AlarmClock.EXTRA_LENGTH, duration.inWholeSeconds.toInt())
-                putExtra(AlarmClock.EXTRA_SKIP_UI, false)
-            }
-            context.startActivity(intent)
-        }
+
 
         override fun copy() = TimerModel(mutableStateOf(duration))
 

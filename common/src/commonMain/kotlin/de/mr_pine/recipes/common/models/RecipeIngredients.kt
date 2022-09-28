@@ -1,9 +1,8 @@
-package de.mr_pine.recipes.android.models
+package de.mr_pine.recipes.common.models
 
 import androidx.compose.runtime.*
 import androidx.compose.runtime.snapshots.SnapshotStateList
-import androidx.compose.ui.res.stringResource
-import de.mr_pine.recipes.android.R
+import de.mr_pine.recipes.common.translation.Translation
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -182,7 +181,7 @@ enum class IngredientUnit(
     Gram(UnitType.MASS, 0.001f) {
         @Composable
         override fun displayValueLong(): String {
-            return stringResource(R.string.grams)
+            return Translation.grams.getString()
         }
 
         override fun displayValue(): String {
@@ -195,7 +194,7 @@ enum class IngredientUnit(
     ) {
         @Composable
         override fun displayValueLong(): String {
-            return stringResource(R.string.kilograms)
+            return Translation.kilograms.getString()
         }
 
         override fun displayValue(): String {
@@ -212,7 +211,7 @@ enum class IngredientUnit(
 
         @Composable
         override fun displayValueLong(): String {
-            return stringResource(R.string.milliliters)
+            return Translation.milliliters.getString()
         }
 
     },
@@ -226,7 +225,7 @@ enum class IngredientUnit(
 
         @Composable
         override fun displayValueLong(): String {
-            return stringResource(R.string.liters)
+            return Translation.liters.getString()
         }
 
     },
@@ -238,7 +237,7 @@ enum class IngredientUnit(
 
         @Composable
         override fun menuDisplayValue(): String {
-            return stringResource(R.string.No_unit)
+            return Translation.noUnit.getString()
         }
 
         override fun displayValue(): String {

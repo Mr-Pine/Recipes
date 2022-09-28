@@ -27,10 +27,11 @@ import androidx.compose.ui.unit.sp
 import com.google.android.material.color.MaterialColors
 import de.mr_pine.recipes.android.R
 import de.mr_pine.recipes.android.components.swipeabe.Swipeable
-import de.mr_pine.recipes.android.models.RecipeIngredient
-import de.mr_pine.recipes.android.models.instructions.InstructionSubmodels
-import de.mr_pine.recipes.android.models.instructions.RecipeInstruction
 import de.mr_pine.recipes.android.ui.theme.Extended
+import de.mr_pine.recipes.common.models.RecipeIngredient
+import de.mr_pine.recipes.common.models.instructions.InstructionSubmodels
+import de.mr_pine.recipes.common.models.instructions.RecipeInstruction
+import de.mr_pine.recipes.common.models.instructions.call
 
 private const val TAG = "InstructionViews"
 

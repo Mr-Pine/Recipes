@@ -1,12 +1,12 @@
-package de.mr_pine.recipes.android.models.instructions
+package de.mr_pine.recipes.common.models.instructions
 
 import androidx.compose.foundation.text.appendInlineContent
 import androidx.compose.runtime.*
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.buildAnnotatedString
-import de.mr_pine.recipes.android.models.MutableStateListSerializer
-import de.mr_pine.recipes.android.models.MutableStateSerializer
+import de.mr_pine.recipes.common.models.MutableStateListSerializer
+import de.mr_pine.recipes.common.models.MutableStateSerializer
 import kotlinx.serialization.*
 import kotlinx.serialization.descriptors.PrimitiveKind
 import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor

@@ -135,7 +135,6 @@ class MainActivity : ComponentActivity() {
                     navHostController.enableOnBackPressed(true)
                 }
 
-
                 recipeViewModel.showNavDrawer = {
                     coroutineScope.launch { drawerState.open() }
                     onBackPressedCallback.isEnabled = true

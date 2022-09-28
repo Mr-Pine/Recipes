@@ -2,6 +2,7 @@ plugins {
     kotlin("multiplatform")
     id("org.jetbrains.compose") version "1.2.0-beta02-dev798"
     id("com.android.library")
+    kotlin("plugin.serialization") version "1.7.10"
 }
 
 group = "de.mr_pine.recipes"
@@ -15,11 +16,14 @@ kotlin {
         }
     }
     sourceSets {
+        @OptIn(org.jetbrains.compose.ExperimentalComposeLibrary::class)
         val commonMain by getting {
             dependencies {
                 api(compose.runtime)
                 api(compose.foundation)
-                api(compose.material)
+                api(compose.material3)
+                api(compose.materialIconsExtended)
+                implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.4.0")
             }
         }
         val commonTest by getting {
@@ -31,6 +35,8 @@ kotlin {
             dependencies {
                 api("androidx.appcompat:appcompat:1.5.1")
                 api("androidx.core:core-ktx:1.9.0")
+                api("androidx.compose.runtime:runtime:1.2.1")
+                api("androidx.compose.ui:ui:1.2.1")
             }
         }
         val androidTest by getting {

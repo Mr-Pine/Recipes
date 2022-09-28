@@ -18,7 +18,7 @@ import androidx.compose.ui.unit.dp
 import de.mr_pine.recipes.android.model_views.view.IngredientsCard
 import de.mr_pine.recipes.android.model_views.view.MetaInfo
 import de.mr_pine.recipes.android.model_views.view.instructionListView
-import de.mr_pine.recipes.android.models.Recipe
+import de.mr_pine.recipes.common.models.Recipe
 
 @ExperimentalMaterialApi
 @ExperimentalAnimationApi

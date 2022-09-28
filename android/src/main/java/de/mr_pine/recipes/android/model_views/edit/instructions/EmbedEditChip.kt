@@ -20,10 +20,10 @@ import androidx.compose.ui.text.input.*
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import de.mr_pine.recipes.android.R
-import de.mr_pine.recipes.android.models.*
-import de.mr_pine.recipes.android.models.instructions.InstructionSubmodels
-import de.mr_pine.recipes.android.models.instructions.InstructionSubmodels.EmbedTypeModel.Companion.getEnum
-import de.mr_pine.recipes.android.models.instructions.RecipeInstruction
+import de.mr_pine.recipes.common.models.*
+import de.mr_pine.recipes.common.models.instructions.InstructionSubmodels
+import de.mr_pine.recipes.common.models.instructions.InstructionSubmodels.EmbedTypeModel.Companion.getEnum
+import de.mr_pine.recipes.common.models.instructions.RecipeInstruction
 import kotlin.math.roundToInt
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.hours
@@ -134,7 +134,7 @@ fun RecipeInstruction.EmbedData.RecipeEditChipStateful(
                 }) {
                 TextField(
                     readOnly = true,
-                    value = selectedType?.let { stringResource(id = it.modelNameId) } ?: "",
+                    value = selectedType?.modelName?.getString() ?: "",
                     leadingIcon =
                     selectedType?.let {
                         {
@@ -162,7 +162,7 @@ fun RecipeInstruction.EmbedData.RecipeEditChipStateful(
                                             contentDescription = ""
                                         )
                                         Spacer(modifier = Modifier.width(8.dp))
-                                        Text(text = stringResource(id = embedType.modelNameId))
+                                        Text(text = embedType.modelName.getString())
                                     }
                                 },
                                 onClick = {

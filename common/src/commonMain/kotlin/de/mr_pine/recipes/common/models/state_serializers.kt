@@ -1,4 +1,4 @@
-package de.mr_pine.recipes.android.models
+package de.mr_pine.recipes.common.models
 
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf

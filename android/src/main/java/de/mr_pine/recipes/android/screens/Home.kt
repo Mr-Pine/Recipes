@@ -19,10 +19,10 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import de.mr_pine.recipes.android.R
-import de.mr_pine.recipes.android.models.Recipe
-import de.mr_pine.recipes.android.models.RecipeIngredients
-import de.mr_pine.recipes.android.models.RecipeMetadata
-import de.mr_pine.recipes.android.models.instructions.RecipeInstructions
+import de.mr_pine.recipes.common.models.Recipe
+import de.mr_pine.recipes.common.models.RecipeIngredients
+import de.mr_pine.recipes.common.models.RecipeMetadata
+import de.mr_pine.recipes.common.models.instructions.RecipeInstructions
 import de.mr_pine.recipes.android.viewModels.RecipeViewModel
 
 
