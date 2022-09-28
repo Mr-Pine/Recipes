@@ -1,8 +1,11 @@
 plugins {
     id("com.android.application")
-    id("org.jetbrains.kotlin.android")
     kotlin("plugin.serialization") version "1.7.0"
+    kotlin("android")
 }
+
+group "de.mr_pine.recipes"
+version "1.1"
 
 val composeVersion = "1.3.0-beta03"
 val composeCompilerVersion = "1.3.1"
@@ -11,9 +14,8 @@ val lifecycleVersion = "2.6.0-alpha02"
 android {
     compileSdk = 33
 
-
     defaultConfig {
-        applicationId = "de.mr_pine.recipes"
+        applicationId = "de.mr_pine.recipes.android"
         minSdk = 26
         targetSdk = 33
         versionCode = 2
@@ -48,7 +50,7 @@ android {
         resources.excludes += "META-INF/AL2.0"
         resources.excludes += "META-INF/LGPL2.1"
     }
-    namespace = "de.mr_pine.recipes"
+    namespace = "de.mr_pine.recipes.android"
 }
 
 dependencies {

@@ -1,10 +1,10 @@
 plugins {
     kotlin("multiplatform")
-    id("org.jetbrains.compose")
+    id("org.jetbrains.compose") version "1.2.0-beta02-dev798"
     id("com.android.library")
 }
 
-group = "com.example"
+group = "de.mr_pine.recipes"
 version = "1.0-SNAPSHOT"
 
 kotlin {

@@ -118,7 +118,7 @@
                           "type": "boolean"
                         }
                       },
-                      "required": ["ingredient_ID"],
+                      "required": ["ingredient_ID", "display"],
                       "additionalProperties": false
                     }
                   ]
