@@ -2,18 +2,38 @@
 import androidx.compose.foundation.layout.Column
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.remember
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.awt.ComposeWindow
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.KeyShortcut
+import androidx.compose.ui.window.MenuBar
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
 import de.mr_pine.recipes.common.App
+import de.mr_pine.recipes.common.models.Recipe
+import de.mr_pine.recipes.common.models.RecipeIngredients
+import de.mr_pine.recipes.common.models.RecipeMetadata
+import de.mr_pine.recipes.common.models.instructions.RecipeInstructions
 import java.awt.FileDialog
 import java.io.File
 
+@OptIn(ExperimentalComposeUiApi::class)
 fun main() = application {
     val viewModel = remember { DesktopViewModel() }
 
     Window(onCloseRequest = ::exitApplication, title = viewModel.activeRecipe.value?.metadata?.title ?: "") {
+
+        MenuBar {
+            Menu("File", mnemonic = 'F') {
+                if (viewModel.activeRecipe.value != null) Item(
+                    "Save",
+                    mnemonic = 'S',
+                    shortcut = KeyShortcut(ctrl = true, key = Key.S)
+                ) { viewModel.saveRecipe(window) }
+            }
+        }
 
         fun openFileDialog(
             window: ComposeWindow,
@@ -46,6 +66,13 @@ fun main() = application {
                 )
             }) {
                 Text("test")
+            }
+            Button(onClick = {
+                viewModel.activeRecipe.value = Recipe(
+                    RecipeInstructions(listOf()), RecipeMetadata(""), RecipeIngredients(mutableStateListOf())
+                )
+            }) {
+                Text("new")
             }
         }
 
