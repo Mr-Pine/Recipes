@@ -1,10 +1,10 @@
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
-    kotlin("plugin.serialization") version "1.7.10"
+    kotlin("plugin.serialization") version "1.7.0"
 }
 
-val composeVersion = "1.3.0-beta03"
+val composeVersion = "1.2.1"
 val composeCompilerVersion = "1.3.1"
 val lifecycleVersion = "2.6.0-alpha02"
 
