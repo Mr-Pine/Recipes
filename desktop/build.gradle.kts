@@ -1,20 +1,13 @@
-import org.jetbrains.compose.compose
+
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     kotlin("multiplatform")
     id("org.jetbrains.compose")
 }
 
-group = "de.mr_pine.recipes.desktop"
+group = "de.mr_pine.recipes"
 version = "1.0-SNAPSHOT"
-
-repositories {
-    google()
-    mavenCentral()
-    maven("https://maven.pkg.jetbrains.space/public/p/compose/dev")
-}
 
 kotlin {
     jvm {
@@ -26,6 +19,7 @@ kotlin {
     sourceSets {
         val jvmMain by getting {
             dependencies {
+                implementation(project(":common"))
                 implementation(compose.desktop.currentOs)
             }
         }

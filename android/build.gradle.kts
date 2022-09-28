@@ -4,7 +4,7 @@ plugins {
     kotlin("plugin.serialization") version "1.7.0"
 }
 
-val composeVersion = "1.2.1"
+val composeVersion = "1.3.0-beta03"
 val composeCompilerVersion = "1.3.1"
 val lifecycleVersion = "2.6.0-alpha02"
 
@@ -52,6 +52,8 @@ android {
 }
 
 dependencies {
+    implementation(project(":common"))
+
     implementation("androidx.constraintlayout:constraintlayout-compose:1.1.0-alpha04")
 
     implementation("androidx.compose.ui:ui:$composeVersion")
