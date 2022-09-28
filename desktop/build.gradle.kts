@@ -16,11 +16,16 @@ kotlin {
         }
         withJava()
     }
+    @OptIn(org.jetbrains.compose.ExperimentalComposeLibrary::class)
     sourceSets {
         val jvmMain by getting {
             dependencies {
                 implementation(project(":common"))
                 implementation(compose.desktop.currentOs)
+                implementation(compose.material3)
+                implementation(compose.foundation)
+                implementation(compose.runtime)
+                implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.4.0")
             }
         }
         val jvmTest by getting
