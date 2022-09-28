@@ -184,8 +184,8 @@ fun RecipeIngredient.IngredientEditRow(
         if (isNew && deleteSelf != null) deleteSelf()
     }
 
+    val bufferIngredient = remember(showEditDialog) { this.copy() }
     if (showEditDialog) {
-        val bufferIngredient = remember { this.copy() }
         AlertDialog(
             onDismissRequest = ::dismissEdit,
             confirmButton = {
@@ -211,7 +211,11 @@ fun RecipeIngredient.IngredientEditRow(
                 Column {
                     TextField(
                         value = bufferIngredient.name,
-                        onValueChange = { bufferIngredient.name = it },
+                        onValueChange = {
+                            this@IngredientEditRow
+                            bufferIngredient.name = it
+                            this@IngredientEditRow
+                                        },
                         label = {
                             Text(text = stringResource(R.string.Name))
                         },

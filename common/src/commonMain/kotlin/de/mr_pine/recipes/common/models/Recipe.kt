@@ -60,7 +60,7 @@ class Recipe(
     fun copy() = Recipe(
         instructions.copy(),
         metadata.copy(),
-        ingredients.copy()
+        ingredients.deepCopy()
     )
 }
 
