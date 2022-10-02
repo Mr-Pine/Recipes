@@ -2,7 +2,6 @@ package de.mr_pine.recipes.android.model_views.view
 
 import android.util.Log
 import androidx.compose.animation.*
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.InlineTextContent
 import androidx.compose.material.ExperimentalMaterialApi
@@ -32,6 +31,7 @@ import de.mr_pine.recipes.common.models.RecipeIngredient
 import de.mr_pine.recipes.common.models.instructions.InstructionSubmodels
 import de.mr_pine.recipes.common.models.instructions.RecipeInstruction
 import de.mr_pine.recipes.common.models.instructions.call
+import de.mr_pine.recipes.common.views.instructions.RecipeEmbedChip
 
 private const val TAG = "InstructionViews"
 
@@ -111,7 +111,7 @@ fun RecipeInstruction.InstructionCard(
                 .fillMaxWidth(),
             colors = CardDefaults.elevatedCardColors(
                 containerColor = containerColor,
-                contentColor = contentColorFor(backgroundColor = containerColor).copy(alpha = if(done) 0.38f else 1f)
+                contentColor = contentColorFor(backgroundColor = containerColor).copy(alpha = if (done) 0.38f else 1f)
             ),
             onClick = {
                 setCurrentlyActiveIndex(index)
@@ -126,7 +126,9 @@ fun RecipeInstruction.InstructionCard(
                             generateInlineContent(index.toString(), constraints = constraints) {
 
                                 if (embedData.embed is InstructionSubmodels.IngredientModel && (embedData.embed as InstructionSubmodels.IngredientModel).ingredient == null) {
-                                    (embedData.embed as InstructionSubmodels.IngredientModel).receiveIngredient(getIngredientFraction)
+                                    (embedData.embed as InstructionSubmodels.IngredientModel).receiveIngredient(
+                                        getIngredientFraction
+                                    )
                                 }
 
                                 val context = LocalContext.current
@@ -139,18 +141,13 @@ fun RecipeInstruction.InstructionCard(
                                     embedData.enabled = value; enabled = value
                                 }
 
-                                val icon = @Composable {
-                                    Icon(
-                                        imageVector = when (embedData.embed) {
-                                            is InstructionSubmodels.IngredientModel -> Icons.Default.Scale
-                                            is InstructionSubmodels.TimerModel -> Icons.Default.Timer
-                                            else -> Icons.Default.QuestionMark
-                                        },
-                                        contentDescription = null,
-                                        modifier = Modifier.size(18.dp)
-                                    )
+                                val icon = when (embedData.embed) {
+                                    is InstructionSubmodels.IngredientModel -> Icons.Default.Scale
+                                    is InstructionSubmodels.TimerModel -> Icons.Default.Timer
+                                    else -> Icons.Default.QuestionMark
                                 }
-                                RecipeChip(
+
+                                RecipeEmbedChip(
                                     onClick = {
                                         when (embedData.embed) {
                                             is InstructionSubmodels.IngredientModel -> setEnabled(
@@ -166,7 +163,8 @@ fun RecipeInstruction.InstructionCard(
                                     selected = enabled,
                                     enabled = !done,
                                     icon = icon,
-                                    labelText = embedData.embed.content
+                                    labelText = embedData.embed.content,
+                                    editIndex = null
                                 )
                             }
                         index.toString() to data
@@ -220,59 +218,6 @@ fun RecipeInstruction.InstructionCard(
         }
     }
 }
-
-@ExperimentalMaterial3Api
-@Composable
-fun RecipeChip(
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier,
-    selected: Boolean,
-    enabled: Boolean,
-    icon: @Composable () -> Unit,
-    labelText: String
-) {
-    val colors = FilterChipDefaults.elevatedFilterChipColors(
-        selectedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
-        selectedLabelColor = MaterialTheme.colorScheme.onSurfaceVariant,
-        selectedLeadingIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
-        selectedTrailingIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
-        disabledSelectedContainerColor = Color.Transparent
-    )
-
-    val elevation = if (selected) FilterChipDefaults.elevatedFilterChipElevation(
-        defaultElevation = 3.dp,
-        pressedElevation = 3.dp,
-        focusedElevation = 3.dp,
-        hoveredElevation = 6.dp,
-        draggedElevation = 12.dp,
-        disabledElevation = 0.dp
-    ) else FilterChipDefaults.elevatedFilterChipElevation()
-
-    Box(
-        modifier = modifier
-            .height(30.dp)
-            .clickable(onClick = onClick)
-    ) {
-        ElevatedFilterChip(
-            onClick = onClick,
-            modifier = modifier
-                .padding(horizontal = 3.dp, vertical = 2.dp),
-            selected = selected,
-            enabled = enabled,
-            leadingIcon = icon,
-            label = { Text(text = labelText) },
-            colors = colors,
-            elevation = elevation,
-            border = FilterChipDefaults.filterChipBorder(
-                borderColor = Color.Transparent,
-                selectedBorderColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                disabledSelectedBorderColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.12f),
-                selectedBorderWidth = 1.dp
-            )
-        )
-    }
-}
-
 
 fun SubcomposeMeasureScope.generateInlineContent(
     id: String,

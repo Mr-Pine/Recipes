@@ -1,29 +1,23 @@
 package de.mr_pine.recipes.android.model_views.edit.instructions
 
 import android.util.Log
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.*
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import de.mr_pine.recipes.android.R
 import de.mr_pine.recipes.common.models.*
 import de.mr_pine.recipes.common.models.instructions.InstructionSubmodels
 import de.mr_pine.recipes.common.models.instructions.InstructionSubmodels.EmbedTypeModel.Companion.getEnum
 import de.mr_pine.recipes.common.models.instructions.RecipeInstruction
+import de.mr_pine.recipes.common.views.instructions.RecipeEmbedChip
 import kotlin.math.roundToInt
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.hours
@@ -50,7 +44,7 @@ fun RecipeInstruction.EmbedData.RecipeEditChipStateful(
     var isEditing by remember { mutableStateOf(hideNew) }
 
     if (!hideNew) {
-        RecipeEditChip(
+        RecipeEmbedChip(
             onClick = { isEditing = true },
             selected = true,
             enabled = !done,
@@ -68,6 +62,7 @@ fun RecipeInstruction.EmbedData.RecipeEditChipStateful(
                     InstructionSubmodels.EmbedTypeEnum.TIMER -> InstructionSubmodels.TimerModel(
                         mutableStateOf(0.seconds)
                     )
+
                     InstructionSubmodels.EmbedTypeEnum.UNDEFINED -> InstructionSubmodels.UndefinedEmbedTypeModel()
                     InstructionSubmodels.EmbedTypeEnum.INGREDIENT -> InstructionSubmodels.IngredientModel.NO_INGREDIENT
                 }
@@ -88,7 +83,10 @@ fun RecipeInstruction.EmbedData.RecipeEditChipStateful(
 
         typeBuffers[buffer.embed.getEnum()] = buffer.embed
         @Composable
-        fun EditEmbedDialog(applyBufferConfirm: InstructionSubmodels.EmbedTypeModel.() -> Unit = {}, content: @Composable ColumnScope.() -> Unit) {
+        fun EditEmbedDialog(
+            applyBufferConfirm: InstructionSubmodels.EmbedTypeModel.() -> Unit = {},
+            content: @Composable ColumnScope.() -> Unit
+        ) {
             val dismiss = { isEditing = false; if (hideNew) removeEmbed(this) }
             AlertDialog(
                 onDismissRequest = dismiss,
@@ -226,6 +224,7 @@ fun RecipeInstruction.EmbedData.RecipeEditChipStateful(
                     )
                 }
             }
+
             InstructionSubmodels.EmbedTypeEnum.INGREDIENT -> {
                 var selectedIngredient: RecipeIngredient? by remember {
                     mutableStateOf(
@@ -339,8 +338,8 @@ fun RecipeInstruction.EmbedData.RecipeEditChipStateful(
                     Spacer(modifier = Modifier.height(10.dp))
                     TextField(
                         value = selectedIngredient?.let { unitAmountBuffer.asBaseUnit().amount / it.unitAmount.asBaseUnit().amount * 100 }
-                            ?.let{
-                                if(it.isNaN())
+                            ?.let {
+                                if (it.isNaN())
                                     "0"
                                 else if (String.format("%.2f", it.roundToInt().toFloat()) == String.format(
                                         "%.2f",
@@ -354,10 +353,12 @@ fun RecipeInstruction.EmbedData.RecipeEditChipStateful(
                         onValueChange = { newPercentage ->
                             try {
                                 val fraction = newPercentage.replace(',', '.').padStart(1, '0').toFloat() * 0.01f
-                                selectedIngredient?.let{
-                                    unitAmountBuffer = it.unitAmount.asBaseUnit().apply { amount *= fraction }.adjustUnit()
+                                selectedIngredient?.let {
+                                    unitAmountBuffer =
+                                        it.unitAmount.asBaseUnit().apply { amount *= fraction }.adjustUnit()
                                 }
-                            } catch (_: NumberFormatException) {}
+                            } catch (_: NumberFormatException) {
+                            }
                         },
                         keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
                         label = { Text(text = "${stringResource(R.string.Amount)} (%)") },
@@ -382,6 +383,7 @@ fun RecipeInstruction.EmbedData.RecipeEditChipStateful(
                     )
                 }
             }
+
             InstructionSubmodels.EmbedTypeEnum.UNDEFINED -> {
                 EditEmbedDialog {
                     TypeDropDown()
@@ -446,89 +448,5 @@ class DurationVisualTransformation : VisualTransformation {
 
             }
         )
-    }
-}
-
-@ExperimentalMaterial3Api
-@Composable
-fun RecipeEditChip(
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier,
-    selected: Boolean,
-    enabled: Boolean,
-    icon: ImageVector,
-    labelText: String,
-    editIndex: Int?
-) {
-    val colors = FilterChipDefaults.elevatedFilterChipColors(
-        selectedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
-        selectedLabelColor = MaterialTheme.colorScheme.onSurfaceVariant,
-        selectedLeadingIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
-        selectedTrailingIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
-        disabledSelectedContainerColor = Color.Transparent
-    )
-
-    val elevation = if (selected) FilterChipDefaults.elevatedFilterChipElevation(
-        defaultElevation = 3.dp,
-        pressedElevation = 3.dp,
-        focusedElevation = 3.dp,
-        hoveredElevation = 6.dp,
-        draggedElevation = 12.dp,
-        disabledElevation = 0.dp
-    ) else FilterChipDefaults.elevatedFilterChipElevation()
-
-    Box(
-        modifier = modifier
-            .height(32.dp)
-            .clickable(onClick = onClick)
-    ) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = modifier
-                .then(
-                    if (editIndex != null)
-                        Modifier
-                            .clip(MaterialTheme.shapes.small)
-                            .border(
-                                1.dp,
-                                MaterialTheme.colorScheme.onSurfaceVariant,
-                                MaterialTheme.shapes.small
-                            )
-                            .background(MaterialTheme.colorScheme.secondaryContainer)
-                    else
-                        Modifier.padding(horizontal = 3.dp, vertical = 2.dp)
-                )
-        ) {
-            if (editIndex != null) {
-                Text(
-                    text = "{{${editIndex}}}",
-                    modifier = Modifier.padding(horizontal = 2.dp),
-                    textAlign = TextAlign.Center
-                )
-            }
-            ElevatedFilterChip(
-                onClick = onClick,
-                selected = selected,
-                enabled = enabled,
-                leadingIcon = {
-                    Icon(
-                        imageVector = icon,
-                        contentDescription = null,
-                        modifier = Modifier.size(18.dp)
-                    )
-                },
-                label = { Text(text = labelText) },
-                colors = colors,
-                elevation = elevation,
-                border = FilterChipDefaults.filterChipBorder(
-                    borderColor = Color.Transparent,
-                    selectedBorderColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                    disabledSelectedBorderColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(
-                        alpha = 0.12f
-                    ),
-                    selectedBorderWidth = 1.dp
-                )
-            )
-        }
     }
 }
