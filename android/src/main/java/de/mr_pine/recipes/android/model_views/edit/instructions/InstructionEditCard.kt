@@ -11,18 +11,17 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.compositeOver
-import androidx.compose.ui.layout.SubcomposeLayout
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.google.accompanist.flowlayout.FlowRow
 import de.mr_pine.recipes.android.R
-import de.mr_pine.recipes.android.model_views.view.generateInlineContent
 import de.mr_pine.recipes.common.models.RecipeIngredient
 import de.mr_pine.recipes.common.models.instructions.InstructionSubmodels.UndefinedEmbedTypeModel
 import de.mr_pine.recipes.common.models.instructions.RecipeInstruction
 import de.mr_pine.recipes.common.models.instructions.decodeInstructionString
 import de.mr_pine.recipes.common.models.instructions.encodeInstructionString
+import de.mr_pine.recipes.common.views.instructions.EmbedTextLayout
 import org.burnoutcrew.reorderable.ReorderableLazyListState
 import org.burnoutcrew.reorderable.detectReorder
 
@@ -86,7 +85,7 @@ fun RecipeInstruction.InstructionEditCard(
                                     inlineEmbeds.add(
                                         RecipeInstruction.EmbedData(
                                             true,
-                                            mutableStateOf(UndefinedEmbedTypeModel())
+                                            UndefinedEmbedTypeModel()
                                         )
                                     )
                                 },
@@ -124,7 +123,7 @@ fun RecipeInstruction.InstructionEditCard(
                         modifier = Modifier.fillMaxWidth()
                     ) {
                         TextButton(onClick = {
-                            if(content.text.isNotEmpty()) {
+                            if (content.text.isNotEmpty()) {
                                 bufferText = encodeInstructionString(content)
                                 isEditingText = false
                             } else {
@@ -161,38 +160,18 @@ fun RecipeInstruction.InstructionEditCard(
                                 .width(0.dp)
                                 .weight(1f)
                         ) {
-                            SubcomposeLayout { constraints ->
-
-                                val inlineContent = inlineEmbeds.mapIndexed { index, embedData ->
-                                    val data =
-                                        generateInlineContent(
-                                            index.toString(),
-                                            constraints = constraints,
-                                            content = {
-                                                embedData.RecipeEditChipStateful(
-                                                    getIngredientFraction = getIngredientFraction,
-                                                    done = done,
-                                                    removeEmbed = inlineEmbeds::remove,
-                                                    ingredients = ingredients
-                                                )
-                                            })
-                                    index.toString() to data
-                                }.toMap()
-
-                                val contentPlaceable = subcompose("content") {
-
-                                    Text(
-                                        text = content,
-                                        inlineContent = inlineContent,
-                                        style = instructionTextStyle
+                            EmbedTextLayout(
+                                inlineEmbeds = inlineEmbeds,
+                                content = content,
+                                inlineEmbedContent = {
+                                    it.RecipeEditChipStateful(
+                                        getIngredientFraction = getIngredientFraction,
+                                        done = done,
+                                        removeEmbed = inlineEmbeds::remove,
+                                        ingredients = ingredients
                                     )
-
-                                }[0].measure(constraints)
-
-                                layout(contentPlaceable.width, contentPlaceable.height) {
-                                    contentPlaceable.place(0, 0)
                                 }
-                            }
+                            )
                         }
                     }
                     FilledTonalButton(onClick = { isEditingText = !isEditingText }) {

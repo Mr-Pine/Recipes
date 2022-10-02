@@ -57,11 +57,14 @@ class RecipeInstruction(
 
     @Serializable(with = EmbedDataSerializer::class)
     class EmbedData(
-        @Transient var enabled: Boolean = true,
+        @Transient
+        private val enabledState: MutableState<Boolean> = mutableStateOf(true),
         @SerialName("embed")
-        private var embedState: MutableState<InstructionSubmodels.EmbedTypeModel>
+        private val embedState: MutableState<InstructionSubmodels.EmbedTypeModel>
     ) {
-        constructor(enabled: Boolean, embed: InstructionSubmodels.EmbedTypeModel): this(enabled, mutableStateOf(embed))
+
+        var enabled by enabledState
+        constructor(enabled: Boolean, embed: InstructionSubmodels.EmbedTypeModel): this(mutableStateOf(enabled), mutableStateOf(embed))
 
         var embed by embedState
 

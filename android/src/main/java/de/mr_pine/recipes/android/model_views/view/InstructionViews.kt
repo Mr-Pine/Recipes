@@ -6,15 +6,15 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.InlineTextContent
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.filled.AddTask
+import androidx.compose.material.icons.filled.TaskAlt
 import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.graphics.toArgb
-import androidx.compose.ui.layout.SubcomposeLayout
 import androidx.compose.ui.layout.SubcomposeMeasureScope
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -22,7 +22,6 @@ import androidx.compose.ui.text.Placeholder
 import androidx.compose.ui.text.PlaceholderVerticalAlign
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.google.android.material.color.MaterialColors
 import de.mr_pine.recipes.android.R
 import de.mr_pine.recipes.android.components.swipeabe.Swipeable
@@ -31,7 +30,8 @@ import de.mr_pine.recipes.common.models.RecipeIngredient
 import de.mr_pine.recipes.common.models.instructions.InstructionSubmodels
 import de.mr_pine.recipes.common.models.instructions.RecipeInstruction
 import de.mr_pine.recipes.common.models.instructions.call
-import de.mr_pine.recipes.common.views.instructions.RecipeEmbedChip
+import de.mr_pine.recipes.common.views.instructions.EmbedTextLayout
+import de.mr_pine.recipes.common.views.instructions.EmbeddedText
 
 private const val TAG = "InstructionViews"
 
@@ -119,75 +119,23 @@ fun RecipeInstruction.InstructionCard(
         ) {
 
             Column(modifier = Modifier.padding(12.dp)) {
-                SubcomposeLayout { constraints ->
+                val context = LocalContext.current
 
-                    val inlineContent = inlineEmbeds.mapIndexed { index, embedData ->
-                        val data =
-                            generateInlineContent(index.toString(), constraints = constraints) {
-
-                                if (embedData.embed is InstructionSubmodels.IngredientModel && (embedData.embed as InstructionSubmodels.IngredientModel).ingredient == null) {
-                                    (embedData.embed as InstructionSubmodels.IngredientModel).receiveIngredient(
-                                        getIngredientFraction
-                                    )
-                                }
-
-                                val context = LocalContext.current
-
-                                var enabled by remember(embedData.enabled) {
-                                    mutableStateOf(embedData.enabled)
-                                }
-
-                                fun setEnabled(value: Boolean) {
-                                    embedData.enabled = value; enabled = value
-                                }
-
-                                val icon = when (embedData.embed) {
-                                    is InstructionSubmodels.IngredientModel -> Icons.Default.Scale
-                                    is InstructionSubmodels.TimerModel -> Icons.Default.Timer
-                                    else -> Icons.Default.QuestionMark
-                                }
-
-                                RecipeEmbedChip(
-                                    onClick = {
-                                        when (embedData.embed) {
-                                            is InstructionSubmodels.IngredientModel -> setEnabled(
-                                                !enabled
-                                            )
-                                            is InstructionSubmodels.TimerModel -> (embedData.embed as InstructionSubmodels.TimerModel).call(
-                                                recipeTitle,
-                                                context
-                                            )
-                                            else -> {}
-                                        }
-                                    },
-                                    selected = enabled,
-                                    enabled = !done,
-                                    icon = icon,
-                                    labelText = embedData.embed.content,
-                                    editIndex = null
-                                )
-                            }
-                        index.toString() to data
-                    }.toMap()
-
-                    val contentPlaceable = subcompose("content") {
-
-                        Text(
-                            text = content,
-                            inlineContent = inlineContent,
-                            style = MaterialTheme.typography.bodyLarge.copy(
-                                fontSize = 20.sp,
-                                lineHeight = 26.sp
+                EmbeddedText(
+                    inlineEmbeds = inlineEmbeds,
+                    getIngredientFraction = getIngredientFraction,
+                    done = done,
+                    embedChipOnClick = {
+                        when (it.embed) {
+                            is InstructionSubmodels.IngredientModel -> it.enabled = !it.enabled
+                            is InstructionSubmodels.TimerModel -> (it.embed as InstructionSubmodels.TimerModel).call(
+                                recipeTitle,
+                                context
                             )
-                        )
-
-
-                    }[0].measure(constraints)
-
-                    layout(contentPlaceable.width, contentPlaceable.height) {
-                        contentPlaceable.place(0, 0)
-                    }
-                }
+                        }
+                    },
+                    content = content
+                )
                 AnimatedVisibility(
                     visible = active,
                     enter = scaleIn(initialScale = 0f) + expandVertically(expandFrom = Alignment.Top),
