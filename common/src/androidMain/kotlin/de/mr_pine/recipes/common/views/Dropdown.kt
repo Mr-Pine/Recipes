@@ -29,6 +29,7 @@ actual fun <T> DropDown(
             label = { Text(labelString) },
             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
             colors = ExposedDropdownMenuDefaults.textFieldColors(),
+            modifier = Modifier.menuAnchor()
         )
         ExposedDropdownMenu(
             expanded = expanded,

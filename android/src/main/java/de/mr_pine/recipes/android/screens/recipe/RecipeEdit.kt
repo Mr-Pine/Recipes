@@ -118,8 +118,6 @@ fun RecipeEdit(
                     Icon(imageVector = Icons.Default.Save, contentDescription = "Save")
                 }
                 SmallFloatingActionButton(onClick = {
-                    recipe
-                    recipeBuffer
                     if(isNew) remove() else toggleEditRecipe()
                 }) {
                     Icon(imageVector = Icons.Default.Cancel, contentDescription = "Cancel")

@@ -24,6 +24,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import de.mr_pine.recipes.android.R
 import de.mr_pine.recipes.common.models.*
+import de.mr_pine.recipes.common.views.EditColumn
 import org.burnoutcrew.reorderable.*
 
 @ExperimentalMaterial3Api
@@ -208,7 +209,11 @@ fun RecipeIngredient.IngredientEditRow(
                 Text(text = stringResource(if (isNew) R.string.Add_Ingredient else R.string.Edit_ingredient))
             },
             text = {
-                Column {
+                bufferIngredient.EditColumn {
+                    showEditDialog = false
+                    showDeleteDialog = true
+                }
+                /*Column {
                     TextField(
                         value = bufferIngredient.name,
                         onValueChange = {
@@ -252,34 +257,35 @@ fun RecipeIngredient.IngredientEditRow(
                             label = { Text(text = stringResource(R.string.Amount)) },
                             isError = amountBuffer.isEmpty() || bufferIngredient.unitAmount.amount == 0.amount
                         )
-                        var unitDropDownExtended by remember { mutableStateOf(false) }
+                        var unitDropDownExpanded by remember { mutableStateOf(false) }
                         Spacer(modifier = Modifier.width(10.dp))
                         ExposedDropdownMenuBox(
-                            expanded = unitDropDownExtended,
-                            onExpandedChange = { unitDropDownExtended = !unitDropDownExtended }) {
+                            expanded = unitDropDownExpanded,
+                            onExpandedChange = { unitDropDownExpanded = !unitDropDownExpanded }) {
                             TextField(
                                 readOnly = true,
                                 value = bufferIngredient.unitAmount.unit.menuDisplayValue(),
                                 onValueChange = {},
                                 label = { Text(stringResource(id = R.string.Unit)) },
-                                trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = unitDropDownExtended) },
+                                trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = unitDropDownExpanded) },
                                 colors = ExposedDropdownMenuDefaults.textFieldColors(),
+                                modifier = Modifier.menuAnchor()
                             )
                             ExposedDropdownMenu(
-                                expanded = unitDropDownExtended,
-                                onDismissRequest = { unitDropDownExtended = false }) {
+                                expanded = unitDropDownExpanded,
+                                onDismissRequest = { unitDropDownExpanded = false }) {
                                 IngredientUnit.values().forEach { selectedOption ->
                                     DropdownMenuItem(
                                         text = { Text(text = selectedOption.menuDisplayValue()) },
                                         onClick = {
                                             bufferIngredient.unitAmount.unit =
-                                                selectedOption; unitDropDownExtended = false
+                                                selectedOption; unitDropDownExpanded = false
                                         })
                                 }
                             }
                         }
                     }
-                }
+                }*/
             }
         )
     }

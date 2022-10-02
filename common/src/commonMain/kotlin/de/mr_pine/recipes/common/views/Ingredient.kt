@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
@@ -18,6 +19,7 @@ import de.mr_pine.recipes.common.models.amount
 import de.mr_pine.recipes.common.models.toAmount
 import de.mr_pine.recipes.common.translation.Translation
 
+@ExperimentalMaterial3Api
 @Composable
 fun RecipeIngredient.EditColumn(delete: () -> Unit) {
     Column {
@@ -37,7 +39,7 @@ fun RecipeIngredient.EditColumn(delete: () -> Unit) {
             }
         )
         Spacer(modifier = Modifier.height(10.dp))
-        var amountBuffer by remember { mutableStateOf(unitAmount.amount.toString()) }
+        var amountBuffer by remember(this@EditColumn) { mutableStateOf(unitAmount.amount.toString()) }
         Row {
             TextField(
                 value = amountBuffer,

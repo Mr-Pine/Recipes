@@ -18,5 +18,8 @@ actual object Translation {
     actual val undefined = ITranslation { stringResource(R.string.Undefined) }
     actual val timer = ITranslation { stringResource(R.string.Timer) }
     actual val ingredient = ITranslation { stringResource(R.string.Ingredient) }
+    actual val name = ITranslation { stringResource(R.string.Name) }
+    actual val amount = ITranslation { stringResource(R.string.Amount) }
+    actual val unit = ITranslation { stringResource(R.string.Unit) }
 }
 

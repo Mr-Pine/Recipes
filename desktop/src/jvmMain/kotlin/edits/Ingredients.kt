@@ -7,6 +7,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.DragHandle
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -31,18 +32,37 @@ fun RecipeIngredients.EditCard(setEditIngredient: (RecipeIngredient) -> Unit) {
         }
     })
     Card {
-        LazyColumn(state = reorderableState.listState, modifier = Modifier.reorderable(reorderableState)) {
-            items(ingredients, {it.name}) {
+        LazyColumn(
+            state = reorderableState.listState,
+            modifier = Modifier.reorderable(reorderableState).padding(8.dp).clip(MaterialTheme.shapes.medium)
+                .height(0.dp).weight(1f)
+        ) {
+            items(ingredients, { it.name }) {
                 ReorderableItem(reorderableState, it.name) { isDragging ->
                     it.EditRow(isDragging, reorderableState, setEditIngredient)
                 }
             }
         }
+        Button(
+            onClick = {
+                ingredients.add(RecipeIngredient())
+                setEditIngredient(ingredients.last())
+            },
+            modifier = Modifier.align(Alignment.CenterHorizontally)
+        ) {
+            Icon(Icons.Default.Add, "Add")
+            Spacer(modifier = Modifier.width(8.dp))
+            Text("Add ingredient")
+        }
     }
 }
 
 @Composable
-fun RecipeIngredient.EditRow(isDragging: Boolean, reorderableState: ReorderableLazyListState, setEditIngredient: (RecipeIngredient) -> Unit) {
+fun RecipeIngredient.EditRow(
+    isDragging: Boolean,
+    reorderableState: ReorderableLazyListState,
+    setEditIngredient: (RecipeIngredient) -> Unit
+) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier
@@ -86,7 +106,12 @@ fun RecipeIngredient.EditRow(isDragging: Boolean, reorderableState: ReorderableL
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RecipeIngredient.EditCard() {
-    EditColumn {  }
+    ElevatedCard {
+        Column(modifier = Modifier.padding(12.dp)) {
+            EditColumn { }
+        }
+    }
 }
