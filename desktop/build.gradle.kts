@@ -27,6 +27,7 @@ kotlin {
                 implementation(compose.runtime)
                 implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.4.0")
                 implementation("org.burnoutcrew.composereorderable:reorderable:0.9.2")
+                implementation("com.google.accompanist:accompanist-flowlayout:0.26.4-beta")
             }
         }
         val jvmTest by getting

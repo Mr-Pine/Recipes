@@ -35,7 +35,7 @@ fun MainLayout(mutableRecipe: MutableState<Recipe?>) {
         Column(modifier = Modifier.weight(1f)) {
             editIngredient?.EditCard()
             Text(editEmbed?.embed?.content ?: "")
-            editInstruction?.EditCard()
+            editInstruction?.EditCard(setEditEmbed = {editEmbed = it})
         }
     }
 }

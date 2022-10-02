@@ -40,8 +40,8 @@ fun recipeChipElevation(selected: Boolean) = if (selected) FilterChipDefaults.el
 fun RecipeEmbedChip(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
-    selected: Boolean,
-    enabled: Boolean,
+    selected: Boolean = true,
+    enabled: Boolean = true,
     icon: ImageVector,
     labelText: String,
     editIndex: Int?
