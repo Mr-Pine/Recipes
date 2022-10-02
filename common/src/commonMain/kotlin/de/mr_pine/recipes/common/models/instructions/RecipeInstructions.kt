@@ -1,6 +1,5 @@
 package de.mr_pine.recipes.common.models.instructions
 
-import androidx.compose.foundation.text.appendInlineContent
 import androidx.compose.runtime.*
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.text.AnnotatedString
@@ -13,8 +12,6 @@ import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
 import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
-
-private const val TAG = "RecipeInstructions"
 
 @Serializable
 class RecipeInstructions(
@@ -53,7 +50,10 @@ class RecipeInstruction(
 
     var content by contentState
 
-    fun copy(content: AnnotatedString = this.content.copy(), inlineEmbeds: List<EmbedData> = this.inlineEmbeds.map { it.copy() }) = RecipeInstruction(content, inlineEmbeds)
+    fun copy(
+        content: AnnotatedString = this.content.copy(),
+        inlineEmbeds: List<EmbedData> = this.inlineEmbeds.map { it.copy() }
+    ) = RecipeInstruction(content, inlineEmbeds)
 
     @Serializable(with = EmbedDataSerializer::class)
     class EmbedData(
@@ -64,11 +64,18 @@ class RecipeInstruction(
     ) {
 
         var enabled by enabledState
-        constructor(enabled: Boolean, embed: InstructionSubmodels.EmbedTypeModel): this(mutableStateOf(enabled), mutableStateOf(embed))
+
+        constructor(enabled: Boolean, embed: InstructionSubmodels.EmbedTypeModel) : this(
+            mutableStateOf(enabled),
+            mutableStateOf(embed)
+        )
 
         var embed by embedState
 
-        fun copy(enabled: Boolean = this.enabled, embed: InstructionSubmodels.EmbedTypeModel = this.embed.copy()): EmbedData = EmbedData(enabled, embed)
+        fun copy(
+            enabled: Boolean = this.enabled,
+            embed: InstructionSubmodels.EmbedTypeModel = this.embed.copy()
+        ): EmbedData = EmbedData(enabled, embed)
     }
 
     private object EmbedDataSerializer : KSerializer<EmbedData> {
@@ -111,21 +118,32 @@ fun AnnotatedString.copy() = buildAnnotatedString {
 }
 
 fun decodeInstructionString(encoded: String) = buildAnnotatedString {
-    val elements = encoded.split(regex = "[{][{]\\d+[}][}]".toRegex())
+    /*val elements = encoded.split(regex = "[{][{]\\d+[}][}]".toRegex())
     elements.forEachIndexed { index, element ->
         append(element)
         if (index != elements.lastIndex) {
             appendInlineContent(index.toString())
         }
+    }*/
+    append(encoded)
+    "[{][{]\\d+[}][}]".toRegex().findAll(encoded).forEach { matchResult ->
+        addStringAnnotation(
+            "androidx.compose.foundation.text.inlineContent",
+            matchResult.value.substring(2, matchResult.value.length - 2),
+            matchResult.range.first,
+            matchResult.range.last + 1
+        )
     }
 }
 
 fun encodeInstructionString(decoded: AnnotatedString): String {
     var text = decoded.text
     val annotations = decoded.getStringAnnotations(0, decoded.length)
+    val hasIndices = !decoded.text.contains('�')
+    val hasIndicesMultiplier = if(hasIndices) 0 else 1
     annotations.forEachIndexed { index, range ->
         text =
-            text.replaceRange(range.start + 4 * index until range.end + 4 * index, "{{$index}}")
+            text.replaceRange(range.start + 4 * index * hasIndicesMultiplier until range.end + 4 * index * hasIndicesMultiplier, "{{${if(hasIndices) text.substring(range.start + 2, range.end - 2) else index}}}")
     }
     return text
 }

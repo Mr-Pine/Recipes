@@ -31,7 +31,7 @@ fun RecipeIngredients.EditCard(setEditIngredient: (RecipeIngredient) -> Unit) {
             add(to.index, removeAt(from.index))
         }
     })
-    Card {
+    Card(modifier = Modifier.padding(8.dp)) {
         LazyColumn(
             state = reorderableState.listState,
             modifier = Modifier.reorderable(reorderableState).padding(8.dp).clip(MaterialTheme.shapes.medium)
