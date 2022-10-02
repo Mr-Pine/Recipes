@@ -13,4 +13,7 @@ actual object Translation {
     actual val undefined = ITranslation { "Undefined" }
     actual val timer = ITranslation { "Timer" }
     actual val ingredient = ITranslation { "Ingredient" }
+    actual val name = ITranslation { "Name" }
+    actual val amount = ITranslation { "Amount" }
+    actual val unit = ITranslation { "Unit" }
 }

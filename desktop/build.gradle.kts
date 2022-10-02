@@ -26,6 +26,7 @@ kotlin {
                 implementation(compose.foundation)
                 implementation(compose.runtime)
                 implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.4.0")
+                implementation("org.burnoutcrew.composereorderable:reorderable:0.9.2")
             }
         }
         val jvmTest by getting

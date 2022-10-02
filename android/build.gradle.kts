@@ -6,7 +6,7 @@ plugins {
 
 val composeVersion = extra["compose.version"] as String
 val composeCompilerVersion = "1.3.1"
-val lifecycleVersion = "2.6.0-alpha02"
+val lifecycleVersion = "2.5.1"
 
 @Suppress("UnstableApiUsage")
 android {

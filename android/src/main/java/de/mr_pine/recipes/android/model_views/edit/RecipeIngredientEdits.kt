@@ -212,10 +212,8 @@ fun RecipeIngredient.IngredientEditRow(
                     TextField(
                         value = bufferIngredient.name,
                         onValueChange = {
-                            this@IngredientEditRow
                             bufferIngredient.name = it
-                            this@IngredientEditRow
-                                        },
+                        },
                         label = {
                             Text(text = stringResource(R.string.Name))
                         },

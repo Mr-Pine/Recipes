@@ -14,7 +14,12 @@ expect object Translation {
     val milliliters: ITranslation
     val liters: ITranslation
     val noUnit: ITranslation
+
     val undefined: ITranslation
     val timer: ITranslation
     val ingredient: ITranslation
+
+    val name: ITranslation
+    val amount: ITranslation
+    val unit: ITranslation
 }

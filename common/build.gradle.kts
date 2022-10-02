@@ -1,6 +1,6 @@
 plugins {
     kotlin("multiplatform")
-    id("org.jetbrains.compose") version "1.2.0-beta02-dev798"
+    id("org.jetbrains.compose")
     id("com.android.library")
     kotlin("plugin.serialization") version "1.7.10"
 }
@@ -15,8 +15,9 @@ kotlin {
             kotlinOptions.jvmTarget = "11"
         }
     }
+
+    @OptIn(org.jetbrains.compose.ExperimentalComposeLibrary::class)
     sourceSets {
-        @OptIn(org.jetbrains.compose.ExperimentalComposeLibrary::class)
         val commonMain by getting {
             dependencies {
                 api(compose.runtime)
@@ -37,6 +38,7 @@ kotlin {
                 api("androidx.core:core-ktx:1.9.0")
                 api("androidx.compose.runtime:runtime:1.2.1")
                 api("androidx.compose.ui:ui:1.2.1")
+                api("androidx.compose.material3:material3:1.0.0-beta03")
             }
         }
         val androidTest by getting {
@@ -47,6 +49,7 @@ kotlin {
         val desktopMain by getting {
             dependencies {
                 api(compose.preview)
+                api(compose.material)
             }
         }
         val desktopTest by getting
