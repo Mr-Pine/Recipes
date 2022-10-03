@@ -23,5 +23,7 @@ actual object Translation {
     actual val unit = ITranslation { stringResource(R.string.Unit) }
     actual val type = ITranslation { stringResource(R.string.Type) }
     actual val add = ITranslation { stringResource(R.string.Add) }
+    actual val duration = ITranslation { stringResource(R.string.Duration) }
+    actual val displayName = ITranslation { stringResource(R.string.Display_name) }
 }
 

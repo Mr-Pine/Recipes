@@ -23,6 +23,9 @@ expect object Translation {
     val amount: ITranslation
     val unit: ITranslation
     val type: ITranslation
+    val displayName: ITranslation
 
     val add: ITranslation
+
+    val duration: ITranslation
 }
