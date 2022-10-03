@@ -43,14 +43,23 @@ fun MainLayout(mutableRecipe: MutableState<Recipe?>) {
             modifier = Modifier.padding(horizontal = 4.dp, vertical = 8.dp).weight(1f),
             verticalArrangement = Arrangement.spacedBy(6.dp),
         ) {
-            item {
-                editIngredient?.EditCard()
+            editIngredient?.let{
+                item {
+                    it.EditCard()
+                }
+            }
+            editEmbed?.let{
+                item {
+                    it.EditCard(recipe?.ingredients?.ingredients ?: listOf())
+                }
+            }
+            editInstruction?.let{
+                item {
+                    it.EditCard(editEmbed = editEmbed, setEditEmbed = { editEmbed = it })
+                }
             }
             item {
-                editEmbed?.EditCard(recipe?.ingredients?.ingredients ?: listOf())
-            }
-            item {
-                editInstruction?.EditCard(editEmbed = editEmbed, setEditEmbed = { editEmbed = it })
+                recipe?.metadata?.EditCard()
             }
         }
     }
