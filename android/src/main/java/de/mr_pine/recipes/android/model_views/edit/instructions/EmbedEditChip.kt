@@ -146,6 +146,7 @@ fun RecipeInstruction.EmbedData.RecipeEditChipStateful(
                     label = { Text(stringResource(R.string.Type)) },
                     trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = modelTypeDropdownExpanded) },
                     colors = ExposedDropdownMenuDefaults.textFieldColors(),
+                    modifier = Modifier.menuAnchor()
                 )
                 ExposedDropdownMenu(
                     expanded = modelTypeDropdownExpanded,
@@ -176,6 +177,7 @@ fun RecipeInstruction.EmbedData.RecipeEditChipStateful(
         //Different Dialogs necessary because of https://issuetracker.google.com/issues/221643630
         when (remember(buffer.embed) { buffer.embed.getEnum() }) {
             InstructionSubmodels.EmbedTypeEnum.TIMER -> {
+                val timerEmbed = buffer.embed as InstructionSubmodels.TimerModel
                 EditEmbedDialog {
                     TypeDropDown()
                     Spacer(modifier = Modifier.height(10.dp))
@@ -186,7 +188,7 @@ fun RecipeInstruction.EmbedData.RecipeEditChipStateful(
                             embed
                         }
                     ) {
-                        mutableStateOf((buffer.embed as InstructionSubmodels.TimerModel).duration.toComponents { hours, minutes, seconds, _ ->
+                        mutableStateOf((timerEmbed).duration.toComponents { hours, minutes, seconds, _ ->
                             (hours.toString().padStart(2, '0') + minutes.toString()
                                 .padStart(2, '0') + seconds.toString().padStart(2, '0')).let {
                                 TextFieldValue(it, TextRange(it.length))
@@ -204,10 +206,10 @@ fun RecipeInstruction.EmbedData.RecipeEditChipStateful(
                                         .toInt().minutes
                                 val seconds = newText.substring(newText.length - 2).toInt().seconds
                                 val duration = hours + minutes + seconds
-                                (buffer.embed as InstructionSubmodels.TimerModel).duration =
+                                (timerEmbed).duration =
                                     duration
                             } catch (e: NumberFormatException) {
-                                (buffer.embed as InstructionSubmodels.TimerModel).duration =
+                                (timerEmbed).duration =
                                     Duration.ZERO
                             }
                             test = test.copy(
@@ -220,20 +222,22 @@ fun RecipeInstruction.EmbedData.RecipeEditChipStateful(
                         keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
                         label = { Text(text = stringResource(R.string.Duration)) },
                         visualTransformation = DurationVisualTransformation(),
-                        isError = (buffer.embed as InstructionSubmodels.TimerModel).duration == 0.seconds
+                        isError = (timerEmbed).duration == 0.seconds
                     )
                 }
             }
 
             InstructionSubmodels.EmbedTypeEnum.INGREDIENT -> {
+                val ingredientEmbed = buffer.embed as InstructionSubmodels.IngredientModel
+
                 var selectedIngredient: RecipeIngredient? by remember {
                     mutableStateOf(
-                        ingredients.find { (buffer.embed as InstructionSubmodels.IngredientModel).ingredientId == it.ingredientId }
+                        ingredients.find { (ingredientEmbed).ingredientId == it.ingredientId }
                     )
                 }
                 var unitAmountBuffer by remember(selectedIngredient) {
                     mutableStateOf(
-                        selectedIngredient?.unitAmount?.copy(amount = selectedIngredient!!.unitAmount.amount * (buffer.embed as InstructionSubmodels.IngredientModel).amountFraction)
+                        selectedIngredient?.unitAmount?.copy(amount = selectedIngredient!!.unitAmount.amount * (ingredientEmbed).amountFraction)
                             ?: UnitAmount.NaN
                     )
                 }
@@ -246,23 +250,24 @@ fun RecipeInstruction.EmbedData.RecipeEditChipStateful(
 
                     Spacer(modifier = Modifier.height(10.dp))
 
-                    var ingredientDropdrownExpanded by remember { mutableStateOf(false) }
+                    var ingredientDropdownExpanded by remember { mutableStateOf(false) }
                     ExposedDropdownMenuBox(
-                        expanded = ingredientDropdrownExpanded,
+                        expanded = ingredientDropdownExpanded,
                         onExpandedChange = {
-                            ingredientDropdrownExpanded = !ingredientDropdrownExpanded
+                            ingredientDropdownExpanded = !ingredientDropdownExpanded
                         }) {
                         TextField(
                             readOnly = true,
                             value = selectedIngredient?.name ?: "",
                             onValueChange = {},
                             label = { Text(stringResource(R.string.Ingredient)) },
-                            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = ingredientDropdrownExpanded) },
+                            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = ingredientDropdownExpanded) },
                             colors = ExposedDropdownMenuDefaults.textFieldColors(),
+                            modifier = Modifier.menuAnchor()
                         )
                         ExposedDropdownMenu(
-                            expanded = ingredientDropdrownExpanded,
-                            onDismissRequest = { ingredientDropdrownExpanded = false }) {
+                            expanded = ingredientDropdownExpanded,
+                            onDismissRequest = { ingredientDropdownExpanded = false }) {
                             ingredients.forEach { ingredient ->
                                 DropdownMenuItem(
                                     text = {
@@ -271,7 +276,7 @@ fun RecipeInstruction.EmbedData.RecipeEditChipStateful(
                                     onClick = {
                                         selectedIngredient = ingredient
                                         buffer.embed = ingredientBuffers[ingredient]!!
-                                        ingredientDropdrownExpanded = false
+                                        ingredientDropdownExpanded = false
                                     })
                             }
                         }
@@ -317,7 +322,8 @@ fun RecipeInstruction.EmbedData.RecipeEditChipStateful(
                                 label = { Text(stringResource(R.string.Unit)) },
                                 trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = unitDropDownExtended) },
                                 colors = ExposedDropdownMenuDefaults.textFieldColors(),
-                                enabled = selectedIngredient != null
+                                enabled = selectedIngredient != null,
+                                modifier = Modifier.menuAnchor()
                             )
                             ExposedDropdownMenu(
                                 expanded = unitDropDownExtended,
@@ -368,14 +374,14 @@ fun RecipeInstruction.EmbedData.RecipeEditChipStateful(
                     )
                     Spacer(modifier = Modifier.height(10.dp))
                     TextField(
-                        value = (buffer.embed as InstructionSubmodels.IngredientModel).displayName ?: "",
+                        value = (ingredientEmbed).displayName ?: "",
                         placeholder = {
                             Text(
                                 text = selectedIngredient?.name ?: ""
                             )
                         },
                         onValueChange = {
-                            (buffer.embed as InstructionSubmodels.IngredientModel).displayName =
+                            (ingredientEmbed).displayName =
                                 it.takeIf { it.isNotEmpty() }
                         },
                         enabled = selectedIngredient != null,

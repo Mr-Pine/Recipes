@@ -32,7 +32,7 @@ interface InstructionSubmodels {
 
         UNDEFINED(Icons.Default.QuestionMark, Translation.undefined, false),
         TIMER(Icons.Default.Timer, Translation.timer),
-        INGREDIENT(Icons.Default.Scale, Translation.timer);
+        INGREDIENT(Icons.Default.Scale, Translation.ingredient);
     }
 
     interface EmbedTypeModel {
