@@ -68,8 +68,8 @@ fun RecipeInstructions.InstructionList(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RecipeInstruction.EditCard(setEditEmbed: (RecipeInstruction.EmbedData) -> Unit) {
-    ElevatedCard {
-        Column(modifier = Modifier.padding(12.dp)) {
+    ElevatedCard(modifier = Modifier.padding(4.dp)) {
+        Column(modifier = Modifier.padding(10.dp)) {
             FlowRow(mainAxisSpacing = 6.dp, crossAxisSpacing = 6.dp) {
                 inlineEmbeds.forEachIndexed { index, embedData ->
                     RecipeEmbedChip(
@@ -120,7 +120,7 @@ fun RecipeInstruction.EditCard(setEditEmbed: (RecipeInstruction.EmbedData) -> Un
                 }
             }
             Spacer(modifier = Modifier.height(6.dp))
-            TextField(value = encodeInstructionString(content), onValueChange = { content = decodeInstructionString(it) })
+            TextField(value = encodeInstructionString(content), onValueChange = { content = decodeInstructionString(it) }, modifier = Modifier.fillMaxWidth())
         }
     }
 }

@@ -109,8 +109,8 @@ fun RecipeIngredient.EditRow(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RecipeIngredient.EditCard() {
-    ElevatedCard {
-        Column(modifier = Modifier.padding(12.dp)) {
+    ElevatedCard(modifier = Modifier.padding(4.dp)) {
+        Column(modifier = Modifier.padding(10.dp)) {
             EditColumn { }
         }
     }

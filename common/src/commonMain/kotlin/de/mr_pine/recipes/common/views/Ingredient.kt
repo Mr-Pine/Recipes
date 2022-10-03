@@ -36,14 +36,15 @@ fun RecipeIngredient.EditColumn(delete: () -> Unit) {
                 if (name.isEmpty()) {
                     Icon(Icons.Default.Delete, "delete", modifier = Modifier.clickable(onClick = delete))
                 }
-            }
+            },
+            modifier = Modifier.fillMaxWidth()
         )
         Spacer(modifier = Modifier.height(10.dp))
         var amountBuffer by remember(this@EditColumn) { mutableStateOf(unitAmount.amount.toString()) }
         Row {
             TextField(
                 value = amountBuffer,
-                modifier = Modifier.width(90.dp),
+                modifier = Modifier.weight(3f),
                 onValueChange = { newValue ->
                     if (newValue == "") {
                         unitAmount.amount = Float.NaN.amount
@@ -66,7 +67,7 @@ fun RecipeIngredient.EditColumn(delete: () -> Unit) {
                 expanded = unitDropDownExpanded,
                 onExpandedChange = {
                     unitDropDownExpanded = it
-                                   },
+                },
                 onDismissRequest = { unitDropDownExpanded = false },
                 selectedString = unitAmount.unit.menuDisplayValue(),
                 labelString = Translation.unit.getString(),
@@ -75,32 +76,9 @@ fun RecipeIngredient.EditColumn(delete: () -> Unit) {
                 optionClick = {
                     unitAmount.unit = it
                     unitDropDownExpanded = false
-                }
+                },
+                modifier = Modifier.weight(5f)
             )
-            /*ExposedDropdownMenuBox(
-                expanded = unitDropDownExpanded,
-                onExpandedChange = { unitDropDownExpanded = !unitDropDownExpanded }) {
-                TextField(
-                    readOnly = true,
-                    value = unitAmount.unit.menuDisplayValue(),
-                    onValueChange = {},
-                    label = { Text(stringResource(id = R.string.Unit)) },
-                    trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = unitDropDownExpanded) },
-                    colors = ExposedDropdownMenuDefaults.textFieldColors(),
-                )
-                ExposedDropdownMenu(
-                    expanded = unitDropDownExpanded,
-                    onDismissRequest = { unitDropDownExpanded = false }) {
-                    IngredientUnit.values().forEach { selectedOption ->
-                        DropdownMenuItem(
-                            text = { Text(text = selectedOption.menuDisplayValue()) },
-                            onClick = {
-                                unitAmount.unit =
-                                    selectedOption; unitDropDownExpanded = false
-                            })
-                    }
-                }
-            }*/
         }
     }
 }
