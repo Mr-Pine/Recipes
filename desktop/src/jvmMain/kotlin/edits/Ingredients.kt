@@ -1,6 +1,7 @@
 package edits
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -16,6 +17,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import de.mr_pine.recipes.common.models.RecipeIngredient
@@ -25,7 +27,7 @@ import org.burnoutcrew.reorderable.*
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun RecipeIngredients.EditCard(setEditIngredient: (RecipeIngredient) -> Unit) {
+fun RecipeIngredients.EditCard(editIngredient: RecipeIngredient?, setEditIngredient: (RecipeIngredient) -> Unit) {
     val reorderableState = rememberReorderableLazyListState(onMove = { from, to ->
         ingredients.apply {
             add(to.index, removeAt(from.index))
@@ -39,7 +41,7 @@ fun RecipeIngredients.EditCard(setEditIngredient: (RecipeIngredient) -> Unit) {
         ) {
             items(ingredients, { it.name }) {
                 ReorderableItem(reorderableState, it.name) { isDragging ->
-                    it.EditRow(isDragging, reorderableState, setEditIngredient)
+                    it.EditRow(isDragging, reorderableState, setEditIngredient, it == editIngredient)
                 }
             }
         }
@@ -61,7 +63,8 @@ fun RecipeIngredients.EditCard(setEditIngredient: (RecipeIngredient) -> Unit) {
 fun RecipeIngredient.EditRow(
     isDragging: Boolean,
     reorderableState: ReorderableLazyListState,
-    setEditIngredient: (RecipeIngredient) -> Unit
+    setEditIngredient: (RecipeIngredient) -> Unit,
+    isHighlighted: Boolean
 ) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
@@ -76,6 +79,10 @@ fun RecipeIngredient.EditRow(
                     translationX = 2f,
                     translationY = 2f
                 ) else Modifier
+            ).border(
+                if (isHighlighted) (1.5f).dp else Dp.Unspecified,
+                MaterialTheme.colorScheme.primary,
+                CircleShape
             )
             .clip(CircleShape)
             .background(MaterialTheme.colorScheme.surface)
@@ -109,7 +116,7 @@ fun RecipeIngredient.EditRow(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RecipeIngredient.EditCard() {
-    ElevatedCard(modifier = Modifier.padding(4.dp)) {
+    ElevatedCard(modifier = Modifier.padding(bottom = 4.dp, start = 4.dp, end = 4.dp)) {
         Column(modifier = Modifier.padding(10.dp)) {
             EditColumn { }
         }

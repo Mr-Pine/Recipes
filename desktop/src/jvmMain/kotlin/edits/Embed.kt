@@ -38,7 +38,7 @@ fun RecipeInstruction.EmbedData.EditCard(ingredients: List<RecipeIngredient>) {
 
     typeBuffers[embed.getEnum()] = embed
 
-    ElevatedCard(modifier = Modifier.padding(4.dp)) {
+    ElevatedCard(modifier = Modifier.padding(bottom = 4.dp, start = 4.dp, end = 4.dp)) {
         Column(modifier = Modifier.padding(10.dp)) {
             when (embed) {
                 is InstructionSubmodels.TimerModel -> {

@@ -1,4 +1,4 @@
-
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
@@ -22,22 +22,27 @@ fun MainLayout(mutableRecipe: MutableState<Recipe?>) {
     var editInstruction: RecipeInstruction? by remember(recipe) { mutableStateOf(null) }
     Row {
         Column(modifier = Modifier.weight(1f)) {
-            recipe?.ingredients?.EditCard() {
+            recipe?.ingredients?.EditCard(editIngredient) {
                 editIngredient = it
             }
         }
         Column(modifier = Modifier.weight(1f)) {
             recipe?.instructions?.InstructionList(
                 ingredients = recipe!!.ingredients,
+                editEmbed = editEmbed,
                 setEditEmbed = {
                     editEmbed = it
                 },
+                editInstruction = editInstruction,
                 setEditInstruction = {
                     editInstruction = it
                 }
             )
         }
-        LazyColumn(modifier = Modifier.padding(4.dp).weight(1f)) {
+        LazyColumn(
+            modifier = Modifier.padding(horizontal = 4.dp, vertical = 8.dp).weight(1f),
+            verticalArrangement = Arrangement.spacedBy(6.dp),
+        ) {
             item {
                 editIngredient?.EditCard()
             }
@@ -45,7 +50,7 @@ fun MainLayout(mutableRecipe: MutableState<Recipe?>) {
                 editEmbed?.EditCard(recipe?.ingredients?.ingredients ?: listOf())
             }
             item {
-                editInstruction?.EditCard(setEditEmbed = {editEmbed = it})
+                editInstruction?.EditCard(editEmbed = editEmbed, setEditEmbed = { editEmbed = it })
             }
         }
     }

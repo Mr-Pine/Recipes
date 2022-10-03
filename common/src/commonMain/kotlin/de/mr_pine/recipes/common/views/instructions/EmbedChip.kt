@@ -44,6 +44,7 @@ fun RecipeEmbedChip(
     enabled: Boolean = true,
     icon: ImageVector,
     labelText: String,
+    isHighlighted: Boolean = false,
     editIndex: Int?
 ) {
 
@@ -59,7 +60,7 @@ fun RecipeEmbedChip(
                 Modifier
                     .clip(MaterialTheme.shapes.small)
                     .border(
-                        1.dp,
+                        if(isHighlighted) 1.5.dp else 1.dp,
                         MaterialTheme.colorScheme.onSurfaceVariant,
                         MaterialTheme.shapes.small
                     )
@@ -94,7 +95,7 @@ fun RecipeEmbedChip(
                     disabledSelectedBorderColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(
                         alpha = 0.12f
                     ),
-                    selectedBorderWidth = 1.dp
+                    selectedBorderWidth = if(isHighlighted) 1.5.dp else 1.dp
                 )
             )
         }

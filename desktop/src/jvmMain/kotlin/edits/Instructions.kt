@@ -1,6 +1,7 @@
 package edits
 
 import FlowRow
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -12,6 +13,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import de.mr_pine.recipes.common.models.RecipeIngredients
 import de.mr_pine.recipes.common.models.instructions.*
@@ -24,7 +26,9 @@ import org.burnoutcrew.reorderable.*
 @Composable
 fun RecipeInstructions.InstructionList(
     setEditEmbed: (RecipeInstruction.EmbedData) -> Unit,
+    editEmbed: RecipeInstruction.EmbedData?,
     setEditInstruction: (RecipeInstruction) -> Unit,
+    editInstruction: RecipeInstruction?,
     ingredients: RecipeIngredients
 ) {
     Column {
@@ -43,7 +47,11 @@ fun RecipeInstructions.InstructionList(
             items(instructions, { it.content.text }) { instruction ->
                 ReorderableItem(reorderableState = reorderableState, key = instruction.content.text) {
                     ElevatedCard(
-                        modifier = Modifier.padding(bottom = 4.dp, start = 4.dp, end = 4.dp),
+                        modifier = Modifier.padding(bottom = 4.dp, start = 4.dp, end = 4.dp).border(
+                            if (editInstruction == instruction) (1.5f).dp else Dp.Unspecified,
+                            MaterialTheme.colorScheme.primary,
+                            MaterialTheme.shapes.medium
+                        ),
                         onClick = { setEditInstruction(instruction) }) {
                         Row(
                             modifier = Modifier.padding(12.dp).detectReorderAfterLongPress(reorderableState),
@@ -55,7 +63,8 @@ fun RecipeInstructions.InstructionList(
                                 inlineEmbeds = instruction.inlineEmbeds,
                                 content = instruction.content,
                                 embedChipOnClick = setEditEmbed,
-                                getIngredientFraction = ingredients::getPartialIngredient
+                                getIngredientFraction = ingredients::getPartialIngredient,
+                                selectedEmbed = editEmbed
                             )
                         }
                     }
@@ -67,8 +76,11 @@ fun RecipeInstructions.InstructionList(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun RecipeInstruction.EditCard(setEditEmbed: (RecipeInstruction.EmbedData) -> Unit) {
-    ElevatedCard(modifier = Modifier.padding(4.dp)) {
+fun RecipeInstruction.EditCard(
+    editEmbed: RecipeInstruction.EmbedData?,
+    setEditEmbed: (RecipeInstruction.EmbedData) -> Unit
+) {
+    ElevatedCard(modifier = Modifier.padding(bottom = 4.dp, start = 4.dp, end = 4.dp)) {
         Column(modifier = Modifier.padding(10.dp)) {
             FlowRow(mainAxisSpacing = 6.dp, crossAxisSpacing = 6.dp) {
                 inlineEmbeds.forEachIndexed { index, embedData ->
@@ -80,7 +92,8 @@ fun RecipeInstruction.EditCard(setEditEmbed: (RecipeInstruction.EmbedData) -> Un
                             is InstructionSubmodels.TimerModel -> Icons.Default.Timer
                             else -> Icons.Default.QuestionMark
                         },
-                        labelText = embedData.embed.content
+                        labelText = embedData.embed.content,
+                        isHighlighted = embedData == editEmbed
                     )
                 }
                 Row(modifier = Modifier.height(32.dp)) {
@@ -120,7 +133,11 @@ fun RecipeInstruction.EditCard(setEditEmbed: (RecipeInstruction.EmbedData) -> Un
                 }
             }
             Spacer(modifier = Modifier.height(6.dp))
-            TextField(value = encodeInstructionString(content), onValueChange = { content = decodeInstructionString(it) }, modifier = Modifier.fillMaxWidth())
+            TextField(
+                value = encodeInstructionString(content),
+                onValueChange = { content = decodeInstructionString(it) },
+                modifier = Modifier.fillMaxWidth()
+            )
         }
     }
 }
