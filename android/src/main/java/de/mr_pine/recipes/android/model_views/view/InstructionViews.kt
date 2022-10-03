@@ -3,7 +3,6 @@ package de.mr_pine.recipes.android.model_views.view
 import android.util.Log
 import androidx.compose.animation.*
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.text.InlineTextContent
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AddTask
@@ -15,12 +14,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.graphics.toArgb
-import androidx.compose.ui.layout.SubcomposeMeasureScope
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.Placeholder
-import androidx.compose.ui.text.PlaceholderVerticalAlign
-import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.dp
 import com.google.android.material.color.MaterialColors
 import de.mr_pine.recipes.android.R
@@ -30,7 +25,6 @@ import de.mr_pine.recipes.common.models.RecipeIngredient
 import de.mr_pine.recipes.common.models.instructions.InstructionSubmodels
 import de.mr_pine.recipes.common.models.instructions.RecipeInstruction
 import de.mr_pine.recipes.common.models.instructions.call
-import de.mr_pine.recipes.common.views.instructions.EmbedTextLayout
 import de.mr_pine.recipes.common.views.instructions.EmbeddedText
 
 private const val TAG = "InstructionViews"
@@ -125,6 +119,7 @@ fun RecipeInstruction.InstructionCard(
                     inlineEmbeds = inlineEmbeds,
                     getIngredientFraction = getIngredientFraction,
                     done = done,
+                    enabled = {enabled},
                     embedChipOnClick = {
                         when (it.embed) {
                             is InstructionSubmodels.IngredientModel -> it.enabled = !it.enabled
@@ -164,24 +159,5 @@ fun RecipeInstruction.InstructionCard(
                 }
             }
         }
-    }
-}
-
-fun SubcomposeMeasureScope.generateInlineContent(
-    id: String,
-    constraints: Constraints = Constraints(),
-    content: @Composable () -> Unit
-): InlineTextContent {
-    val (inlineWidth, inlineHeight) = subcompose(id, content)[0].measure(constraints)
-        .let { Pair(it.width.toSp(), it.height.toSp()) }
-
-    return InlineTextContent(
-        Placeholder(
-            width = inlineWidth,
-            height = inlineHeight,
-            placeholderVerticalAlign = PlaceholderVerticalAlign.TextCenter
-        )
-    ) {
-        content()
     }
 }

@@ -60,7 +60,7 @@ fun EmbeddedText(
     inlineEmbeds: List<RecipeInstruction.EmbedData>,
     getIngredientFraction: ((String, Float) -> RecipeIngredient)?,
     done: Boolean = false,
-    enabled: Boolean = true,
+    enabled: RecipeInstruction.EmbedData.() -> Boolean = { true },
     embedChipOnClick: (RecipeInstruction.EmbedData) -> Unit,
     content: AnnotatedString) {
     EmbedTextLayout(
@@ -82,7 +82,7 @@ fun EmbeddedText(
 
             RecipeEmbedChip(
                 onClick = { embedChipOnClick(it) },
-                selected = enabled,
+                selected = it.enabled(),
                 enabled = !done,
                 icon = icon,
                 labelText = it.embed.content,
