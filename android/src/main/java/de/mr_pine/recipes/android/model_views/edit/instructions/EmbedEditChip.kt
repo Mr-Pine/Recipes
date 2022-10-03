@@ -121,7 +121,9 @@ fun RecipeInstruction.EmbedData.RecipeEditChipStateful(
 
             InstructionSubmodels.EmbedTypeEnum.UNDEFINED -> {
                 EditEmbedDialog {
-                    buffer.TypeDropDown {}
+                    buffer.TypeDropDown {
+                        buffer.embed = typeBuffers[it]!!
+                    }
                 }
             }
         }

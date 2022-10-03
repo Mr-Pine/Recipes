@@ -1,5 +1,7 @@
 package de.mr_pine.recipes.common.views
 
+import androidx.compose.foundation.layout.IntrinsicSize
+import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -9,7 +11,7 @@ expect fun <T> DropDown(
     expanded: Boolean,
     onExpandedChange: (Boolean) -> Unit,
     onDismissRequest: () -> Unit,
-    modifier: Modifier = Modifier,
+    modifier: Modifier = Modifier.width(IntrinsicSize.Max),
     selectedString: String,
     selectedIcon: ImageVector? = null,
     labelString: String,

@@ -1,9 +1,6 @@
 package de.mr_pine.recipes.common.views.instructions
 
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Text
@@ -35,6 +32,7 @@ fun RecipeInstruction.EmbedData.TypeDropDown(onSelect: (InstructionSubmodels.Emb
         )
     }
     DropDown(
+        modifier = Modifier.fillMaxWidth(),
         expanded = modelTypeDropdownExpanded,
         labelString = Translation.type.getString(),
         onDismissRequest = { modelTypeDropdownExpanded = false },
@@ -100,7 +98,8 @@ fun RecipeInstruction.EmbedData.TimerEditColumn(
         keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
         label = { Text(text = Translation.duration.getString()) },
         visualTransformation = DurationVisualTransformation(),
-        isError = timerEmbed.duration == 0.seconds
+        isError = timerEmbed.duration == 0.seconds,
+        modifier = Modifier.fillMaxWidth()
     )
 }
 
@@ -150,11 +149,12 @@ fun RecipeInstruction.EmbedData.IngredientEditColumn(
         optionClick = {
             selectedIngredient = it
             embed = ingredientBuffers[it]!!
-        }
+        },
+        modifier = Modifier.fillMaxWidth()
     )
 
     Spacer(modifier = Modifier.height(10.dp))
-    Row {
+    Row(modifier = Modifier.fillMaxWidth()) {
         TextField(
             value = unitAmountBuffer.amount.takeIf { !it.value.isNaN() }?.toString()
                 ?: "",
@@ -181,7 +181,7 @@ fun RecipeInstruction.EmbedData.IngredientEditColumn(
 
         var unitDropDownExtended by remember { mutableStateOf(false) }
         DropDown(
-            modifier = Modifier.weight(2f),
+            modifier = Modifier.width(IntrinsicSize.Max).weight(2f),
             expanded = unitDropDownExtended,
             onExpandedChange = {
                 if (selectedIngredient != null) unitDropDownExtended =
@@ -226,7 +226,8 @@ fun RecipeInstruction.EmbedData.IngredientEditColumn(
         label = { Text(text = "${Translation.amount.getString()} (%)") },
         isError = selectedIngredient?.unitAmount?.let { it < unitAmountBuffer } ?: false,
         enabled = selectedIngredient != null,
-        visualTransformation = PercentVisualTransformation()
+        visualTransformation = PercentVisualTransformation(),
+        modifier = Modifier.fillMaxWidth()
     )
     Spacer(modifier = Modifier.height(10.dp))
     TextField(
@@ -241,7 +242,8 @@ fun RecipeInstruction.EmbedData.IngredientEditColumn(
                 it.takeIf { it.isNotEmpty() }
         },
         enabled = selectedIngredient != null,
-        label = { Text(text = Translation.displayName.getString()) }
+        label = { Text(text = Translation.displayName.getString()) },
+        modifier = Modifier.fillMaxWidth()
     )
 }
 

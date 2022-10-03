@@ -3,10 +3,7 @@ package de.mr_pine.recipes.common.views
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.FocusInteraction
 import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.*
 import androidx.compose.material.DropdownMenu
 import androidx.compose.material.DropdownMenuItem
 import androidx.compose.material.icons.Icons
@@ -38,7 +35,7 @@ actual fun <T> DropDown(
     optionIcon: (T) -> ImageVector?,
     optionClick: (T) -> Unit
 ) {
-    Box(modifier = Modifier.clickable { onExpandedChange(!expanded) }) {
+    Box(modifier = modifier) {
         val interactionSource = remember {
             MutableInteractionSource()
         }
@@ -54,7 +51,8 @@ actual fun <T> DropDown(
                     "",
                     modifier = Modifier.clickable { onExpandedChange(!expanded) })
             },
-            modifier = Modifier.clickable { onExpandedChange(!expanded) }
+            modifier = Modifier.fillMaxWidth(),
+            leadingIcon = selectedIcon?.let { { Icon(it, it.name) } }
         )
 
         // Horrible, but working...
