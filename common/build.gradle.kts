@@ -54,6 +54,7 @@ kotlin {
         }
         val desktopTest by getting
     }
+
 }
 
 android {
@@ -66,5 +67,8 @@ android {
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_1_8
         targetCompatibility = JavaVersion.VERSION_1_8
+    }
+    buildFeatures {
+        compose = true
     }
 }

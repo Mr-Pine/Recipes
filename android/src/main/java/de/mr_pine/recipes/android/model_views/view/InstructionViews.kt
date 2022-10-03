@@ -129,7 +129,7 @@ fun RecipeInstruction.InstructionCard(
                             )
                         }
                     },
-                    content = content
+                    content = content,
                 )
                 AnimatedVisibility(
                     visible = active,

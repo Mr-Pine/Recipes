@@ -20,4 +20,7 @@ actual object Translation {
     actual val type = ITranslation { "Type" }
     actual val duration = ITranslation { "Duration" }
     actual val displayName = ITranslation { "Display name" }
+    actual val title = ITranslation { "Title" }
+    actual val portions = ITranslation { "Portions" }
+    actual val author = ITranslation { "Author" }
 }

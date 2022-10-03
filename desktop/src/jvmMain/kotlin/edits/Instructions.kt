@@ -15,6 +15,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import de.mr_pine.recipes.common.models.RecipeIngredients
 import de.mr_pine.recipes.common.models.instructions.*
 import de.mr_pine.recipes.common.translation.Translation
@@ -64,7 +65,11 @@ fun RecipeInstructions.InstructionList(
                                 content = instruction.content,
                                 embedChipOnClick = setEditEmbed,
                                 getIngredientFraction = ingredients::getPartialIngredient,
-                                selectedEmbed = editEmbed
+                                selectedEmbed = editEmbed,
+                                textStyle = MaterialTheme.typography.bodyLarge.copy(
+                                    fontSize = 18.sp,
+                                    lineHeight = 20.sp
+                                )
                             )
                         }
                     }

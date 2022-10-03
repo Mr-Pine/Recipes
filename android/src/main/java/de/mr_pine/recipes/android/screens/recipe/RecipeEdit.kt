@@ -1,11 +1,9 @@
 package de.mr_pine.recipes.android.screens.recipe
 
-import android.util.Log
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
@@ -17,7 +15,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
-import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.times
 import de.mr_pine.recipes.android.R
@@ -26,10 +23,9 @@ import de.mr_pine.recipes.android.model_views.edit.instructions.instructionsEdit
 import de.mr_pine.recipes.android.model_views.view.MetaInfo
 import de.mr_pine.recipes.common.models.Recipe
 import de.mr_pine.recipes.common.models.instructions.RecipeInstruction
+import de.mr_pine.recipes.common.views.EditColumn
 import org.burnoutcrew.reorderable.rememberReorderableLazyListState
 import org.burnoutcrew.reorderable.reorderable
-
-private const val TAG = "RecipeEdit"
 
 @ExperimentalMaterialApi
 @ExperimentalAnimationApi
@@ -173,7 +169,8 @@ fun RecipeEdit(
                     Text(text = stringResource(R.string.Edit_Metadata))
                 },
                 text = {
-                    Column {
+                    metadataBuffer.EditColumn()
+                    /*Column {
                         TextField(
                             value = metadataBuffer.title,
                             onValueChange = { metadataBuffer.title = it },
@@ -218,7 +215,7 @@ fun RecipeEdit(
                                 Text(text = stringResource(R.string.Author))
                             }
                         )
-                    }
+                    }*/
                 }
             )
         }

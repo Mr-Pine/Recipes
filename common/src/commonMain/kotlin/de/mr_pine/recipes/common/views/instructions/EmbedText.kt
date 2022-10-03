@@ -1,5 +1,6 @@
 package de.mr_pine.recipes.common.views.instructions
 
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.text.InlineTextContent
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.QuestionMark
@@ -9,11 +10,13 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.SubcomposeLayout
 import androidx.compose.ui.layout.SubcomposeMeasureScope
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.Placeholder
 import androidx.compose.ui.text.PlaceholderVerticalAlign
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.sp
 import de.mr_pine.recipes.common.models.RecipeIngredient
@@ -24,6 +27,10 @@ import de.mr_pine.recipes.common.models.instructions.RecipeInstruction
 fun EmbedTextLayout(
     inlineEmbeds: List<RecipeInstruction.EmbedData>,
     content: AnnotatedString,
+    textStyle: TextStyle = MaterialTheme.typography.bodyLarge.copy(
+        fontSize = 20.sp,
+        lineHeight = 27.sp
+    ),
     inlineEmbedContent: @Composable (RecipeInstruction.EmbedData) -> Unit
 ) {
     SubcomposeLayout { constraints ->
@@ -39,10 +46,8 @@ fun EmbedTextLayout(
             Text(
                 text = content,
                 inlineContent = inlineContent,
-                style = MaterialTheme.typography.bodyLarge.copy(
-                    fontSize = 20.sp,
-                    lineHeight = 26.sp
-                )
+                style = textStyle,
+                modifier = Modifier.fillMaxWidth()
             )
 
 
@@ -63,11 +68,16 @@ fun EmbeddedText(
     enabled: RecipeInstruction.EmbedData.() -> Boolean = { true },
     embedChipOnClick: (RecipeInstruction.EmbedData) -> Unit,
     selectedEmbed: RecipeInstruction.EmbedData? = null,
+    textStyle: TextStyle = MaterialTheme.typography.bodyLarge.copy(
+        fontSize = 20.sp,
+        lineHeight = 27.sp
+    ),
     content: AnnotatedString
 ) {
     EmbedTextLayout(
         content = content,
-        inlineEmbeds = inlineEmbeds
+        inlineEmbeds = inlineEmbeds,
+        textStyle = textStyle
     ) {
 
         if (it.embed is InstructionSubmodels.IngredientModel && (it.embed as InstructionSubmodels.IngredientModel).let { ingredientModel -> ingredientModel.ingredient == null && ingredientModel != InstructionSubmodels.IngredientModel.NO_INGREDIENT }) {

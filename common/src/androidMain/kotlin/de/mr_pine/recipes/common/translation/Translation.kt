@@ -25,5 +25,8 @@ actual object Translation {
     actual val add = ITranslation { stringResource(R.string.Add) }
     actual val duration = ITranslation { stringResource(R.string.Duration) }
     actual val displayName = ITranslation { stringResource(R.string.Display_name) }
+    actual val title = ITranslation { stringResource(R.string.Title) }
+    actual val portions = ITranslation { stringResource(R.string.Portions) }
+    actual val author = ITranslation { stringResource(R.string.Author) }
 }
 

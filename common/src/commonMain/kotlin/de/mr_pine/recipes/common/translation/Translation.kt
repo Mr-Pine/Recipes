@@ -24,6 +24,9 @@ expect object Translation {
     val unit: ITranslation
     val type: ITranslation
     val displayName: ITranslation
+    val title: ITranslation
+    val portions: ITranslation
+    val author: ITranslation
 
     val add: ITranslation
 
