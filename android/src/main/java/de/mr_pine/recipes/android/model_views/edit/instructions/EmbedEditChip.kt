@@ -5,7 +5,6 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
@@ -18,6 +17,7 @@ import de.mr_pine.recipes.common.models.instructions.InstructionSubmodels
 import de.mr_pine.recipes.common.models.instructions.InstructionSubmodels.EmbedTypeModel.Companion.getEnum
 import de.mr_pine.recipes.common.models.instructions.RecipeInstruction
 import de.mr_pine.recipes.common.views.instructions.RecipeEmbedChip
+import de.mr_pine.recipes.common.views.instructions.TypeDropDown
 import kotlin.math.roundToInt
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.hours
@@ -117,7 +117,7 @@ fun RecipeInstruction.EmbedData.RecipeEditChipStateful(
             )
         }
 
-        @Composable
+        /*@Composable
         fun TypeDropDown() {
             var modelTypeDropdownExpanded by remember { mutableStateOf(false) }
             var selectedType: InstructionSubmodels.EmbedTypeEnum? by remember {
@@ -172,14 +172,16 @@ fun RecipeInstruction.EmbedData.RecipeEditChipStateful(
                         }
                 }
             }
-        }
+        }*/
 
         //Different Dialogs necessary because of https://issuetracker.google.com/issues/221643630
         when (remember(buffer.embed) { buffer.embed.getEnum() }) {
             InstructionSubmodels.EmbedTypeEnum.TIMER -> {
                 val timerEmbed = buffer.embed as InstructionSubmodels.TimerModel
                 EditEmbedDialog {
-                    TypeDropDown()
+                    buffer.TypeDropDown {
+                        buffer.embed = typeBuffers[it]!!
+                    }
                     Spacer(modifier = Modifier.height(10.dp))
                     var test by remember(
                         try {
@@ -246,7 +248,9 @@ fun RecipeInstruction.EmbedData.RecipeEditChipStateful(
                         (this as InstructionSubmodels.IngredientModel).amountFraction = unitAmountBuffer / it
                     }
                 }) {
-                    TypeDropDown()
+                    buffer.TypeDropDown {
+                        buffer.embed = typeBuffers[it]!!
+                    }
 
                     Spacer(modifier = Modifier.height(10.dp))
 
@@ -392,7 +396,7 @@ fun RecipeInstruction.EmbedData.RecipeEditChipStateful(
 
             InstructionSubmodels.EmbedTypeEnum.UNDEFINED -> {
                 EditEmbedDialog {
-                    TypeDropDown()
+                    buffer.TypeDropDown {}
                 }
             }
         }

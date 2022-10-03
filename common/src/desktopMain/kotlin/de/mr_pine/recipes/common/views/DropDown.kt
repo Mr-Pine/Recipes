@@ -4,6 +4,9 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.FocusInteraction
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.width
 import androidx.compose.material.DropdownMenu
 import androidx.compose.material.DropdownMenuItem
 import androidx.compose.material.icons.Icons
@@ -17,7 +20,9 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.unit.dp
 
 @Composable
 actual fun <T> DropDown(
@@ -26,9 +31,11 @@ actual fun <T> DropDown(
     onDismissRequest: () -> Unit,
     modifier: Modifier,
     selectedString: String,
+    selectedIcon: ImageVector?,
     labelString: String,
     options: List<T>,
     optionText: @Composable (T) -> String,
+    optionIcon: (T) -> ImageVector?,
     optionClick: (T) -> Unit
 ) {
     Box(modifier = Modifier.clickable { onExpandedChange(!expanded) }) {
@@ -62,7 +69,13 @@ actual fun <T> DropDown(
         DropdownMenu(expanded = expanded, onDismissRequest = onDismissRequest) {
             options.forEach {
                 DropdownMenuItem(onClick = { optionClick(it) }) {
-                    Text(optionText(it))
+                    Row {
+                        optionIcon(it)?.let {
+                            Icon(it, it.name)
+                            Spacer(modifier = Modifier.width(8.dp))
+                        }
+                        Text(optionText(it))
+                    }
                 }
             }
         }

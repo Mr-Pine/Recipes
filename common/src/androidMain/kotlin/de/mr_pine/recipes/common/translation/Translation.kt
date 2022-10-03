@@ -21,5 +21,7 @@ actual object Translation {
     actual val name = ITranslation { stringResource(R.string.Name) }
     actual val amount = ITranslation { stringResource(R.string.Amount) }
     actual val unit = ITranslation { stringResource(R.string.Unit) }
+    actual val type = ITranslation { stringResource(R.string.Type) }
+    actual val add = ITranslation { stringResource(R.string.Add) }
 }
 

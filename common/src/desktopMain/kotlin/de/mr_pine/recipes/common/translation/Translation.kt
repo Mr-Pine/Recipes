@@ -17,4 +17,5 @@ actual object Translation {
     actual val amount = ITranslation { "Amount" }
     actual val unit = ITranslation { "Unit" }
     actual val add = ITranslation { "Add" }
+    actual val type = ITranslation { "Type" }
 }

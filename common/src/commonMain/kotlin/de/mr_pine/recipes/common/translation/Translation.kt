@@ -22,6 +22,7 @@ expect object Translation {
     val name: ITranslation
     val amount: ITranslation
     val unit: ITranslation
+    val type: ITranslation
 
     val add: ITranslation
 }
