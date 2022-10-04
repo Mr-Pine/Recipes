@@ -255,7 +255,7 @@ fun RecipeInstruction.EmbedData.IngredientEditColumn(
     }
     Spacer(modifier = Modifier.height(10.dp))
     TextField(
-        value = ingredientEmbed.displayName ?: "",
+        value = ingredientEmbed.displayName ?: ingredientEmbed.ingredient?.name ?: "",
         placeholder = {
             Text(
                 text = selectedIngredient?.name ?: ""
