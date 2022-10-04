@@ -8,6 +8,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyShortcut
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.window.MenuBar
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
@@ -20,7 +21,7 @@ import de.mr_pine.recipes.common.models.instructions.RecipeInstructions
 fun main() = application {
     val viewModel = remember { DesktopViewModel() }
 
-    Window(onCloseRequest = ::exitApplication, title = viewModel.activeRecipe.value?.metadata?.title ?: "") {
+    Window(onCloseRequest = ::exitApplication, title = viewModel.activeRecipe.value?.metadata?.title ?: "", icon = painterResource("app_icon.svg")) {
 
         MenuBar {
             Menu("File", mnemonic = 'F') {
