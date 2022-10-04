@@ -36,6 +36,7 @@ fun RecipeInstruction.EmbedData.TypeDropDown(modifier: Modifier = Modifier, onSe
     DropDown(
         modifier = modifier.fillMaxWidth(),
         expanded = modelTypeDropdownExpanded,
+        expandOnFocus = selectedType == null,
         labelString = Translation.type.getString(),
         onDismissRequest = { modelTypeDropdownExpanded = false },
         onExpandedChange = { modelTypeDropdownExpanded = it },

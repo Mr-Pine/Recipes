@@ -1,8 +1,6 @@
 package de.mr_pine.recipes.common.views.instructions
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -11,18 +9,19 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.input.pointer.*
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 
 @OptIn(ExperimentalMaterial3Api::class)
 val recipeChipColors
     @Composable get() = FilterChipDefaults.elevatedFilterChipColors(
-    selectedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
-    selectedLabelColor = MaterialTheme.colorScheme.onSurfaceVariant,
-    selectedLeadingIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
-    selectedTrailingIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
-    disabledContainerColor = Color.Transparent
-)
+        selectedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+        selectedLabelColor = MaterialTheme.colorScheme.onSurfaceVariant,
+        selectedLeadingIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
+        selectedTrailingIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
+        disabledContainerColor = Color.Transparent
+    )
 
 @Composable
 @OptIn(ExperimentalMaterial3Api::class)
@@ -39,7 +38,8 @@ fun recipeChipElevation(selected: Boolean) = if (selected) FilterChipDefaults.el
 @Composable
 fun RecipeEmbedChip(
     onClick: () -> Unit,
-    modifier: Modifier = Modifier,
+    modifier: Modifier = Modifier.clickable(onClick = onClick),
+    chipModifier: Modifier = Modifier,
     selected: Boolean = true,
     enabled: Boolean = true,
     icon: ImageVector,
@@ -51,7 +51,6 @@ fun RecipeEmbedChip(
     Box(
         modifier = modifier
             .height(32.dp)
-            .clickable(onClick = onClick)
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
@@ -60,7 +59,7 @@ fun RecipeEmbedChip(
                 Modifier
                     .clip(MaterialTheme.shapes.small)
                     .border(
-                        if(isHighlighted) 1.5.dp else 1.dp,
+                        if (isHighlighted) 1.5.dp else 1.dp,
                         MaterialTheme.colorScheme.onSurfaceVariant,
                         MaterialTheme.shapes.small
                     )
@@ -95,8 +94,9 @@ fun RecipeEmbedChip(
                     disabledSelectedBorderColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(
                         alpha = 0.12f
                     ),
-                    selectedBorderWidth = if(isHighlighted) 1.5.dp else 1.dp
-                )
+                    selectedBorderWidth = if (isHighlighted) 1.5.dp else 1.dp
+                ),
+                modifier = chipModifier
             )
         }
     }

@@ -12,6 +12,7 @@ expect fun <T> DropDown(
     onExpandedChange: (Boolean) -> Unit,
     onDismissRequest: () -> Unit,
     modifier: Modifier = Modifier.width(IntrinsicSize.Max),
+    expandOnFocus: Boolean = false,
     selectedString: String,
     selectedIcon: ImageVector? = null,
     labelString: String,

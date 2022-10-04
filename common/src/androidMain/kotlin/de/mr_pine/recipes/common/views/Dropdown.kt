@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 
@@ -16,6 +17,7 @@ actual fun <T> DropDown(
     onExpandedChange: (Boolean) -> Unit,
     onDismissRequest: () -> Unit,
     modifier: Modifier,
+    expandOnFocus: Boolean,
     selectedString: String,
     selectedIcon: ImageVector?,
     labelString: String,
@@ -37,7 +39,7 @@ actual fun <T> DropDown(
             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
             leadingIcon = selectedIcon?.let { { Icon(it, it.name) } },
             colors = ExposedDropdownMenuDefaults.textFieldColors(),
-            modifier = Modifier.menuAnchor()
+            modifier = Modifier.menuAnchor().onFocusChanged { if(it.hasFocus && expandOnFocus) onExpandedChange(true) }
         )
         ExposedDropdownMenu(
             expanded = expanded,

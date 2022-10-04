@@ -10,8 +10,13 @@ import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.ArrowDropUp
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.input.pointer.PointerEvent
 import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.changedToUp
@@ -29,6 +34,7 @@ actual fun <T> DropDown(
     onExpandedChange: (Boolean) -> Unit,
     onDismissRequest: () -> Unit,
     modifier: Modifier,
+    expandOnFocus: Boolean,
     selectedString: String,
     selectedIcon: ImageVector?,
     labelString: String,
@@ -53,7 +59,7 @@ actual fun <T> DropDown(
                     ""
                 )
             },
-            modifier = Modifier.fillMaxWidth().expandable(expanded, { onExpandedChange(!expanded) }),
+            modifier = Modifier.fillMaxWidth().expandable(expanded, { onExpandedChange(!expanded) }).onFocusChanged { if(it.hasFocus && expandOnFocus) onExpandedChange(true) },
             leadingIcon = selectedIcon?.let { { Icon(it, it.name) } }
         )
 
@@ -73,6 +79,7 @@ actual fun <T> DropDown(
     }
 }
 
+@OptIn(ExperimentalComposeUiApi::class)
 @Suppress("ComposableModifierFactory")
 @Composable
 private fun Modifier.expandable(
@@ -102,4 +109,9 @@ private fun Modifier.expandable(
         onExpandedChange()
         true
     }
+}.onPreviewKeyEvent {
+    if(it.key == Key.Enter) {
+        onExpandedChange()
+        true
+    } else false
 }

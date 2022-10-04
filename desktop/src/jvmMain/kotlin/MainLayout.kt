@@ -77,7 +77,7 @@ fun MainLayout(mutableRecipe: MutableState<Recipe?>) {
                 }
             }
             editEmbed?.let {
-                item {
+                item(editEmbed) {
                     it.EditCard(
                         recipe?.ingredients?.ingredients ?: listOf(),
                         focusRequester = embedFocusRequester
@@ -87,18 +87,17 @@ fun MainLayout(mutableRecipe: MutableState<Recipe?>) {
                         )
                         if (editEmbed == embed) editEmbed = null
                     }
-                    LaunchedEffect(it) {
-                        embedFocusRequester.requestFocus()
-                    }
                 }
             }
             editInstruction?.let {
-                item {
+                item(editInstruction) {
                     it.EditCard(
                         editEmbed = editEmbed,
                         setEditEmbed = {
                             editEmbed = it
-                            embedFocusRequester.requestFocus()
+                            try {
+                                embedFocusRequester.requestFocus()
+                            } catch (_: IllegalStateException) {}
                         },
                         focusRequester = instructionFocusRequester
                     ) {

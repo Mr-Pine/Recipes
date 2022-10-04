@@ -4,10 +4,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.toMutableStateMap
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
@@ -46,9 +43,14 @@ fun RecipeInstruction.EmbedData.EditCard(
 
     typeBuffers[embed.getEnum()] = embed
 
+
+    LaunchedEffect(this, embed) {
+        focusRequester.requestFocus()
+    }
+
     ElevatedCard(modifier = Modifier.padding(bottom = 4.dp, start = 4.dp, end = 4.dp)) {
         Column(modifier = Modifier.padding(10.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-            var onTypeSelect = { it: InstructionSubmodels.EmbedTypeEnum ->
+            val onTypeSelect = { it: InstructionSubmodels.EmbedTypeEnum ->
                 embed = typeBuffers[it]!!
                 focusRequester.requestFocus()
             }
