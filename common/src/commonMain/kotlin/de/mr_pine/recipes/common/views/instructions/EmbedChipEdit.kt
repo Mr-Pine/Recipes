@@ -146,6 +146,7 @@ fun RecipeInstruction.EmbedData.IngredientEditColumn(
     var ingredientDropdownExpanded by remember { mutableStateOf(false) }
     DropDown(
         expanded = ingredientDropdownExpanded,
+        expandOnFocus = selectedIngredient == null,
         onExpandedChange = { ingredientDropdownExpanded = it },
         onDismissRequest = { ingredientDropdownExpanded = false },
         selectedString = selectedIngredient?.name ?: "",

@@ -34,6 +34,21 @@ fun recipeChipElevation(selected: Boolean) = if (selected) FilterChipDefaults.el
     disabledElevation = 0.dp
 ) else FilterChipDefaults.elevatedFilterChipElevation()
 
+@Composable
+@OptIn(ExperimentalMaterial3Api::class)
+expect fun IconElevatedFilterChip(
+    selected: Boolean,
+    onClick: () -> Unit,
+    label: @Composable () -> Unit,
+    modifier: Modifier,
+    enabled: Boolean,
+    leadingIcon: @Composable (() -> Unit)?,
+    trailingIcon: @Composable (() -> Unit)? = null,
+    colors: SelectableChipColors,
+    elevation: SelectableChipElevation?,
+    border: SelectableChipBorder?
+)
+
 @ExperimentalMaterial3Api
 @Composable
 fun RecipeEmbedChip(
@@ -74,7 +89,7 @@ fun RecipeEmbedChip(
                     textAlign = TextAlign.Center
                 )
             }
-            ElevatedFilterChip(
+            IconElevatedFilterChip(
                 onClick = onClick,
                 selected = selected,
                 enabled = enabled,
