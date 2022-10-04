@@ -76,6 +76,7 @@ fun RecipeIngredient.EditColumn(delete: () -> Unit) {
                 optionClick = {
                     unitAmount.unit = it
                     unitDropDownExpanded = false
+                    true
                 },
                 modifier = Modifier.weight(5f)
             )

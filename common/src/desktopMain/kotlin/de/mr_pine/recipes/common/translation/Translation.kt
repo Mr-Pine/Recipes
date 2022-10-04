@@ -23,4 +23,10 @@ actual object Translation {
     actual val title = ITranslation { "Title" }
     actual val portions = ITranslation { "Portions" }
     actual val author = ITranslation { "Author" }
+    actual val addInstruction = ITranslation { "Add Instruction" }
+    actual val delete = ITranslation { "Delete" }
+    actual val cancel = ITranslation { "Cancel" }
+    actual val deleteIngredient = ITranslation { "Delete Ingredient" }
+    actual val deleteEmbed = ITranslation { "Delete Embed" }
+    actual val deleteInstruction = ITranslation { "Delete Instruction" }
 }

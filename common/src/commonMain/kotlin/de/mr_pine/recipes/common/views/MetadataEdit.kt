@@ -2,6 +2,7 @@ package de.mr_pine.recipes.common.views
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -24,7 +25,8 @@ fun RecipeMetadata.EditColumn() {
             label = {
                 Text(text = Translation.title.getString())
             },
-            isError = title.isEmpty()
+            isError = title.isEmpty(),
+            modifier = Modifier.fillMaxWidth()
         )
         Spacer(modifier = Modifier.height(10.dp))
         var portionsText by remember {
@@ -49,7 +51,8 @@ fun RecipeMetadata.EditColumn() {
             },
             keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
             label = { Text(text = Translation.portions.getString()) },
-            isError = portionSize?.isNaN() ?: false
+            isError = portionSize?.isNaN() ?: false,
+            modifier = Modifier.fillMaxWidth()
         )
         Spacer(modifier = Modifier.height(10.dp))
         TextField(
@@ -59,7 +62,8 @@ fun RecipeMetadata.EditColumn() {
             },
             label = {
                 Text(text = Translation.author.getString())
-            }
+            },
+            modifier = Modifier.fillMaxWidth()
         )
     }
 }

@@ -33,7 +33,7 @@ actual fun <T> DropDown(
     options: List<T>,
     optionText: @Composable (T) -> String,
     optionIcon: (T) -> ImageVector?,
-    optionClick: (T) -> Unit
+    optionClick: (T) -> Boolean
 ) {
     Box(modifier = modifier) {
         val interactionSource = remember {
@@ -66,7 +66,7 @@ actual fun <T> DropDown(
         }
         DropdownMenu(expanded = expanded, onDismissRequest = onDismissRequest) {
             options.forEach {
-                DropdownMenuItem(onClick = { optionClick(it) }) {
+                DropdownMenuItem(onClick = { if(optionClick(it)) onDismissRequest() }) {
                     Row {
                         optionIcon(it)?.let {
                             Icon(it, it.name)

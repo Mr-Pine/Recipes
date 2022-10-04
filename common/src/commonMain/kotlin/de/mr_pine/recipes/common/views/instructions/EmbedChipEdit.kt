@@ -44,8 +44,8 @@ fun RecipeInstruction.EmbedData.TypeDropDown(onSelect: (InstructionSubmodels.Emb
         optionIcon = { it.icon }
     ) { embedTypeEnum ->
         selectedType = embedTypeEnum
-        modelTypeDropdownExpanded = false
         onSelect(embedTypeEnum)
+        true
     }
 }
 
@@ -147,8 +147,10 @@ fun RecipeInstruction.EmbedData.IngredientEditColumn(
         options = ingredients,
         optionText = { it.name },
         optionClick = {
+            selectedIngredient?.let { oldIngredient -> ingredientBuffers[oldIngredient] = ingredientEmbed }
             selectedIngredient = it
             embed = ingredientBuffers[it]!!
+            true
         },
         modifier = Modifier.fillMaxWidth()
     )
@@ -194,6 +196,7 @@ fun RecipeInstruction.EmbedData.IngredientEditColumn(
             optionText = { it.menuDisplayValue() },
             optionClick = {
                 unitAmountBuffer.unit = it
+                true
             }
         )
     }

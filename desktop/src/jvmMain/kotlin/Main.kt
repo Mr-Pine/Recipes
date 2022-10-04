@@ -29,12 +29,12 @@ fun main() = application {
                         "Save",
                         mnemonic = 'S',
                         shortcut = KeyShortcut(ctrl = true, key = Key.S)
-                    ) { viewModel.saveRecipe(window, viewModel.activeRecipe.value!!.metadata.file) }
+                    ) { viewModel.activeRecipe.value!!.metadata.file = viewModel.saveRecipe(window, viewModel.activeRecipe.value!!.metadata.file) }
                     Item(
                         "Save As",
                         mnemonic = 'A',
                         shortcut = KeyShortcut(ctrl = true, key = Key.S, shift = true)
-                    ) { viewModel.saveRecipe(window) }
+                    ) { viewModel.activeRecipe.value!!.metadata.file = viewModel.saveRecipe(window) }
                     Item(
                         "Open",
                         mnemonic = 'O',

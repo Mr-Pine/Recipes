@@ -43,19 +43,28 @@ fun MainLayout(mutableRecipe: MutableState<Recipe?>) {
             modifier = Modifier.padding(horizontal = 4.dp, vertical = 8.dp).weight(1f),
             verticalArrangement = Arrangement.spacedBy(6.dp),
         ) {
-            editIngredient?.let{
+            editIngredient?.let {
                 item {
-                    it.EditCard()
+                    it.EditCard {
+                        recipe?.ingredients?.ingredients?.remove(it)
+                        if (editIngredient == it) editIngredient = null
+                    }
                 }
             }
-            editEmbed?.let{
+            editEmbed?.let {
                 item {
-                    it.EditCard(recipe?.ingredients?.ingredients ?: listOf())
+                    it.EditCard(recipe?.ingredients?.ingredients ?: listOf()) { embed ->
+                        recipe?.instructions?.instructions?.first { it.inlineEmbeds.contains(embed) }?.inlineEmbeds?.remove(embed)
+                        if(editEmbed == embed) editEmbed = null
+                    }
                 }
             }
-            editInstruction?.let{
+            editInstruction?.let {
                 item {
-                    it.EditCard(editEmbed = editEmbed, setEditEmbed = { editEmbed = it })
+                    it.EditCard(editEmbed = editEmbed, setEditEmbed = { editEmbed = it }) {
+                        recipe?.instructions?.instructions?.remove(it)
+                        if(editInstruction == it) editInstruction = null
+                    }
                 }
             }
             item {

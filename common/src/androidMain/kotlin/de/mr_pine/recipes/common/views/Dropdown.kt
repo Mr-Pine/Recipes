@@ -22,7 +22,7 @@ actual fun <T> DropDown(
     options: List<T>,
     optionText: @Composable (T) -> String,
     optionIcon: (T) -> ImageVector?,
-    optionClick: (T) -> Unit
+    optionClick: (T) -> Boolean
 ) {
     ExposedDropdownMenuBox(
         expanded = expanded,

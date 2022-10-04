@@ -29,6 +29,14 @@ expect object Translation {
     val author: ITranslation
 
     val add: ITranslation
+    val addInstruction: ITranslation
 
     val duration: ITranslation
+
+    val cancel: ITranslation
+    val delete: ITranslation
+
+    val deleteIngredient: ITranslation
+    val deleteEmbed: ITranslation
+    val deleteInstruction: ITranslation
 }

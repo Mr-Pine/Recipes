@@ -22,6 +22,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import de.mr_pine.recipes.common.models.RecipeIngredient
 import de.mr_pine.recipes.common.models.RecipeIngredients
+import de.mr_pine.recipes.common.translation.Translation
 import de.mr_pine.recipes.common.views.EditColumn
 import org.burnoutcrew.reorderable.*
 
@@ -33,7 +34,7 @@ fun RecipeIngredients.EditCard(editIngredient: RecipeIngredient?, setEditIngredi
             add(to.index, removeAt(from.index))
         }
     })
-    Card(modifier = Modifier.padding(8.dp)) {
+    Card(modifier = Modifier.padding(8.dp).fillMaxWidth()) {
         LazyColumn(
             state = reorderableState.listState,
             modifier = Modifier.reorderable(reorderableState).padding(8.dp).clip(MaterialTheme.shapes.medium)
@@ -115,10 +116,13 @@ fun RecipeIngredient.EditRow(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun RecipeIngredient.EditCard() {
+fun RecipeIngredient.EditCard(removeIngredient: (RecipeIngredient) -> Unit) {
     ElevatedCard(modifier = Modifier.padding(bottom = 4.dp, start = 4.dp, end = 4.dp)) {
-        Column(modifier = Modifier.padding(10.dp)) {
+        Column(modifier = Modifier.padding(10.dp), horizontalAlignment = Alignment.CenterHorizontally) {
             EditColumn { }
+            DeleteButton(Translation.deleteIngredient.getString()) {
+                removeIngredient(this@EditCard)
+            }
         }
     }
 }

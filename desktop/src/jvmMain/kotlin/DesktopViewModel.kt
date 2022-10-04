@@ -31,11 +31,11 @@ class DesktopViewModel {
         activeRecipe.value?.metadata?.file = file
     }
 
-    fun saveRecipe(window: ComposeWindow, saveFile: File? = null) {
+    fun saveRecipe(window: ComposeWindow, saveFile: File? = null) =
         (saveFile ?: FileDialog(window, "Save recipe", FileDialog.SAVE).apply {
             file = "${activeRecipe.value!!.metadata.title}.rcp"; isVisible = true
-        }.files.toSet().takeIf { it.isNotEmpty() }?.first())?.writeText(json.encodeToString(activeRecipe.value!!))
-    }
+        }.files.toSet().takeIf { it.isNotEmpty() }
+            ?.first())?.apply { writeText(json.encodeToString(activeRecipe.value!!)) }
 
     fun openRecipeFile(window: ComposeWindow) {
         FileDialog(window, "Open Recipe", FileDialog.LOAD).apply {

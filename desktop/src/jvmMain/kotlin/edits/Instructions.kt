@@ -13,6 +13,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -41,7 +42,7 @@ fun RecipeInstructions.InstructionList(
         LazyColumn(
             state = reorderableState.listState,
             modifier = Modifier.reorderable(reorderableState).padding(horizontal = 4.dp, vertical = 8.dp)
-                .clip(MaterialTheme.shapes.medium)
+                .clip(MaterialTheme.shapes.medium).fillMaxWidth()
                 .height(0.dp).weight(1f),
             verticalArrangement = Arrangement.spacedBy(6.dp),
         ) {
@@ -76,6 +77,14 @@ fun RecipeInstructions.InstructionList(
                 }
             }
         }
+        Button(modifier = Modifier.padding(bottom = 8.dp).align(Alignment.CenterHorizontally), onClick = {
+            instructions.add(RecipeInstruction(AnnotatedString(""), listOf()))
+            setEditInstruction(instructions.last())
+        }) {
+            Icon(Icons.Default.Add, "Add")
+            Spacer(modifier = Modifier.width(8.dp))
+            Text(Translation.addInstruction.getString())
+        }
     }
 }
 
@@ -83,7 +92,8 @@ fun RecipeInstructions.InstructionList(
 @Composable
 fun RecipeInstruction.EditCard(
     editEmbed: RecipeInstruction.EmbedData?,
-    setEditEmbed: (RecipeInstruction.EmbedData) -> Unit
+    setEditEmbed: (RecipeInstruction.EmbedData) -> Unit,
+    deleteInstruction: (RecipeInstruction) -> Unit
 ) {
     ElevatedCard(modifier = Modifier.padding(bottom = 4.dp, start = 4.dp, end = 4.dp)) {
         Column(modifier = Modifier.padding(10.dp)) {
@@ -141,8 +151,12 @@ fun RecipeInstruction.EditCard(
             TextField(
                 value = encodeInstructionString(content),
                 onValueChange = { content = decodeInstructionString(it) },
+                placeholder = { Text("Instruction") },
                 modifier = Modifier.fillMaxWidth()
             )
+            DeleteButton(Translation.deleteInstruction.getString()) {
+                deleteInstruction(this@EditCard)
+            }
         }
     }
 }
