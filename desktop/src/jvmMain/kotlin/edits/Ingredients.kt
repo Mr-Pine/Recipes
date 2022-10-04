@@ -32,6 +32,7 @@ import org.burnoutcrew.reorderable.*
 fun RecipeIngredients.EditCard(editIngredient: RecipeIngredient?, setEditIngredient: (RecipeIngredient) -> Unit) {
     val reorderableState = rememberReorderableLazyListState(onMove = { from, to ->
         ingredients.apply {
+            println("test")
             add(to.index, removeAt(from.index))
         }
     })

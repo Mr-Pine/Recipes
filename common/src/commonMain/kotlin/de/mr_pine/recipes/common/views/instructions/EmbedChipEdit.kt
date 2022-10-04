@@ -3,9 +3,11 @@ package de.mr_pine.recipes.common.views.instructions
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
@@ -129,6 +131,10 @@ fun RecipeInstruction.EmbedData.IngredientEditColumn(
         )
     }
 
+    LaunchedEffect(unitAmountBuffer == selectedIngredient?.unitAmount) {
+        ingredientEmbed.noAmount = unitAmountBuffer == selectedIngredient?.unitAmount
+    }
+
     TypeDropDown(onSelect = onTypeSelect)
 
     Spacer(modifier = Modifier.height(10.dp))
@@ -209,38 +215,44 @@ fun RecipeInstruction.EmbedData.IngredientEditColumn(
         )
     }
     Spacer(modifier = Modifier.height(10.dp))
-    TextField(
-        value = selectedIngredient?.let { unitAmountBuffer.asBaseUnit().amount / it.unitAmount.asBaseUnit().amount * 100 }
-            ?.let {
-                if (it.isNaN())
-                    "0"
-                else if (String.format("%.2f", it.roundToInt().toFloat()) == String.format(
-                        "%.2f",
-                        it
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        TextField(
+            value = selectedIngredient?.let { unitAmountBuffer.asBaseUnit().amount / it.unitAmount.asBaseUnit().amount * 100 }
+                ?.let {
+                    if (it.isNaN())
+                        "0"
+                    else if (String.format("%.2f", it.roundToInt().toFloat()) == String.format(
+                            "%.2f",
+                            it
+                        )
                     )
-                )
-                    it.roundToInt().toString()
-                else
-                    String.format("%.2f", it)
-            } ?: "",
-        onValueChange = { newPercentage ->
-            try {
-                val fraction = newPercentage.replace(',', '.').padStart(1, '0').toFloat() * 0.01f
-                selectedIngredient?.let {
-                    unitAmountBuffer =
-                        it.unitAmount.asBaseUnit().apply { amount *= fraction }.adjustUnit()
+                        it.roundToInt().toString()
+                    else
+                        String.format("%.2f", it)
+                } ?: "",
+            onValueChange = { newPercentage ->
+                try {
+                    val fraction = newPercentage.replace(',', '.').padStart(1, '0').toFloat() * 0.01f
+                    selectedIngredient?.let {
+                        unitAmountBuffer =
+                            it.unitAmount.asBaseUnit().apply { amount *= fraction }.adjustUnit()
+                    }
+                } catch (_: NumberFormatException) {
                 }
-            } catch (_: NumberFormatException) {
-            }
-        },
-        keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
-        label = { Text(text = "${Translation.amount.getString()} (%)") },
-        isError = selectedIngredient?.unitAmount?.let { it < unitAmountBuffer } ?: false,
-        enabled = selectedIngredient != null,
-        visualTransformation = PercentVisualTransformation(),
-        modifier = Modifier.fillMaxWidth(),
-        singleLine = true
-    )
+            },
+            keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
+            label = { Text(text = "${Translation.amount.getString()} (%)") },
+            isError = selectedIngredient?.unitAmount?.let { it < unitAmountBuffer } ?: false,
+            enabled = selectedIngredient != null,
+            visualTransformation = PercentVisualTransformation(),
+            modifier = Modifier.width(0.dp).weight(1f),
+            singleLine = true
+        )
+        Spacer(modifier = Modifier.width(10.dp))
+        Text("Show amount")
+        Spacer(modifier = Modifier.width(10.dp))
+        Switch(checked = !ingredientEmbed.noAmount, onCheckedChange = {ingredientEmbed.noAmount = !ingredientEmbed.noAmount})
+    }
     Spacer(modifier = Modifier.height(10.dp))
     TextField(
         value = ingredientEmbed.displayName ?: "",

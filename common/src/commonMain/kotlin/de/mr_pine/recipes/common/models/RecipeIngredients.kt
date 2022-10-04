@@ -23,7 +23,9 @@ data class RecipeIngredients(
         ingredients.find { id == it.ingredientId }?.getPartial(fraction)
             ?: throw Exception("Ingredient $id not found")
 
-    fun deepCopy(ingredients: SnapshotStateList<RecipeIngredient> = this.ingredients.map { it.copy() }.toMutableStateList()) = RecipeIngredients(ingredients)
+    fun deepCopy(
+        ingredients: SnapshotStateList<RecipeIngredient> = this.ingredients.map { it.copy() }.toMutableStateList()
+    ) = RecipeIngredients(ingredients)
 }
 
 @Serializable
@@ -33,7 +35,7 @@ class RecipeIngredient(
     private val nameState: MutableState<String> = mutableStateOf(""),
     @Serializable(with = MutableStateSerializer::class)
     @SerialName("unit_amount")
-    private val unitAmountState: MutableState<UnitAmount> = mutableStateOf(UnitAmount.NaN),
+    private val unitAmountState: MutableState<UnitAmount> = mutableStateOf(UnitAmount.NaN.copy()),
     @SerialName("ID")
     var ingredientId: String = UUID.randomUUID().toString()
 ) {
@@ -111,6 +113,12 @@ class UnitAmount(
 
     override fun compareTo(other: UnitAmount) =
         asBaseUnit().amount.compareTo(other.asBaseUnit().amount)
+
+    override fun equals(other: Any?) =
+        if (other is UnitAmount)
+            asBaseUnit().amount == other.asBaseUnit().amount
+        else
+            false
 
     operator fun div(other: UnitAmount): Float = asBaseUnit().amount.div(other.asBaseUnit().amount)
 }

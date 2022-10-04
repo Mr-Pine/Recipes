@@ -105,8 +105,9 @@ interface InstructionSubmodels {
         @Serializable(with = MutableStateSerializer::class)
         @SerialName("amount_fraction")
         val amountFractionState: MutableState<Float> = mutableStateOf(1f),
+        @Serializable(with = MutableStateSerializer::class)
         @SerialName("no_amount")
-        val noAmount: Boolean = false
+        val noAmountState: MutableState<Boolean> = mutableStateOf(false)
     ) : EmbedTypeModel {
 
         constructor(
@@ -114,10 +115,11 @@ interface InstructionSubmodels {
             displayName: String? = null,
             amountFraction: Float = 1f,
             noAmount: Boolean = false
-        ) : this(ingredientId, mutableStateOf(displayName), mutableStateOf(amountFraction), noAmount)
+        ) : this(ingredientId, mutableStateOf(displayName), mutableStateOf(amountFraction), mutableStateOf(noAmount))
 
         var displayName by displayNameState
         var amountFraction by amountFractionState
+        var noAmount by noAmountState
 
         @Transient
         var ingredient: RecipeIngredient? = null

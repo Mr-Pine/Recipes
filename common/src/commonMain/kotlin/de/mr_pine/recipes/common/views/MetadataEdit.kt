@@ -10,6 +10,8 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import de.mr_pine.recipes.common.models.RecipeMetadata
@@ -17,7 +19,7 @@ import de.mr_pine.recipes.common.translation.Translation
 
 @ExperimentalMaterial3Api
 @Composable
-fun RecipeMetadata.EditColumn() {
+fun RecipeMetadata.EditColumn(focusRequester: FocusRequester = remember { FocusRequester() }) {
     Column {
         TextField(
             value = title,
@@ -26,7 +28,7 @@ fun RecipeMetadata.EditColumn() {
                 Text(text = Translation.title.getString())
             },
             isError = title.isEmpty(),
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier.fillMaxWidth().focusRequester(focusRequester),
             singleLine = true
         )
         Spacer(modifier = Modifier.height(10.dp))

@@ -109,7 +109,7 @@ fun MainLayout(mutableRecipe: MutableState<Recipe?>) {
                     }
                 }
             }
-            item {
+            item(recipe?.metadata) {
                 recipe?.metadata?.EditCard()
             }
         }
