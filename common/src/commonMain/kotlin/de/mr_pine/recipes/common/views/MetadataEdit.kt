@@ -26,7 +26,8 @@ fun RecipeMetadata.EditColumn() {
                 Text(text = Translation.title.getString())
             },
             isError = title.isEmpty(),
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
+            singleLine = true
         )
         Spacer(modifier = Modifier.height(10.dp))
         var portionsText by remember {
@@ -52,7 +53,8 @@ fun RecipeMetadata.EditColumn() {
             keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
             label = { Text(text = Translation.portions.getString()) },
             isError = portionSize?.isNaN() ?: false,
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
+            singleLine = true
         )
         Spacer(modifier = Modifier.height(10.dp))
         TextField(
@@ -63,7 +65,8 @@ fun RecipeMetadata.EditColumn() {
             label = {
                 Text(text = Translation.author.getString())
             },
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
+            singleLine = true
         )
     }
 }

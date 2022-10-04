@@ -15,6 +15,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.unit.Dp
@@ -116,10 +117,10 @@ fun RecipeIngredient.EditRow(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun RecipeIngredient.EditCard(removeIngredient: (RecipeIngredient) -> Unit) {
+fun RecipeIngredient.EditCard(focusRequester: FocusRequester, removeIngredient: (RecipeIngredient) -> Unit) {
     ElevatedCard(modifier = Modifier.padding(bottom = 4.dp, start = 4.dp, end = 4.dp)) {
         Column(modifier = Modifier.padding(10.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-            EditColumn { }
+            EditColumn(focusRequester = focusRequester) { }
             DeleteButton(Translation.deleteIngredient.getString()) {
                 removeIngredient(this@EditCard)
             }

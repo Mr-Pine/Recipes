@@ -10,6 +10,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.toMutableStateMap
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.unit.dp
 import de.mr_pine.recipes.common.models.RecipeIngredient
 import de.mr_pine.recipes.common.models.instructions.InstructionSubmodels
@@ -25,6 +27,7 @@ import kotlin.time.Duration.Companion.seconds
 @Composable
 fun RecipeInstruction.EmbedData.EditCard(
     ingredients: List<RecipeIngredient>,
+    focusRequester: FocusRequester,
     deleteEmbed: (RecipeInstruction.EmbedData) -> Unit
 ) {
 
@@ -45,27 +48,26 @@ fun RecipeInstruction.EmbedData.EditCard(
 
     ElevatedCard(modifier = Modifier.padding(bottom = 4.dp, start = 4.dp, end = 4.dp)) {
         Column(modifier = Modifier.padding(10.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+            var onTypeSelect = { it: InstructionSubmodels.EmbedTypeEnum ->
+                embed = typeBuffers[it]!!
+                focusRequester.requestFocus()
+            }
+
             when (embed) {
                 is InstructionSubmodels.TimerModel -> {
                     val timerEmbed = embed as InstructionSubmodels.TimerModel
 
-                    TimerEditColumn(timerEmbed) {
-                        embed = typeBuffers[it]!!
-                    }
+                    TimerEditColumn(timerEmbed, focusRequester = focusRequester, onTypeSelect = onTypeSelect)
                 }
 
                 is InstructionSubmodels.IngredientModel -> {
                     val ingredientEmbed = embed as InstructionSubmodels.IngredientModel
 
-                    IngredientEditColumn(ingredientEmbed, ingredients) {
-                        embed = typeBuffers[it]!!
-                    }
+                    IngredientEditColumn(ingredientEmbed, ingredients, focusRequester = focusRequester, onTypeSelect = onTypeSelect)
                 }
 
                 is InstructionSubmodels.UndefinedEmbedTypeModel -> {
-                    TypeDropDown {
-                        embed = typeBuffers[it]!!
-                    }
+                    TypeDropDown(modifier = Modifier.focusRequester(focusRequester), onSelect = onTypeSelect)
                 }
             }
             DeleteButton(Translation.deleteEmbed.getString()) { deleteEmbed(this@EditCard) }

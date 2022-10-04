@@ -45,4 +45,6 @@
     <string name="Add_and_exit">Add and Exit</string>
     <string name="Delete_recipe">Delete recipe</string>
     <string name="Delete_recipe_text" >Do you want to delte the recipe \"%1$s\"?</string>
+    <string name="Delete_embed_title">Delete embed</string>
+    <string name="Delete_instruction_title">Delete instruction</string>
 </resources>

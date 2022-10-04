@@ -1,4 +1,5 @@
 
+import org.jetbrains.compose.compose
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 
 plugins {
@@ -25,9 +26,9 @@ kotlin {
                 implementation(compose.material3)
                 implementation(compose.foundation)
                 implementation(compose.runtime)
+                implementation(compose("org.jetbrains.compose.ui:ui-util"))
                 implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.4.0")
                 implementation("org.burnoutcrew.composereorderable:reorderable:0.9.2")
-                implementation("com.google.accompanist:accompanist-flowlayout:0.26.4-beta")
             }
         }
         val jvmTest by getting

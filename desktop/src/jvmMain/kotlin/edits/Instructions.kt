@@ -10,9 +10,16 @@ import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.FocusDirection
+import androidx.compose.ui.focus.FocusManager
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.key.*
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -92,6 +99,7 @@ fun RecipeInstructions.InstructionList(
 @Composable
 fun RecipeInstruction.EditCard(
     editEmbed: RecipeInstruction.EmbedData?,
+    focusRequester: FocusRequester,
     setEditEmbed: (RecipeInstruction.EmbedData) -> Unit,
     deleteInstruction: (RecipeInstruction) -> Unit
 ) {
@@ -152,11 +160,28 @@ fun RecipeInstruction.EditCard(
                 value = encodeInstructionString(content),
                 onValueChange = { content = decodeInstructionString(it) },
                 placeholder = { Text("Instruction") },
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth().moveFocusOnTab().focusRequester(focusRequester)
             )
             DeleteButton(Translation.deleteInstruction.getString()) {
                 deleteInstruction(this@EditCard)
             }
         }
     }
+}
+
+
+//Needed because of https://github.com/JetBrains/compose-jb/issues/109
+@OptIn(ExperimentalComposeUiApi::class)
+@Composable
+fun Modifier.moveFocusOnTab(
+    focusManager: FocusManager = LocalFocusManager.current
+) = onPreviewKeyEvent {
+    if (it.type == KeyEventType.KeyDown && it.key == Key.Tab) {
+        focusManager.moveFocus(
+            if (it.isShiftPressed) FocusDirection.Previous
+            else FocusDirection.Next
+        )
+        return@onPreviewKeyEvent true
+    }
+    false
 }

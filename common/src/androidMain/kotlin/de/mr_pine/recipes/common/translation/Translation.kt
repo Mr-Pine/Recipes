@@ -31,11 +31,8 @@ actual object Translation {
     actual val addInstruction = ITranslation { stringResource(R.string.Add_step) }
     actual val cancel = ITranslation { stringResource(R.string.Cancel) }
     actual val delete = ITranslation { stringResource(R.string.Delete) }
-    actual val deleteIngredient: ITranslation
-        get() = TODO("Not yet implemented")
-    actual val deleteEmbed: ITranslation
-        get() = TODO("Not yet implemented")
-    actual val deleteInstruction: ITranslation
-        get() = TODO("Not yet implemented")
+    actual val deleteIngredient = ITranslation { stringResource(R.string.Delete_ingredient_title) }
+    actual val deleteEmbed = ITranslation { stringResource(R.string.Delete_embed_title) }
+    actual val deleteInstruction = ITranslation { stringResource(R.string.Delete_instruction_title) }
 }
 

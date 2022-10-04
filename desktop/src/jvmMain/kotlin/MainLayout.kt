@@ -6,6 +6,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.unit.dp
 import de.mr_pine.recipes.common.models.Recipe
 import de.mr_pine.recipes.common.models.RecipeIngredient
@@ -17,13 +18,25 @@ import edits.InstructionList
 @Composable
 fun MainLayout(mutableRecipe: MutableState<Recipe?>) {
     val recipe by remember(mutableRecipe) { mutableRecipe }
+
     var editIngredient: RecipeIngredient? by remember(recipe) { mutableStateOf(null) }
+    val ingredientFocusRequester = remember { FocusRequester() }
+
     var editEmbed: RecipeInstruction.EmbedData? by remember(recipe) { mutableStateOf(null) }
+    val embedFocusRequester = remember { FocusRequester() }
+
+
     var editInstruction: RecipeInstruction? by remember(recipe) { mutableStateOf(null) }
+    val instructionFocusRequester = remember { FocusRequester() }
+
     Row {
         Column(modifier = Modifier.weight(1f)) {
             recipe?.ingredients?.EditCard(editIngredient) {
                 editIngredient = it
+                try {
+                    ingredientFocusRequester.requestFocus()
+                } catch (_: IllegalStateException) {
+                }
             }
         }
         Column(modifier = Modifier.weight(1f)) {
@@ -32,38 +45,68 @@ fun MainLayout(mutableRecipe: MutableState<Recipe?>) {
                 editEmbed = editEmbed,
                 setEditEmbed = {
                     editEmbed = it
+                    try {
+                        embedFocusRequester.requestFocus()
+                    } catch (_: IllegalStateException) {
+                    }
                 },
                 editInstruction = editInstruction,
                 setEditInstruction = {
                     editInstruction = it
+                    try {
+                        instructionFocusRequester.requestFocus()
+                    } catch (_: IllegalStateException) {
+                    }
                 }
             )
         }
+
         LazyColumn(
             modifier = Modifier.padding(horizontal = 4.dp, vertical = 8.dp).weight(1f),
             verticalArrangement = Arrangement.spacedBy(6.dp),
         ) {
             editIngredient?.let {
                 item {
-                    it.EditCard {
+                    it.EditCard(focusRequester = ingredientFocusRequester) {
                         recipe?.ingredients?.ingredients?.remove(it)
                         if (editIngredient == it) editIngredient = null
+                    }
+                    LaunchedEffect(it) {
+                        ingredientFocusRequester.requestFocus()
                     }
                 }
             }
             editEmbed?.let {
                 item {
-                    it.EditCard(recipe?.ingredients?.ingredients ?: listOf()) { embed ->
-                        recipe?.instructions?.instructions?.first { it.inlineEmbeds.contains(embed) }?.inlineEmbeds?.remove(embed)
-                        if(editEmbed == embed) editEmbed = null
+                    it.EditCard(
+                        recipe?.ingredients?.ingredients ?: listOf(),
+                        focusRequester = embedFocusRequester
+                    ) { embed ->
+                        recipe?.instructions?.instructions?.first { it.inlineEmbeds.contains(embed) }?.inlineEmbeds?.remove(
+                            embed
+                        )
+                        if (editEmbed == embed) editEmbed = null
+                    }
+                    LaunchedEffect(it) {
+                        embedFocusRequester.requestFocus()
                     }
                 }
             }
             editInstruction?.let {
                 item {
-                    it.EditCard(editEmbed = editEmbed, setEditEmbed = { editEmbed = it }) {
+                    it.EditCard(
+                        editEmbed = editEmbed,
+                        setEditEmbed = {
+                            editEmbed = it
+                            embedFocusRequester.requestFocus()
+                        },
+                        focusRequester = instructionFocusRequester
+                    ) {
                         recipe?.instructions?.instructions?.remove(it)
-                        if(editInstruction == it) editInstruction = null
+                        if (editInstruction == it) editInstruction = null
+                    }
+                    LaunchedEffect(it) {
+                        instructionFocusRequester.requestFocus()
                     }
                 }
             }

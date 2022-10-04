@@ -7,6 +7,8 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.*
@@ -24,7 +26,7 @@ import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds
 
 @Composable
-fun RecipeInstruction.EmbedData.TypeDropDown(onSelect: (InstructionSubmodels.EmbedTypeEnum) -> Unit) {
+fun RecipeInstruction.EmbedData.TypeDropDown(modifier: Modifier = Modifier, onSelect: (InstructionSubmodels.EmbedTypeEnum) -> Unit) {
     var modelTypeDropdownExpanded by remember { mutableStateOf(false) }
     var selectedType: InstructionSubmodels.EmbedTypeEnum? by remember {
         mutableStateOf(
@@ -32,7 +34,7 @@ fun RecipeInstruction.EmbedData.TypeDropDown(onSelect: (InstructionSubmodels.Emb
         )
     }
     DropDown(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = modifier.fillMaxWidth(),
         expanded = modelTypeDropdownExpanded,
         labelString = Translation.type.getString(),
         onDismissRequest = { modelTypeDropdownExpanded = false },
@@ -53,6 +55,7 @@ fun RecipeInstruction.EmbedData.TypeDropDown(onSelect: (InstructionSubmodels.Emb
 @Composable
 fun RecipeInstruction.EmbedData.TimerEditColumn(
     timerEmbed: InstructionSubmodels.TimerModel,
+    focusRequester: FocusRequester = remember { FocusRequester() },
     onTypeSelect: (InstructionSubmodels.EmbedTypeEnum) -> Unit
 ) {
     TypeDropDown(onSelect = onTypeSelect)
@@ -99,7 +102,8 @@ fun RecipeInstruction.EmbedData.TimerEditColumn(
         label = { Text(text = Translation.duration.getString()) },
         visualTransformation = DurationVisualTransformation(),
         isError = timerEmbed.duration == 0.seconds,
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier.fillMaxWidth().focusRequester(focusRequester),
+        singleLine = true
     )
 }
 
@@ -108,6 +112,7 @@ fun RecipeInstruction.EmbedData.TimerEditColumn(
 fun RecipeInstruction.EmbedData.IngredientEditColumn(
     ingredientEmbed: InstructionSubmodels.IngredientModel,
     ingredients: List<RecipeIngredient>,
+    focusRequester: FocusRequester = remember { FocusRequester() },
     onTypeSelect: (InstructionSubmodels.EmbedTypeEnum) -> Unit
 ) {
 
@@ -152,7 +157,7 @@ fun RecipeInstruction.EmbedData.IngredientEditColumn(
             embed = ingredientBuffers[it]!!
             true
         },
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier.fillMaxWidth().focusRequester(focusRequester)
     )
 
     Spacer(modifier = Modifier.height(10.dp))
@@ -176,7 +181,8 @@ fun RecipeInstruction.EmbedData.IngredientEditColumn(
             keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
             label = { Text(text = Translation.amount.getString()) },
             isError = unitAmountBuffer.amount.value.isNaN() || unitAmountBuffer.amount == 0.amount || selectedIngredient?.unitAmount?.let { it < unitAmountBuffer } ?: false,
-            enabled = selectedIngredient != null
+            enabled = selectedIngredient != null,
+            singleLine = true
         )
 
         Spacer(modifier = Modifier.width(10.dp))
@@ -230,7 +236,8 @@ fun RecipeInstruction.EmbedData.IngredientEditColumn(
         isError = selectedIngredient?.unitAmount?.let { it < unitAmountBuffer } ?: false,
         enabled = selectedIngredient != null,
         visualTransformation = PercentVisualTransformation(),
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier.fillMaxWidth(),
+        singleLine = true
     )
     Spacer(modifier = Modifier.height(10.dp))
     TextField(
@@ -246,7 +253,8 @@ fun RecipeInstruction.EmbedData.IngredientEditColumn(
         },
         enabled = selectedIngredient != null,
         label = { Text(text = Translation.displayName.getString()) },
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier.fillMaxWidth(),
+        singleLine = true
     )
 }
 

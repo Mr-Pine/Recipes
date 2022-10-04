@@ -1,7 +1,6 @@
 package de.mr_pine.recipes.common.views
 
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.FocusInteraction
+import androidx.compose.foundation.gestures.forEachGesture
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.DropdownMenu
@@ -9,17 +8,20 @@ import androidx.compose.material.DropdownMenuItem
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.ArrowDropUp
-import androidx.compose.material3.Icon
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.platform.LocalFocusManager
-import androidx.compose.ui.unit.dp
+import androidx.compose.ui.input.pointer.PointerEvent
+import androidx.compose.ui.input.pointer.PointerEventPass
+import androidx.compose.ui.input.pointer.changedToUp
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.onClick
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.stateDescription
+import androidx.compose.ui.unit.*
+import kotlinx.coroutines.coroutineScope
 
 @Composable
 actual fun <T> DropDown(
@@ -48,25 +50,16 @@ actual fun <T> DropDown(
             trailingIcon = {
                 Icon(
                     if (expanded) Icons.Default.ArrowDropUp else Icons.Default.ArrowDropDown,
-                    "",
-                    modifier = Modifier.clickable { onExpandedChange(!expanded) })
+                    ""
+                )
             },
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier.fillMaxWidth().expandable(expanded, { onExpandedChange(!expanded) }),
             leadingIcon = selectedIcon?.let { { Icon(it, it.name) } }
         )
 
-        // Horrible, but working...
-        val interaction by interactionSource.interactions.collectAsState(
-            FocusInteraction.Unfocus(FocusInteraction.Focus())
-        )
-        if (interaction is FocusInteraction.Focus) {
-            onExpandedChange(!expanded)
-            LocalFocusManager.current.clearFocus()
-            interactionSource.tryEmit(FocusInteraction.Unfocus(FocusInteraction.Focus()))
-        }
         DropdownMenu(expanded = expanded, onDismissRequest = onDismissRequest) {
             options.forEach {
-                DropdownMenuItem(onClick = { if(optionClick(it)) onDismissRequest() }) {
+                DropdownMenuItem(onClick = { if (optionClick(it)) onDismissRequest() }) {
                     Row {
                         optionIcon(it)?.let {
                             Icon(it, it.name)
@@ -77,5 +70,36 @@ actual fun <T> DropDown(
                 }
             }
         }
+    }
+}
+
+@Suppress("ComposableModifierFactory")
+@Composable
+private fun Modifier.expandable(
+    expanded: Boolean,
+    onExpandedChange: () -> Unit,
+    menuDescription: String = "",
+    expandedDescription: String = "",
+    collapsedDescription: String = "",
+) = pointerInput(Unit) {
+    forEachGesture {
+        coroutineScope {
+            awaitPointerEventScope {
+                var event: PointerEvent
+                do {
+                    event = awaitPointerEvent(PointerEventPass.Initial)
+                } while (
+                    !event.changes.all { it.changedToUp() }
+                )
+                onExpandedChange()
+            }
+        }
+    }
+}.semantics {
+    stateDescription = if (expanded) expandedDescription else collapsedDescription
+    contentDescription = menuDescription
+    onClick {
+        onExpandedChange()
+        true
     }
 }

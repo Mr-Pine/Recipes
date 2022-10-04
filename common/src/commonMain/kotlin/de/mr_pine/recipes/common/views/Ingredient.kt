@@ -11,6 +11,8 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import de.mr_pine.recipes.common.models.IngredientUnit
@@ -21,7 +23,7 @@ import de.mr_pine.recipes.common.translation.Translation
 
 @ExperimentalMaterial3Api
 @Composable
-fun RecipeIngredient.EditColumn(delete: () -> Unit) {
+fun RecipeIngredient.EditColumn(focusRequester: FocusRequester = remember { FocusRequester() }, delete: () -> Unit) {
     Column {
         TextField(
             value = name,
@@ -37,7 +39,8 @@ fun RecipeIngredient.EditColumn(delete: () -> Unit) {
                     Icon(Icons.Default.Delete, "delete", modifier = Modifier.clickable(onClick = delete))
                 }
             },
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth().focusRequester(focusRequester),
+            singleLine = true
         )
         Spacer(modifier = Modifier.height(10.dp))
         var amountBuffer by remember(this@EditColumn) { mutableStateOf(unitAmount.amount.toString()) }
@@ -59,7 +62,8 @@ fun RecipeIngredient.EditColumn(delete: () -> Unit) {
                 },
                 keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
                 label = { Text(text = Translation.amount.getString()) },
-                isError = amountBuffer.isEmpty() || unitAmount.amount == 0.amount
+                isError = amountBuffer.isEmpty() || unitAmount.amount == 0.amount,
+                singleLine = true
             )
             var unitDropDownExpanded by remember { mutableStateOf(false) }
             Spacer(modifier = Modifier.width(10.dp))
