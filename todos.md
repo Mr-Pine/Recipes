@@ -14,6 +14,7 @@
 - Desktop
   - [ ] **Keyboard shortcuts**
 - RCP
+  - [ ] **Embeds not updating**
   - [ ] **Custom no unit**
   - [ ] Timer ranges
   - [ ] Amount ranges

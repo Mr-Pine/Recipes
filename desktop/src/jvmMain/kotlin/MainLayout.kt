@@ -60,7 +60,6 @@ fun MainLayout(mutableRecipe: MutableState<Recipe?>) {
                 }
             )
         }
-
         LazyColumn(
             modifier = Modifier.padding(horizontal = 4.dp, vertical = 8.dp).weight(1f),
             verticalArrangement = Arrangement.spacedBy(6.dp),
@@ -109,7 +108,7 @@ fun MainLayout(mutableRecipe: MutableState<Recipe?>) {
                     }
                 }
             }
-            item(recipe?.metadata) {
+            item(recipe) {
                 recipe?.metadata?.EditCard()
             }
         }

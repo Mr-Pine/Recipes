@@ -121,8 +121,8 @@ fun RecipeInstruction.EditCard(
                 val onExtraClick = { index: Int ->
                     val newText = contentValue.let {
                         it.text.replaceRange(
-                            it.selection.start,
-                            it.selection.end,
+                            it.selection.start.coerceAtMost(it.selection.end),
+                            it.selection.end.coerceAtLeast(it.selection.start),
                             "{{$index}}"
                         )
                     }
