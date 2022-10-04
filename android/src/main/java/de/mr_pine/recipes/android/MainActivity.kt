@@ -30,20 +30,6 @@ import kotlinx.serialization.ExperimentalSerializationApi
 import net.pwall.json.schema.JSONSchema
 import java.io.File
 
-/*
- * TODO: Implement custom TextToolbar for Instruction editing: https://stackoverflow.com/a/68966424/11921893
- * TODO: Delete/reorder/clean up Embeds
- * TODO: Delete Instruction
- * TODO: Splash screen: https://developer.android.com/guide/topics/ui/splash-screen
- * TODO: Maybe animated icons: https://www.youtube.com/watch?v=hiDaPrcZbco
- * TODO: Think about navigation: https://developer.android.com/jetpack/compose/navigation, JetNews
- * TODO: Nav Drawer Content: https://github.com/Mr-Pine/Shintaikan/tree/update-dependecies
- * TODO: Loading of recipes & receiving of intents, importing files
- * TODO: Main navigation from Homescreen
- * TODO: Implement Settings (see XKCDFeed)
- * TODO: No screen lock when viewing Recipe
- */
-
 private const val TAG = "MainActivity"
 
 

@@ -1,0 +1,20 @@
+- Common
+  - [ ] Delete/reorder/clean up Embeds
+- Android
+  - [ ] Delete Instruction
+  - [ ] Implement custom TextToolbar for Instruction editing: https://stackoverflow.com/a/68966424/11921893
+  - [ ] Splash screen: https://developer.android.com/guide/topics/ui/splash-screen
+  - [ ] Maybe animated icons: https://www.youtube.com/watch?v=hiDaPrcZbco
+  - [ ] Think about navigation: https://developer.android.com/jetpack/compose/navigation, JetNews
+  - [ ] Nav Drawer Content: https://github.com/Mr-Pine/Shintaikan/tree/update-dependecies
+  - [ ] Loading of recipes & receiving of intents, importing files
+  - [ ] Main navigation from Homescreen
+  - [ ] Implement Settings (see XKCDFeed)
+  - [ ] No screen lock when viewing Recipe
+- Desktop
+  - [ ] **Keyboard shortcuts**
+- RCP
+  - [ ] **Custom no unit**
+  - [ ] Timer ranges
+  - [ ] Amount ranges
+  - [ ] Temperature embed
