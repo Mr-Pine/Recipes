@@ -22,16 +22,11 @@ import kotlin.time.Duration.Companion.seconds
 @ExperimentalMaterial3Api
 @Composable
 fun RecipeInstruction.EmbedData.RecipeEditChipStateful(
-    getIngredientFraction: ((String, Float) -> RecipeIngredient)?,
     done: Boolean,
     editIndex: Int? = null,
     removeEmbed: (RecipeInstruction.EmbedData) -> Unit,
     ingredients: List<RecipeIngredient>
 ) {
-
-    if (embed is InstructionSubmodels.IngredientModel && (embed as InstructionSubmodels.IngredientModel).ingredient == null) {
-        (embed as InstructionSubmodels.IngredientModel).receiveIngredient(getIngredientFraction)
-    }
 
     var hideNew by remember { mutableStateOf(embed is InstructionSubmodels.UndefinedEmbedTypeModel) }
     var isEditing by remember { mutableStateOf(hideNew) }
@@ -42,7 +37,7 @@ fun RecipeInstruction.EmbedData.RecipeEditChipStateful(
             selected = true,
             enabled = !done,
             icon = embed.getEnum().icon,
-            labelText = embed.content,
+            labelText = embed.content(ingredients = ingredients),
             editIndex = editIndex
         )
     }

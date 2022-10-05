@@ -27,7 +27,7 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import de.mr_pine.recipes.common.models.RecipeIngredients
+import de.mr_pine.recipes.common.models.RecipeIngredient
 import de.mr_pine.recipes.common.models.instructions.*
 import de.mr_pine.recipes.common.translation.Translation
 import de.mr_pine.recipes.common.views.instructions.EmbeddedText
@@ -39,9 +39,9 @@ import org.burnoutcrew.reorderable.*
 fun RecipeInstructions.InstructionList(
     setEditEmbed: (RecipeInstruction.EmbedData) -> Unit,
     editEmbed: RecipeInstruction.EmbedData?,
+    ingredients: List<RecipeIngredient>,
     setEditInstruction: (RecipeInstruction) -> Unit,
     editInstruction: RecipeInstruction?,
-    ingredients: RecipeIngredients
 ) {
     Column {
         val reorderableState = rememberReorderableLazyListState(onMove = { from, to ->
@@ -75,8 +75,8 @@ fun RecipeInstructions.InstructionList(
                                 inlineEmbeds = instruction.inlineEmbeds,
                                 content = instruction.content,
                                 embedChipOnClick = setEditEmbed,
-                                getIngredientFraction = ingredients::getPartialIngredient,
                                 selectedEmbed = editEmbed,
+                                ingredients = ingredients,
                                 textStyle = MaterialTheme.typography.bodyLarge.copy(
                                     fontSize = 18.sp,
                                     lineHeight = 20.sp
@@ -103,6 +103,7 @@ fun RecipeInstructions.InstructionList(
 fun RecipeInstruction.EditCard(
     editEmbed: RecipeInstruction.EmbedData?,
     focusRequester: FocusRequester,
+    ingredients: List<RecipeIngredient>,
     setEditEmbed: (RecipeInstruction.EmbedData) -> Unit,
     deleteInstruction: (RecipeInstruction) -> Unit
 ) {
@@ -154,7 +155,7 @@ fun RecipeInstruction.EditCard(
                             is InstructionSubmodels.TimerModel -> Icons.Default.Timer
                             else -> Icons.Default.QuestionMark
                         },
-                        labelText = embedData.embed.content,
+                        labelText = embedData.embed.content(ingredients),
                         isHighlighted = embedData == editEmbed,
                     )
                 }

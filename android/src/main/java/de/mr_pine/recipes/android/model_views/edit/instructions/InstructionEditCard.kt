@@ -28,7 +28,6 @@ import org.burnoutcrew.reorderable.detectReorder
 @ExperimentalMaterial3Api
 @Composable
 fun RecipeInstruction.InstructionEditCard(
-    getIngredientFraction: ((String, Float) -> RecipeIngredient)?,
     removeInstruction: (RecipeInstruction) -> Unit,
     ingredients: List<RecipeIngredient>,
     reorderableState: ReorderableLazyListState
@@ -72,7 +71,6 @@ fun RecipeInstruction.InstructionEditCard(
                     FlowRow(mainAxisSpacing = 6.dp, crossAxisSpacing = 6.dp) {
                         inlineEmbeds.forEachIndexed { index, embedData ->
                             embedData.RecipeEditChipStateful(
-                                getIngredientFraction = getIngredientFraction,
                                 done = done,
                                 editIndex = index,
                                 inlineEmbeds::remove,
@@ -165,7 +163,6 @@ fun RecipeInstruction.InstructionEditCard(
                                 content = content,
                                 inlineEmbedContent = {
                                     it.RecipeEditChipStateful(
-                                        getIngredientFraction = getIngredientFraction,
                                         done = done,
                                         removeEmbed = inlineEmbeds::remove,
                                         ingredients = ingredients

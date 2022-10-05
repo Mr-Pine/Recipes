@@ -19,10 +19,6 @@ data class RecipeIngredients(
     @Serializable(with = MutableStateListSerializer::class)
     var ingredients: SnapshotStateList<RecipeIngredient>
 ) {
-    fun getPartialIngredient(id: String, fraction: Float) =
-        ingredients.find { id == it.ingredientId }?.getPartial(fraction)
-            ?: throw Exception("Ingredient $id not found")
-
     fun deepCopy(
         ingredients: SnapshotStateList<RecipeIngredient> = this.ingredients.map { it.copy() }.toMutableStateList()
     ) = RecipeIngredients(ingredients)
@@ -44,13 +40,6 @@ class RecipeIngredient(
     var unitAmount by unitAmountState
 
     var isChecked by mutableStateOf(false)
-
-    fun getPartial(fraction: Float): RecipeIngredient {
-        return RecipeIngredient(
-            mutableStateOf(name),
-            mutableStateOf(unitAmount.copy(amount = unitAmount.amount * fraction))
-        )
-    }
 
     fun copyFrom(from: RecipeIngredient) {
         this.name = from.name
@@ -110,6 +99,7 @@ class UnitAmount(
 
     fun asBaseUnit() =
         UnitAmount(unit.asBaseUnit(amount), unit.unitType.baseUnit)
+    fun asUnit(unit: IngredientUnit) = UnitAmount(this.unit.asBaseUnit(amount) / unit.baseFactor, unit)
 
     override fun compareTo(other: UnitAmount) =
         asBaseUnit().amount.compareTo(other.asBaseUnit().amount)
@@ -121,6 +111,12 @@ class UnitAmount(
             false
 
     operator fun div(other: UnitAmount): Float = asBaseUnit().amount.div(other.asBaseUnit().amount)
+    operator fun times(other: Float) = UnitAmount(amount * other, unit)
+    override fun hashCode(): Int {
+        var result = amount.hashCode()
+        result = 31 * result + unit.hashCode()
+        return result
+    }
 }
 
 
@@ -157,8 +153,6 @@ value class IngredientAmount(val value: Float) : Comparable<IngredientAmount> {
             value.roundToInt().toString()
         else
             String.format("%.2f", value)
-
-    val roundToInt get() = IngredientAmount(value.toInt().toFloat())
 
     override fun compareTo(other: IngredientAmount): Int =
         value.compareTo(other.value)

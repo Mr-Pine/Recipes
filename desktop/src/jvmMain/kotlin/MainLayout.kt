@@ -41,7 +41,6 @@ fun MainLayout(mutableRecipe: MutableState<Recipe?>) {
         }
         Column(modifier = Modifier.weight(1f)) {
             recipe?.instructions?.InstructionList(
-                ingredients = recipe!!.ingredients,
                 editEmbed = editEmbed,
                 setEditEmbed = {
                     editEmbed = it
@@ -50,6 +49,7 @@ fun MainLayout(mutableRecipe: MutableState<Recipe?>) {
                     } catch (_: IllegalStateException) {
                     }
                 },
+                ingredients = recipe?.ingredients?.ingredients ?: listOf(),
                 editInstruction = editInstruction,
                 setEditInstruction = {
                     editInstruction = it
@@ -98,6 +98,7 @@ fun MainLayout(mutableRecipe: MutableState<Recipe?>) {
                                 embedFocusRequester.requestFocus()
                             } catch (_: IllegalStateException) {}
                         },
+                        ingredients = recipe?.ingredients?.ingredients ?: listOf(),
                         focusRequester = instructionFocusRequester
                     ) {
                         recipe?.instructions?.instructions?.remove(it)

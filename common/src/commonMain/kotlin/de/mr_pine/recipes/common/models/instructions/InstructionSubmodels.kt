@@ -9,8 +9,10 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.vector.ImageVector
+import de.mr_pine.recipes.common.models.IngredientUnit
 import de.mr_pine.recipes.common.models.MutableStateSerializer
 import de.mr_pine.recipes.common.models.RecipeIngredient
+import de.mr_pine.recipes.common.models.UnitAmount
 import de.mr_pine.recipes.common.translation.ITranslation
 import de.mr_pine.recipes.common.translation.Translation
 import kotlinx.serialization.*
@@ -36,7 +38,7 @@ interface InstructionSubmodels {
     }
 
     interface EmbedTypeModel {
-        val content: String
+        fun content(ingredients: List<RecipeIngredient>? = null): String
 
         companion object {
             fun EmbedTypeModel.getEnum() =
@@ -53,7 +55,7 @@ interface InstructionSubmodels {
     @Serializable
     @SerialName("Undefined")
     class UndefinedEmbedTypeModel : EmbedTypeModel {
-        override val content = ""
+        override fun content(ingredients: List<RecipeIngredient>?): String = ""
         override fun copy(): UndefinedEmbedTypeModel =
             UndefinedEmbedTypeModel()
     }
@@ -69,8 +71,7 @@ interface InstructionSubmodels {
 
         var duration by durationState
 
-        override val content
-            get() = duration.toString()
+        override fun content(ingredients: List<RecipeIngredient>?): String = duration.toString()
 
 
 
@@ -120,19 +121,12 @@ interface InstructionSubmodels {
         var displayName by displayNameState
         var amountFraction by amountFractionState
         var noAmount by noAmountState
+        var specifyUnit: IngredientUnit? by mutableStateOf(null)
 
-        @Transient
-        var ingredient: RecipeIngredient? = null
-
-        override val content: String
-            get() = ingredient?.let { "${if (!noAmount) "${it.unitAmount.amount} ${it.unitAmount.unit.displayValue()} " else ""}${displayName ?: it.name}" }
+        private fun UnitAmount.adjustToUnit(unit: IngredientUnit?) = adjustUnit().let {adjusted -> unit?.let { adjusted.asUnit(it) } ?: adjusted }
+        override fun content(ingredients: List<RecipeIngredient>?) =
+            ingredients?.find { it.ingredientId == ingredientId }?.let { "${if (!noAmount) "${(it.unitAmount * amountFraction).adjustToUnit(specifyUnit).amount} ${(it.unitAmount * amountFraction).adjustToUnit(specifyUnit).unit.displayValue()} " else ""}${displayName ?: it.name}" }
                 ?: "???"
-
-        fun receiveIngredient(
-            getIngredientFraction: ((String, Float) -> RecipeIngredient)?
-        ) {
-            ingredient = getIngredientFraction?.invoke(ingredientId, amountFraction)
-        }
 
         override fun copy() = IngredientModel(
             ingredientId, displayName, amountFraction, noAmount

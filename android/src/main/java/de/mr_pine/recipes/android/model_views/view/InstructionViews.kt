@@ -37,9 +37,9 @@ fun RecipeInstruction.InstructionCard(
     index: Int,
     currentlyActiveIndex: Int,
     recipeTitle: String,
+    ingredients: List<RecipeIngredient>,
     setCurrentlyActiveIndex: (Int) -> Unit,
     setNextActive: () -> Unit,
-    getIngredientFraction: ((String, Float) -> RecipeIngredient)?,
 ) {
 
     val active = currentlyActiveIndex == index
@@ -117,7 +117,6 @@ fun RecipeInstruction.InstructionCard(
 
                 EmbeddedText(
                     inlineEmbeds = inlineEmbeds,
-                    getIngredientFraction = getIngredientFraction,
                     done = done,
                     enabled = {enabled},
                     embedChipOnClick = {
@@ -130,6 +129,7 @@ fun RecipeInstruction.InstructionCard(
                         }
                     },
                     content = content,
+                    ingredients = ingredients
                 )
                 AnimatedVisibility(
                     visible = active,

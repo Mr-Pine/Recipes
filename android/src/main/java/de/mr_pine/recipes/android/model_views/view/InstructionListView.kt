@@ -13,10 +13,10 @@ import de.mr_pine.recipes.common.models.instructions.RecipeInstruction
 @ExperimentalAnimationApi
 fun LazyListScope.instructionListView(
     instructionList: List<RecipeInstruction>,
+    ingredients: List<RecipeIngredient>,
     activeIndex: Int,
     setCurrentlyActiveIndex: (Int) -> Unit,
     recipeTitle: String,
-    getPartialIngredient: ((String, Float) -> RecipeIngredient)?
 ) {
 
     itemsIndexed(
@@ -41,7 +41,7 @@ fun LazyListScope.instructionListView(
                     instructionList.size
                 )
             },
-            getIngredientFraction = getPartialIngredient
+            ingredients = ingredients,
         )
     }
 }

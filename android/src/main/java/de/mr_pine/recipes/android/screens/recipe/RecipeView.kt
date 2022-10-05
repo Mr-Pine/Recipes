@@ -89,7 +89,7 @@ fun RecipeView(
                 activeIndex = recipe.instructions.currentlyActiveIndex,
                 setCurrentlyActiveIndex = ::setCurrentlyActiveIndex,
                 recipeTitle = recipe.metadata.title,
-                getPartialIngredient = recipe.ingredients::getPartialIngredient
+                ingredients = recipe.ingredients?.ingredients ?: listOf(),
             )
 
             item {

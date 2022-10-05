@@ -11,7 +11,6 @@ import org.burnoutcrew.reorderable.ReorderableLazyListState
 @ExperimentalMaterial3Api
 fun LazyListScope.instructionsEditList(
     instructionList: List<RecipeInstruction>,
-    getPartialIngredient: ((String, Float) -> RecipeIngredient)?,
     ingredientList: List<RecipeIngredient>,
     reorderableState: ReorderableLazyListState,
     removeInstruction: (RecipeInstruction) -> Unit
@@ -25,7 +24,6 @@ fun LazyListScope.instructionsEditList(
             key = instruction.content.text
         ) {
             instruction.InstructionEditCard(
-                getIngredientFraction = getPartialIngredient,
                 ingredients = ingredientList,
                 reorderableState = reorderableState,
                 removeInstruction = removeInstruction

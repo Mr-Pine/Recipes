@@ -236,7 +236,6 @@ fun RecipeEdit(
             }
             instructionsEditList(
                 instructionList = recipeBuffer.instructions.instructions,
-                getPartialIngredient = recipeBuffer.ingredients::getPartialIngredient,
                 ingredientList = recipeBuffer.ingredients.ingredients,
                 reorderableState = reorderState,
                 removeInstruction = recipeBuffer.instructions.instructions::remove

@@ -63,11 +63,11 @@ fun EmbedTextLayout(
 @Composable
 fun EmbeddedText(
     inlineEmbeds: List<RecipeInstruction.EmbedData>,
-    getIngredientFraction: ((String, Float) -> RecipeIngredient)?,
     done: Boolean = false,
     enabled: RecipeInstruction.EmbedData.() -> Boolean = { true },
     embedChipOnClick: (RecipeInstruction.EmbedData) -> Unit,
     selectedEmbed: RecipeInstruction.EmbedData? = null,
+    ingredients: List<RecipeIngredient>,
     textStyle: TextStyle = MaterialTheme.typography.bodyLarge.copy(
         fontSize = 20.sp,
         lineHeight = 27.sp
@@ -80,12 +80,6 @@ fun EmbeddedText(
         textStyle = textStyle
     ) {
 
-        if (it.embed is InstructionSubmodels.IngredientModel && (it.embed as InstructionSubmodels.IngredientModel).let { ingredientModel -> ingredientModel.ingredient == null && ingredientModel != InstructionSubmodels.IngredientModel.NO_INGREDIENT }) {
-            (it.embed as InstructionSubmodels.IngredientModel).receiveIngredient(
-                getIngredientFraction
-            )
-        }
-
         val icon = when (it.embed) {
             is InstructionSubmodels.IngredientModel -> Icons.Default.Scale
             is InstructionSubmodels.TimerModel -> Icons.Default.Timer
@@ -97,7 +91,7 @@ fun EmbeddedText(
             selected = it.enabled(),
             enabled = !done,
             icon = icon,
-            labelText = it.embed.content,
+            labelText = it.embed.content(ingredients),
             editIndex = null,
             isHighlighted = selectedEmbed == it
         )
