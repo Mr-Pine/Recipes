@@ -8,8 +8,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import de.mr_pine.recipes.R
-import de.mr_pine.recipes.models.RecipeMetadata
-import de.mr_pine.recipes.models.amount
+import de.mr_pine.recipes.model.RecipeMetadata
+import de.mr_pine.recipes.model.amount
 
 @Composable
 fun RecipeMetadata.MetaInfo() {

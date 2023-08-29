@@ -20,10 +20,10 @@ import androidx.compose.ui.text.input.*
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import de.mr_pine.recipes.R
-import de.mr_pine.recipes.models.*
-import de.mr_pine.recipes.models.instructions.InstructionSubmodels
-import de.mr_pine.recipes.models.instructions.InstructionSubmodels.EmbedTypeModel.Companion.getEnum
-import de.mr_pine.recipes.models.instructions.RecipeInstruction
+import de.mr_pine.recipes.model.*
+import de.mr_pine.recipes.model.instructions.InstructionSubmodels
+import de.mr_pine.recipes.model.instructions.InstructionSubmodels.EmbedTypeModel.Companion.getEnum
+import de.mr_pine.recipes.model.instructions.RecipeInstruction
 import kotlin.math.roundToInt
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.hours
@@ -247,23 +247,23 @@ fun RecipeInstruction.EmbedData.RecipeEditChipStateful(
 
                     Spacer(modifier = Modifier.height(10.dp))
 
-                    var ingredientDropdrownExpanded by remember { mutableStateOf(false) }
+                    var ingredientDropdownExpanded by remember { mutableStateOf(false) }
                     ExposedDropdownMenuBox(
-                        expanded = ingredientDropdrownExpanded,
+                        expanded = ingredientDropdownExpanded,
                         onExpandedChange = {
-                            ingredientDropdrownExpanded = !ingredientDropdrownExpanded
+                            ingredientDropdownExpanded = !ingredientDropdownExpanded
                         }) {
                         TextField(
                             readOnly = true,
                             value = selectedIngredient?.name ?: "",
                             onValueChange = {},
                             label = { Text(stringResource(R.string.Ingredient)) },
-                            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = ingredientDropdrownExpanded) },
+                            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = ingredientDropdownExpanded) },
                             colors = ExposedDropdownMenuDefaults.textFieldColors(),
                         )
                         ExposedDropdownMenu(
-                            expanded = ingredientDropdrownExpanded,
-                            onDismissRequest = { ingredientDropdrownExpanded = false }) {
+                            expanded = ingredientDropdownExpanded,
+                            onDismissRequest = { ingredientDropdownExpanded = false }) {
                             ingredients.forEach { ingredient ->
                                 DropdownMenuItem(
                                     text = {
@@ -272,7 +272,7 @@ fun RecipeInstruction.EmbedData.RecipeEditChipStateful(
                                     onClick = {
                                         selectedIngredient = ingredient
                                         buffer.embed = ingredientBuffers[ingredient]!!
-                                        ingredientDropdrownExpanded = false
+                                        ingredientDropdownExpanded = false
                                     })
                             }
                         }
@@ -469,7 +469,7 @@ fun RecipeEditChip(
     )
 
     val elevation = if (selected) FilterChipDefaults.elevatedFilterChipElevation(
-        defaultElevation = 3.dp,
+        elevation = 3.dp,
         pressedElevation = 3.dp,
         focusedElevation = 3.dp,
         hoveredElevation = 6.dp,

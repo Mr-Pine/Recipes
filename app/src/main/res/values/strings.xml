@@ -20,8 +20,8 @@
     <string name="Amount">Amount</string>
     <string name="No_unit">No unit</string>
     <string name="Delete">Delete</string>
-    <string name="Delete_ingredient_title">Delte ingredient</string>
-    <string name="Delete_ingredient_text">Do you want to delte the ingredient \"%1$s\"?</string>
+    <string name="Delete_ingredient_title">Delete ingredient</string>
+    <string name="Delete_ingredient_text">Do you want to delete the ingredient \"%1$s\"?</string>
     <string name="Add">Add</string>
     <string name="Add_Ingredient">Add Ingredient</string>
     <string name="Add_Embed">Add Embed</string>
@@ -44,5 +44,5 @@
     <string name="Add_title">Add title</string>
     <string name="Add_and_exit">Add and Exit</string>
     <string name="Delete_recipe">Delete recipe</string>
-    <string name="Delete_recipe_text" >Do you want to delte the recipe \"%1$s\"?</string>
+    <string name="Delete_recipe_text" >Do you want to delete the recipe \"%1$s\"?</string>
 </resources>

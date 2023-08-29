@@ -3,6 +3,22 @@
   <component name="JsonSchemaMappingsProjectConfiguration">
     <state>
       <map>
+        <entry key="JSON Schema Draft 8">
+          <value>
+            <SchemaInfo>
+              <option name="name" value="JSON Schema Draft 8" />
+              <option name="relativePathToSchema" value="https://json-schema.org/draft/2019-09/schema" />
+              <option name="applicationDefined" value="true" />
+              <option name="patterns">
+                <list>
+                  <Item>
+                    <option name="path" value="app/src/main/res/raw/rcp.json" />
+                  </Item>
+                </list>
+              </option>
+            </SchemaInfo>
+          </value>
+        </entry>
         <entry key="JSON Schema version 7">
           <value>
             <SchemaInfo>

@@ -5,7 +5,6 @@ import androidx.compose.animation.*
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.InlineTextContent
-import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
@@ -26,17 +25,15 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.google.android.material.color.MaterialColors
 import de.mr_pine.recipes.R
-import de.mr_pine.recipes.components.swipeabe.Swipeable
-import de.mr_pine.recipes.models.RecipeIngredient
-import de.mr_pine.recipes.models.instructions.InstructionSubmodels
-import de.mr_pine.recipes.models.instructions.RecipeInstruction
+import de.mr_pine.recipes.components.swipeable.Swipeable
+import de.mr_pine.recipes.model.RecipeIngredient
+import de.mr_pine.recipes.model.instructions.InstructionSubmodels
+import de.mr_pine.recipes.model.instructions.RecipeInstruction
 import de.mr_pine.recipes.ui.theme.Extended
 
 private const val TAG = "InstructionViews"
 
-@ExperimentalAnimationApi
-@ExperimentalMaterial3Api
-@ExperimentalMaterialApi
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RecipeInstruction.InstructionCard(
     index: Int,
@@ -239,7 +236,7 @@ fun RecipeChip(
     )
 
     val elevation = if (selected) FilterChipDefaults.elevatedFilterChipElevation(
-        defaultElevation = 3.dp,
+        elevation = 3.dp,
         pressedElevation = 3.dp,
         focusedElevation = 3.dp,
         hoveredElevation = 6.dp,

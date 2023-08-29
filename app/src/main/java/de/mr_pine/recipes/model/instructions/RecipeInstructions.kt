@@ -1,12 +1,12 @@
-package de.mr_pine.recipes.models.instructions
+package de.mr_pine.recipes.model.instructions
 
 import androidx.compose.foundation.text.appendInlineContent
 import androidx.compose.runtime.*
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.buildAnnotatedString
-import de.mr_pine.recipes.models.MutableStateListSerializer
-import de.mr_pine.recipes.models.MutableStateSerializer
+import de.mr_pine.recipes.model.MutableStateListSerializer
+import de.mr_pine.recipes.model.MutableStateSerializer
 import kotlinx.serialization.*
 import kotlinx.serialization.descriptors.PrimitiveKind
 import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
@@ -27,11 +27,8 @@ class RecipeInstructions(
     fun copy(instructions: List<RecipeInstruction> = this.instructions.map { it.copy() }) =
         RecipeInstructions(instructions)
 
-    var currentlyActiveIndex by mutableStateOf(0)
+    var currentlyActiveIndex by mutableIntStateOf(0)
 
-    companion object {
-        const val DataTag = "Instructions"
-    }
 }
 
 @Serializable

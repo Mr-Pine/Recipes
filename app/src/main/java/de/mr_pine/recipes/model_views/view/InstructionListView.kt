@@ -1,16 +1,12 @@
 package de.mr_pine.recipes.model_views.view
 
-import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material3.ExperimentalMaterial3Api
-import de.mr_pine.recipes.models.RecipeIngredient
-import de.mr_pine.recipes.models.instructions.RecipeInstruction
+import de.mr_pine.recipes.model.RecipeIngredient
+import de.mr_pine.recipes.model.instructions.RecipeInstruction
 
-@ExperimentalMaterialApi
 @ExperimentalMaterial3Api
-@ExperimentalAnimationApi
 fun LazyListScope.instructionListView(
     instructionList: List<RecipeInstruction>,
     activeIndex: Int,

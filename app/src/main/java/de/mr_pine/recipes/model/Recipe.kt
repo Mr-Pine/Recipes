@@ -1,13 +1,13 @@
-package de.mr_pine.recipes.models
+package de.mr_pine.recipes.model
 
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.SnapshotStateList
-import de.mr_pine.recipes.models.instructions.InstructionSubmodels
-import de.mr_pine.recipes.models.instructions.RecipeInstruction
-import de.mr_pine.recipes.models.instructions.RecipeInstructions
+import de.mr_pine.recipes.model.instructions.InstructionSubmodels
+import de.mr_pine.recipes.model.instructions.RecipeInstruction
+import de.mr_pine.recipes.model.instructions.RecipeInstructions
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable

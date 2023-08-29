@@ -11,7 +11,6 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material3.*
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.rememberCoroutineScope
@@ -47,7 +46,6 @@ import java.io.File
 private const val TAG = "MainActivity"
 
 
-@ExperimentalMaterialApi
 @ExperimentalSerializationApi
 @ExperimentalFoundationApi
 @ExperimentalMaterial3Api
@@ -57,7 +55,7 @@ class MainActivity : ComponentActivity() {
     var closeNavigationDrawer: () -> Unit = {}
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        resources.openRawResource(R.raw.rezept).bufferedReader().readText()
+        val recipe = resources.openRawResource(R.raw.rezept).bufferedReader().readText()
 
         super.onCreate(savedInstanceState)
 
@@ -87,6 +85,8 @@ class MainActivity : ComponentActivity() {
 
             LaunchedEffect(null) {
                 recipeViewModel.loadRecipeFiles()
+                recipeViewModel.recipes.add(recipeViewModel.getRecipeFromString(recipe)!!)
+                Log.d(TAG, "onCreate: Created recipe")
             }
 
             rememberCoroutineScope()

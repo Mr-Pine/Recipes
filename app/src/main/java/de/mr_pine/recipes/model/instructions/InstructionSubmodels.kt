@@ -1,4 +1,4 @@
-package de.mr_pine.recipes.models.instructions
+package de.mr_pine.recipes.model.instructions
 
 import android.content.Context
 import android.content.Intent
@@ -10,12 +10,13 @@ import androidx.compose.material.icons.filled.Scale
 import androidx.compose.material.icons.filled.Timer
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.vector.ImageVector
 import de.mr_pine.recipes.R
-import de.mr_pine.recipes.models.MutableStateSerializer
-import de.mr_pine.recipes.models.RecipeIngredient
+import de.mr_pine.recipes.model.MutableStateSerializer
+import de.mr_pine.recipes.model.RecipeIngredient
 import kotlinx.serialization.*
 import kotlinx.serialization.builtins.serializer
 import kotlinx.serialization.descriptors.PrimitiveKind
@@ -111,10 +112,10 @@ interface InstructionSubmodels {
         val ingredientId: String,
         @Serializable(with = MutableStateSerializer::class)
         @SerialName("display")
-        val displayNameState: MutableState<String?>,
-        @Serializable(with = MutableStateSerializer::class)
+        val displayNameState: MutableState<String?> = mutableStateOf(null),
+        @Serializable(with = MutableStateSerializer/*MutableFloatStateSerializer*/::class)
         @SerialName("amount_fraction")
-        val amountFractionState: MutableState<Float> = mutableStateOf(1f),
+        val amountFractionState: MutableState<Float>/*MutableFloatState*/ = mutableFloatStateOf(1f),
         @SerialName("no_amount")
         val noAmount: Boolean = false
     ) : EmbedTypeModel {
@@ -124,7 +125,7 @@ interface InstructionSubmodels {
             displayName: String? = null,
             amountFraction: Float = 1f,
             noAmount: Boolean = false
-        ) : this(ingredientId, mutableStateOf(displayName), mutableStateOf(amountFraction), noAmount)
+        ) : this(ingredientId, mutableStateOf(displayName), mutableFloatStateOf(amountFraction), noAmount)
 
         var displayName by displayNameState
         var amountFraction by amountFractionState

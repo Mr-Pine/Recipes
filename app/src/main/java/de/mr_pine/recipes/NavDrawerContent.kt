@@ -18,11 +18,11 @@ import de.mr_pine.recipes.screens.Destination.RECIPE
 @ExperimentalMaterial3Api
 @Composable
 fun NavDrawerContent(currentDestination: Destination, navigate: (Destination) -> Unit) {
-    ModalDrawerSheet() {
+    ModalDrawerSheet {
         Column(modifier = Modifier.padding(horizontal = 12.dp)) {
             Spacer(modifier = Modifier.statusBarsPadding())
             NavigationDrawerItem(label = { Text(text = "Home") }, selected = currentDestination == HOME, onClick = { navigate(HOME) })
-            NavigationDrawerItem(label = { Text(text = "Rezept") }, selected = currentDestination == RECIPE, onClick = { navigate(RECIPE) })
+            NavigationDrawerItem(label = { Text(text = "Recipe") }, selected = currentDestination == RECIPE, onClick = { navigate(RECIPE) })
         }
     }
 }

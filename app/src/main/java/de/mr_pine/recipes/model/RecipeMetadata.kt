@@ -1,4 +1,4 @@
-package de.mr_pine.recipes.models
+package de.mr_pine.recipes.model
 
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
@@ -49,9 +49,5 @@ data class RecipeMetadata(
         val temp = RecipeMetadata("")
         temp.copyFrom(this)
         return temp
-    }
-
-    companion object {
-        const val DataTag = "Metadata"
     }
 }

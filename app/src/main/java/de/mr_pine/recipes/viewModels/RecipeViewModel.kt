@@ -4,14 +4,13 @@ import android.util.Log
 import androidx.compose.runtime.*
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import de.mr_pine.recipes.models.Recipe
-import de.mr_pine.recipes.models.module
+import de.mr_pine.recipes.model.Recipe
+import de.mr_pine.recipes.model.module
 import de.mr_pine.recipes.screens.Destination
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.serialization.builtins.serializer
-import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.modules.SerializersModule
@@ -73,7 +72,7 @@ class RecipeViewModel(private val recipeFolder: File, private val recipeSchema: 
                 recipeFolder,
                 "${
                     recipe.metadata.title.replace(
-                        "[^a-zA-Z0-9-_\\.]".toRegex(),
+                        "[^a-zA-Z0-9-_.]".toRegex(),
                         "_"
                     )
                 }.rcp"
@@ -101,7 +100,7 @@ class RecipeViewModel(private val recipeFolder: File, private val recipeSchema: 
         return try {
             val output = recipeSchema.validateDetailed(raw)
             if (output.valid) {
-                Log.d(TAG, "getRecipeFromString: Recipe validation succeded")
+                Log.d(TAG, "getRecipeFromString: Recipe validation succeeded")
                 json.decodeFromString(raw)
             } else {
                 Log.i(TAG, "getRecipeFromString: Recipe validation failed: ${output.error}")

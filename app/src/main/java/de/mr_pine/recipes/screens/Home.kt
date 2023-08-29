@@ -19,10 +19,10 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import de.mr_pine.recipes.R
-import de.mr_pine.recipes.models.Recipe
-import de.mr_pine.recipes.models.RecipeIngredients
-import de.mr_pine.recipes.models.RecipeMetadata
-import de.mr_pine.recipes.models.instructions.RecipeInstructions
+import de.mr_pine.recipes.model.Recipe
+import de.mr_pine.recipes.model.RecipeIngredients
+import de.mr_pine.recipes.model.RecipeMetadata
+import de.mr_pine.recipes.model.instructions.RecipeInstructions
 import de.mr_pine.recipes.viewModels.RecipeViewModel
 
 
@@ -31,7 +31,7 @@ import de.mr_pine.recipes.viewModels.RecipeViewModel
 @Composable
 fun Home(viewModel: RecipeViewModel) {
     Home(
-        { viewModel.showNavDrawer() },
+        viewModel.showNavDrawer,
         viewModel.recipes,
         viewModel.recipes::add,
         importRecipe = { viewModel.importRecipe() },

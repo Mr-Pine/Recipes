@@ -1,4 +1,4 @@
-package de.mr_pine.recipes.models
+package de.mr_pine.recipes.model
 
 import androidx.compose.runtime.*
 import androidx.compose.runtime.snapshots.SnapshotStateList

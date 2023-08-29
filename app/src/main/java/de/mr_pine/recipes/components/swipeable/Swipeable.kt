@@ -1,13 +1,17 @@
-package de.mr_pine.recipes.components.swipeabe
+package de.mr_pine.recipes.components.swipeable
 
 import android.annotation.SuppressLint
 import androidx.compose.animation.core.AnimationSpec
+import androidx.compose.animation.core.SpringSpec
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.gestures.AnchoredDraggableState
 import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.foundation.gestures.anchoredDraggable
+import androidx.compose.foundation.gestures.animateTo
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.*
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -22,11 +26,11 @@ import androidx.constraintlayout.compose.Dimension
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 
+@OptIn(ExperimentalFoundationApi::class)
 @SuppressLint("CoroutineCreationDuringComposition")
-@ExperimentalMaterialApi
 @Composable
 fun Swipeable(
-    animationSpec: AnimationSpec<Float> = SwipeableDefaults.AnimationSpec,
+    animationSpec: AnimationSpec<Float> = SpringSpec(),
     swipeLeftComposable: (@Composable (offsetAbsolute: Float, offsetRelative: Float) -> Unit)? = null,
     swipeRightComposable: (@Composable (offsetAbsolute: Float, offsetRelative: Float) -> Unit)? = null,
     leftSwiped: (() -> Unit)? = null,
@@ -34,11 +38,7 @@ fun Swipeable(
     rightSwiped: (() -> Unit)? = null,
     rightSwipedDone: () -> Unit = {},
     anchorPositions: ClosedRange<Dp> = (-100).dp..100.dp,
-    thresholds: (from: SwipeCardState, to: SwipeCardState) -> ThresholdConfig = { _, _ ->
-        FractionalThreshold(
-            0.6f
-        )
-    },
+    positionalThreshold: (distance: Float) -> Float = { distance -> distance * 0.6f },
     velocityThreshold: Dp = 125.dp,
     content: @Composable ConstraintLayoutScope.() -> Unit
 ) {
@@ -53,25 +53,28 @@ fun Swipeable(
 
     ConstraintLayout {
         val (mainCardRef, actionCardRef) = createRefs()
-        val swipeableState = rememberSwipeableState(
-            initialValue = SwipeCardState.DEFAULT,
-            animationSpec = animationSpec
-        )
+        val density = LocalDensity.current
+        val anchoredDraggableState = remember {
+            AnchoredDraggableState(
+                initialValue = SwipeCardState.DEFAULT,
+                animationSpec = animationSpec,
+                velocityThreshold = { with(density) { velocityThreshold.toPx() } },
+                positionalThreshold = positionalThreshold,
+                anchors = with(density) {
+                    androidx.compose.foundation.gestures.DraggableAnchors {
+                        SwipeCardState.DEFAULT at 0f
+                        if (swipeLeftComposable != null) SwipeCardState.LEFT at anchorPositions.start.toPx()
+                        if (swipeRightComposable != null) SwipeCardState.RIGHT at anchorPositions.endInclusive.toPx()
+                    }
+                }
+            )
+        }
         val coroutineScope = rememberCoroutineScope()
 
         var swipeLeftVisible by remember { mutableStateOf(false) }
 //        var swipeRightVisible by remember { mutableStateOf(true) }
 
         var swipeEnabled by remember { mutableStateOf(true) }
-        val anchorPositionsPx = with(LocalDensity.current) {
-            anchorPositions.start.toPx()..anchorPositions.endInclusive.toPx()
-        }
-
-        val anchors = hashMapOf(0f to SwipeCardState.DEFAULT)
-
-        if (swipeLeftComposable != null) anchors[anchorPositionsPx.start] = SwipeCardState.LEFT
-        if (swipeRightComposable != null) anchors[anchorPositionsPx.endInclusive] =
-            SwipeCardState.RIGHT
 
         val cardPadding = 2.dp
 
@@ -84,8 +87,8 @@ fun Swipeable(
                     } else {
                         swipeRightComposable
                     } ?: { _, _ -> }).invoke(
-                        swipeableState.offset.value,
-                        swipeableState.progress.fraction
+                        anchoredDraggableState.offset,
+                        anchoredDraggableState.progress
                     )
                 }
             },
@@ -104,48 +107,45 @@ fun Swipeable(
             modifier = Modifier
                 .fillMaxWidth()
                 .offset {
-                    val offset = swipeableState.offset.value
+                    val offset = anchoredDraggableState.offset
                         .roundToInt()
                         .let { if ((it < 0 && swipeLeftComposable == null) || (it > 0 && swipeRightComposable == null)) 0 else it }
                     IntOffset(offset, 0)
                 }
-                .swipeable(
-                    state = swipeableState,
-                    anchors = anchors,
+                .anchoredDraggable(
+                    state = anchoredDraggableState,
                     orientation = Orientation.Horizontal,
-                    enabled = swipeEnabled,
-                    thresholds = thresholds,
-                    velocityThreshold = velocityThreshold
+                    enabled = swipeEnabled
                 )
                 .constrainAs(mainCardRef) {
                     top.linkTo(parent.top)
                     bottom.linkTo(parent.bottom)
                 }
         ) {
-            if (swipeableState.currentValue == SwipeCardState.LEFT && !swipeableState.isAnimationRunning) {
+            if (anchoredDraggableState.currentValue == SwipeCardState.LEFT && !anchoredDraggableState.isAnimationRunning) {
                 leftSwiped?.invoke()
                 coroutineScope.launch {
                     swipeEnabled = false
-                    swipeableState.animateTo(SwipeCardState.DEFAULT)
+                    anchoredDraggableState.animateTo(SwipeCardState.DEFAULT)
                     swipeEnabled = true
                     leftSwipedDone()
                 }
-            } else if (swipeableState.currentValue == SwipeCardState.RIGHT && !swipeableState.isAnimationRunning) {
+            } else if (anchoredDraggableState.currentValue == SwipeCardState.RIGHT && !anchoredDraggableState.isAnimationRunning) {
                 rightSwiped?.invoke()
                 coroutineScope.launch {
                     swipeEnabled = false
-                    swipeableState.animateTo(SwipeCardState.DEFAULT)
+                    anchoredDraggableState.animateTo(SwipeCardState.DEFAULT)
                     swipeEnabled = true
                     rightSwipedDone()
                 }
             }
 
-            swipeLeftVisible = swipeableState.offset.value <= 0
+            swipeLeftVisible = anchoredDraggableState.offset <= 0
 
-            val contstraints = this
+            val constraints = this
 
             Box(modifier = Modifier.padding(cardPadding)) {
-                with(contstraints) { content() }
+                with(constraints) { content() }
             }
         }
 

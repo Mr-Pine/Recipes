@@ -17,8 +17,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import de.mr_pine.recipes.R
-import de.mr_pine.recipes.models.RecipeIngredient
-import de.mr_pine.recipes.models.RecipeIngredients
+import de.mr_pine.recipes.model.RecipeIngredient
+import de.mr_pine.recipes.model.RecipeIngredients
 
 @Composable
 fun RecipeIngredients.IngredientsCard() {
