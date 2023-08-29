@@ -15,10 +15,10 @@ import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.*
 import androidx.compose.ui.unit.dp
-import de.mr_pine.recipes.common.models.*
-import de.mr_pine.recipes.common.models.instructions.InstructionSubmodels
-import de.mr_pine.recipes.common.models.instructions.InstructionSubmodels.EmbedTypeModel.Companion.getEnum
-import de.mr_pine.recipes.common.models.instructions.RecipeInstruction
+import de.mr_pine.recipes.common.model.*
+import de.mr_pine.recipes.common.model.instructions.InstructionSubmodels
+import de.mr_pine.recipes.common.model.instructions.InstructionSubmodels.EmbedTypeModel.Companion.getEnum
+import de.mr_pine.recipes.common.model.instructions.RecipeInstruction
 import de.mr_pine.recipes.common.translation.Translation
 import de.mr_pine.recipes.common.views.DropDown
 import kotlin.math.roundToInt

@@ -21,8 +21,8 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import de.mr_pine.recipes.common.models.RecipeIngredient
-import de.mr_pine.recipes.common.models.RecipeIngredients
+import de.mr_pine.recipes.common.model.RecipeIngredient
+import de.mr_pine.recipes.common.model.RecipeIngredients
 import de.mr_pine.recipes.common.translation.Translation
 import de.mr_pine.recipes.common.views.EditColumn
 import org.burnoutcrew.reorderable.*

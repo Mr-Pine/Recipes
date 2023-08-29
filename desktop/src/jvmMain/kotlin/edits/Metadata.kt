@@ -10,7 +10,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.unit.dp
-import de.mr_pine.recipes.common.models.RecipeMetadata
+import de.mr_pine.recipes.common.model.RecipeMetadata
 import de.mr_pine.recipes.common.views.EditColumn
 
 @ExperimentalMaterial3Api

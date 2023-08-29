@@ -9,10 +9,10 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.*
 import androidx.compose.ui.res.stringResource
 import de.mr_pine.recipes.android.R
-import de.mr_pine.recipes.common.models.RecipeIngredient
-import de.mr_pine.recipes.common.models.instructions.InstructionSubmodels
-import de.mr_pine.recipes.common.models.instructions.InstructionSubmodels.EmbedTypeModel.Companion.getEnum
-import de.mr_pine.recipes.common.models.instructions.RecipeInstruction
+import de.mr_pine.recipes.common.model.RecipeIngredient
+import de.mr_pine.recipes.common.model.instructions.InstructionSubmodels
+import de.mr_pine.recipes.common.model.instructions.InstructionSubmodels.EmbedTypeModel.Companion.getEnum
+import de.mr_pine.recipes.common.model.instructions.RecipeInstruction
 import de.mr_pine.recipes.common.views.instructions.IngredientEditColumn
 import de.mr_pine.recipes.common.views.instructions.RecipeEmbedChip
 import de.mr_pine.recipes.common.views.instructions.TimerEditColumn

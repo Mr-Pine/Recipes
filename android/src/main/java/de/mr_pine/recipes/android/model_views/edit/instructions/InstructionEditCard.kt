@@ -16,11 +16,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.google.accompanist.flowlayout.FlowRow
 import de.mr_pine.recipes.android.R
-import de.mr_pine.recipes.common.models.RecipeIngredient
-import de.mr_pine.recipes.common.models.instructions.InstructionSubmodels.UndefinedEmbedTypeModel
-import de.mr_pine.recipes.common.models.instructions.RecipeInstruction
-import de.mr_pine.recipes.common.models.instructions.decodeInstructionString
-import de.mr_pine.recipes.common.models.instructions.encodeInstructionString
+import de.mr_pine.recipes.common.model.RecipeIngredient
+import de.mr_pine.recipes.common.model.instructions.InstructionSubmodels.UndefinedEmbedTypeModel
+import de.mr_pine.recipes.common.model.instructions.RecipeInstruction
+import de.mr_pine.recipes.common.model.instructions.decodeInstructionString
+import de.mr_pine.recipes.common.model.instructions.encodeInstructionString
 import de.mr_pine.recipes.common.views.instructions.EmbedTextLayout
 import org.burnoutcrew.reorderable.ReorderableLazyListState
 import org.burnoutcrew.reorderable.detectReorder

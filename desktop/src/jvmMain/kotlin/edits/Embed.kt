@@ -10,10 +10,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.unit.dp
-import de.mr_pine.recipes.common.models.RecipeIngredient
-import de.mr_pine.recipes.common.models.instructions.InstructionSubmodels
-import de.mr_pine.recipes.common.models.instructions.InstructionSubmodels.EmbedTypeModel.Companion.getEnum
-import de.mr_pine.recipes.common.models.instructions.RecipeInstruction
+import de.mr_pine.recipes.common.model.RecipeIngredient
+import de.mr_pine.recipes.common.model.instructions.InstructionSubmodels
+import de.mr_pine.recipes.common.model.instructions.InstructionSubmodels.EmbedTypeModel.Companion.getEnum
+import de.mr_pine.recipes.common.model.instructions.RecipeInstruction
 import de.mr_pine.recipes.common.translation.Translation
 import de.mr_pine.recipes.common.views.instructions.IngredientEditColumn
 import de.mr_pine.recipes.common.views.instructions.TimerEditColumn

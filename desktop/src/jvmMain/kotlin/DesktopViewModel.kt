@@ -1,11 +1,11 @@
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.awt.ComposeWindow
-import de.mr_pine.recipes.common.models.Recipe
-import de.mr_pine.recipes.common.models.RecipeIngredients
-import de.mr_pine.recipes.common.models.RecipeMetadata
-import de.mr_pine.recipes.common.models.instructions.RecipeInstructions
-import de.mr_pine.recipes.common.models.module
+import de.mr_pine.recipes.common.model.Recipe
+import de.mr_pine.recipes.common.model.RecipeIngredients
+import de.mr_pine.recipes.common.model.RecipeMetadata
+import de.mr_pine.recipes.common.model.instructions.RecipeInstructions
+import de.mr_pine.recipes.common.model.module
 import kotlinx.serialization.builtins.serializer
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString

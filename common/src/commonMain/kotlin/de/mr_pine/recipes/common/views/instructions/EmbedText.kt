@@ -19,9 +19,9 @@ import androidx.compose.ui.text.PlaceholderVerticalAlign
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.sp
-import de.mr_pine.recipes.common.models.RecipeIngredient
-import de.mr_pine.recipes.common.models.instructions.InstructionSubmodels
-import de.mr_pine.recipes.common.models.instructions.RecipeInstruction
+import de.mr_pine.recipes.common.model.RecipeIngredient
+import de.mr_pine.recipes.common.model.instructions.InstructionSubmodels
+import de.mr_pine.recipes.common.model.instructions.RecipeInstruction
 
 @Composable
 fun EmbedTextLayout(

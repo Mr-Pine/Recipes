@@ -21,8 +21,8 @@ import de.mr_pine.recipes.android.R
 import de.mr_pine.recipes.android.model_views.edit.IngredientsEditCard
 import de.mr_pine.recipes.android.model_views.edit.instructions.instructionsEditList
 import de.mr_pine.recipes.android.model_views.view.MetaInfo
-import de.mr_pine.recipes.common.models.Recipe
-import de.mr_pine.recipes.common.models.instructions.RecipeInstruction
+import de.mr_pine.recipes.common.model.Recipe
+import de.mr_pine.recipes.common.model.instructions.RecipeInstruction
 import de.mr_pine.recipes.common.views.EditColumn
 import org.burnoutcrew.reorderable.rememberReorderableLazyListState
 import org.burnoutcrew.reorderable.reorderable

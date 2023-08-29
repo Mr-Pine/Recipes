@@ -12,10 +12,10 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.window.MenuBar
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
-import de.mr_pine.recipes.common.models.Recipe
-import de.mr_pine.recipes.common.models.RecipeIngredients
-import de.mr_pine.recipes.common.models.RecipeMetadata
-import de.mr_pine.recipes.common.models.instructions.RecipeInstructions
+import de.mr_pine.recipes.common.model.Recipe
+import de.mr_pine.recipes.common.model.RecipeIngredients
+import de.mr_pine.recipes.common.model.RecipeMetadata
+import de.mr_pine.recipes.common.model.instructions.RecipeInstructions
 
 @OptIn(ExperimentalComposeUiApi::class)
 fun main() = application {

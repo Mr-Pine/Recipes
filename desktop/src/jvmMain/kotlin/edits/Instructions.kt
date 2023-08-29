@@ -27,8 +27,8 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import de.mr_pine.recipes.common.models.RecipeIngredient
-import de.mr_pine.recipes.common.models.instructions.*
+import de.mr_pine.recipes.common.model.RecipeIngredient
+import de.mr_pine.recipes.common.model.instructions.*
 import de.mr_pine.recipes.common.translation.Translation
 import de.mr_pine.recipes.common.views.instructions.EmbeddedText
 import de.mr_pine.recipes.common.views.instructions.RecipeEmbedChip

@@ -3,8 +3,8 @@ package de.mr_pine.recipes.android.model_views.edit.instructions
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.ExperimentalMaterial3Api
-import de.mr_pine.recipes.common.models.RecipeIngredient
-import de.mr_pine.recipes.common.models.instructions.RecipeInstruction
+import de.mr_pine.recipes.common.model.RecipeIngredient
+import de.mr_pine.recipes.common.model.instructions.RecipeInstruction
 import org.burnoutcrew.reorderable.ReorderableItem
 import org.burnoutcrew.reorderable.ReorderableLazyListState
 

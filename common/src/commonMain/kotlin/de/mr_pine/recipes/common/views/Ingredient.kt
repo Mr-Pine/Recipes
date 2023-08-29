@@ -15,10 +15,10 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
-import de.mr_pine.recipes.common.models.IngredientUnit
-import de.mr_pine.recipes.common.models.RecipeIngredient
-import de.mr_pine.recipes.common.models.amount
-import de.mr_pine.recipes.common.models.toAmount
+import de.mr_pine.recipes.common.model.IngredientUnit
+import de.mr_pine.recipes.common.model.RecipeIngredient
+import de.mr_pine.recipes.common.model.amount
+import de.mr_pine.recipes.common.model.toAmount
 import de.mr_pine.recipes.common.translation.Translation
 
 @ExperimentalMaterial3Api
