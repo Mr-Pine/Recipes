@@ -26,15 +26,14 @@ import kotlin.math.roundToInt
 
 private const val TAG = "Swipeable"
 
+// TODO: Replace with SwipeToDismiss when working
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun Swipeable(
     animationSpec: AnimationSpec<Float> = SpringSpec(),
     swipeLeftComposable: (@Composable (offsetAbsolute: Float, offsetRelative: Float) -> Unit)? = null,
     swipeRightComposable: (@Composable (offsetAbsolute: Float, offsetRelative: Float) -> Unit)? = null,
-    leftSwiped: (() -> Unit)? = null,
     leftSwipedDone: () -> Unit = {},
-    rightSwiped: (() -> Unit)? = null,
     rightSwipedDone: () -> Unit = {},
     anchorPositions: ClosedRange<Dp> = (-100).dp..100.dp,
     positionalThreshold: (distance: Float) -> Float = { distance -> distance * 0.6f },
@@ -48,7 +47,7 @@ fun Swipeable(
     - https://cs.android.com/androidx/platform/frameworks/support/+/androidx-main:compose/material/material/src/commonMain/kotlin/androidx/compose/material/Swipeable.kt;l=468?q=Swipeab&ss=androidx%2Fplatform%2Fframeworks%2Fsupport:compose%2Fmaterial%2Fmaterial%2Fsrc%2F
     - https://cs.android.com/androidx/platform/frameworks/support/+/androidx-main:compose/material/material/src/commonMain/kotlin/androidx/compose/material/Swipeable.kt;l=563?q=Modifier.swipeable&ss=androidx%2Fplatform%2Fframeworks%2Fsupport:compose%2Fmaterial%2Fmaterial%2Fsrc%2F
      */
-
+    var triggerLock by remember{ mutableStateOf(false) }
 
     ConstraintLayout {
         val (mainCardRef, actionCardRef) = createRefs()
@@ -70,11 +69,13 @@ fun Swipeable(
                     Log.d(TAG, "Swipeable: $it")
                     when (it) {
                         SwipeCardState.LEFT -> {
-                            leftSwipedDone()
+                            if (!triggerLock) leftSwipedDone()
+                            triggerLock = !triggerLock
                             false
                         }
                         SwipeCardState.RIGHT -> {
-                            rightSwipedDone()
+                            if (!triggerLock) rightSwipedDone()
+                            triggerLock = !triggerLock
                             false
                         }
 
@@ -83,12 +84,11 @@ fun Swipeable(
                 }
             )
         }
-        val coroutineScope = rememberCoroutineScope()
 
         var swipeLeftVisible by remember { mutableStateOf(false) }
         // var swipeRightVisible by remember { mutableStateOf(true) }
 
-        var swipeEnabled by remember { mutableStateOf(true) }
+        val swipeEnabled by remember { mutableStateOf(true) }
 
         val cardPadding = 2.dp
 
@@ -129,31 +129,13 @@ fun Swipeable(
                 .anchoredDraggable(
                     state = anchoredDraggableState,
                     orientation = Orientation.Horizontal,
-                    enabled = swipeEnabled
+                    enabled = swipeEnabled,
                 )
                 .constrainAs(mainCardRef) {
                     top.linkTo(parent.top)
                     bottom.linkTo(parent.bottom)
                 }
         ) {
-            /*if (anchoredDraggableState.currentValue == SwipeCardState.LEFT && !anchoredDraggableState.isAnimationRunning) {
-                leftSwiped?.invoke()
-                coroutineScope.launch {
-                    swipeEnabled = false
-                    anchoredDraggableState.animateTo(SwipeCardState.DEFAULT)
-                    swipeEnabled = true
-                    leftSwipedDone()
-                }
-            } else if (anchoredDraggableState.currentValue == SwipeCardState.RIGHT && !anchoredDraggableState.isAnimationRunning) {
-                rightSwiped?.invoke()
-                coroutineScope.launch {
-                    swipeEnabled = false
-                    anchoredDraggableState.animateTo(SwipeCardState.DEFAULT)
-                    swipeEnabled = true
-                    rightSwipedDone()
-                }
-            }*/
-
             swipeLeftVisible = anchoredDraggableState.offset <= 0
 
             val constraints = this
