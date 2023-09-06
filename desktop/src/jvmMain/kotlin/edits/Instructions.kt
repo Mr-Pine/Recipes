@@ -181,12 +181,6 @@ fun RecipeInstruction.EditCard(
                             ),
                             selectedBorderWidth = 1.dp
                         ),
-                        selectedIcon = {
-                            Icon(
-                                imageVector = Icons.Default.Add,
-                                contentDescription = "Add"
-                            )
-                        },
                         leadingIcon = {
                             Icon(
                                 imageVector = Icons.Default.Add,

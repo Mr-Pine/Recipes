@@ -1,6 +1,9 @@
 package de.mr_pine.recipes.common.translation
 
+import androidx.compose.runtime.Composable
+
 actual fun interface ITranslation {
+    @Composable
     actual fun getString(): String
 }
 

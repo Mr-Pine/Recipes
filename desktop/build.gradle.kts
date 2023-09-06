@@ -13,7 +13,7 @@ version = "1.0-SNAPSHOT"
 kotlin {
     jvm {
         compilations.all {
-            kotlinOptions.jvmTarget = "11"
+            kotlinOptions.jvmTarget = "17"
         }
         withJava()
     }
@@ -26,6 +26,7 @@ kotlin {
                 implementation(compose.material3)
                 implementation(compose.foundation)
                 implementation(compose.runtime)
+                implementation(compose.materialIconsExtended)
                 implementation(compose("org.jetbrains.compose.ui:ui-util"))
                 implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.1")
                 implementation("org.burnoutcrew.composereorderable:reorderable:0.9.2")

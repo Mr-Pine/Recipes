@@ -26,7 +26,7 @@ val recipeChipColors
 @Composable
 @OptIn(ExperimentalMaterial3Api::class)
 fun recipeChipElevation(selected: Boolean) = if (selected) FilterChipDefaults.elevatedFilterChipElevation(
-    defaultElevation = 3.dp,
+    elevation = 3.dp,
     pressedElevation = 3.dp,
     focusedElevation = 3.dp,
     hoveredElevation = 6.dp,

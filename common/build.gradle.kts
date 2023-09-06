@@ -1,7 +1,7 @@
 plugins {
     kotlin("multiplatform")
     id("org.jetbrains.compose")
-    id("com.android.library")
+    //id("com.android.library")
     kotlin("plugin.serialization") version "1.9.10"
 }
 
@@ -9,8 +9,8 @@ group = "de.mr_pine.recipes"
 version = "1.0-SNAPSHOT"
 
 kotlin {
-    androidTarget()
-    jvmToolchain(11)
+    //androidTarget()
+    jvmToolchain(17)
     jvm("desktop")
 
     @OptIn(org.jetbrains.compose.ExperimentalComposeLibrary::class)
@@ -29,7 +29,7 @@ kotlin {
                 implementation(kotlin("test"))
             }
         }
-        val androidMain by getting {
+        /*val androidMain by getting {
             dependencies {
                 api("androidx.appcompat:appcompat:1.6.1")
                 api("androidx.core:core-ktx:1.10.1")
@@ -42,7 +42,7 @@ kotlin {
             dependencies {
                 implementation("junit:junit:4.13.2")
             }
-        }
+        }*/
         val desktopMain by getting {
             dependencies {
                 api(compose.preview)
@@ -54,7 +54,7 @@ kotlin {
 
 }
 
-android {
+/*android {
     compileSdk = 34
     sourceSets["main"].manifest.srcFile("src/androidMain/AndroidManifest.xml")
     defaultConfig {
@@ -71,7 +71,7 @@ android {
     kotlin {
         jvmToolchain(11)
     }
-}
+}*/
 
 task("testClasses").doLast {
     println("This is a dummy testClasses task")

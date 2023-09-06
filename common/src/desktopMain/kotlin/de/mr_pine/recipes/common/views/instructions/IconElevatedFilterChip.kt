@@ -24,7 +24,6 @@ actual fun IconElevatedFilterChip(
         label = label,
         modifier = modifier,
         leadingIcon = leadingIcon,
-        selectedIcon = leadingIcon,
         trailingIcon = trailingIcon,
         colors = colors,
         elevation = elevation,
