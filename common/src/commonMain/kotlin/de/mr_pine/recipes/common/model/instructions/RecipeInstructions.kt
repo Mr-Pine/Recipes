@@ -24,11 +24,7 @@ class RecipeInstructions(
     fun copy(instructions: List<RecipeInstruction> = this.instructions.map { it.copy() }) =
         RecipeInstructions(instructions)
 
-    var currentlyActiveIndex by mutableStateOf(0)
-
-    companion object {
-        const val DataTag = "Instructions"
-    }
+    var currentlyActiveIndex by mutableIntStateOf(0)
 }
 
 @Serializable

@@ -6,6 +6,7 @@ import androidx.compose.material.icons.filled.Scale
 import androidx.compose.material.icons.filled.Timer
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -102,7 +103,7 @@ interface InstructionSubmodels {
         val ingredientId: String,
         @Serializable(with = MutableStateSerializer::class)
         @SerialName("display")
-        val displayNameState: MutableState<String?>,
+        val displayNameState: MutableState<String?> = mutableStateOf(null),
         @Serializable(with = MutableStateSerializer::class)
         @SerialName("amount_fraction")
         val amountFractionState: MutableState<Float> = mutableStateOf(1f),
@@ -116,7 +117,7 @@ interface InstructionSubmodels {
             displayName: String? = null,
             amountFraction: Float = 1f,
             noAmount: Boolean = false
-        ) : this(ingredientId, mutableStateOf(displayName), mutableStateOf(amountFraction), mutableStateOf(noAmount))
+        ) : this(ingredientId, mutableStateOf(displayName), mutableFloatStateOf(amountFraction), mutableStateOf(noAmount))
 
         var displayName by displayNameState
         var amountFraction by amountFractionState

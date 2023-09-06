@@ -12,13 +12,13 @@ import androidx.compose.ui.platform.LocalContext
 import com.google.android.material.color.ColorRoles
 import com.google.android.material.color.MaterialColors
 
-private val DarkColorScheme = darkColorScheme(
+private val darkColorScheme = darkColorScheme(
     primary = Purple80,
     secondary = PurpleGrey80,
     tertiary = Pink80
 )
 
-private val LightColorScheme = lightColorScheme(
+private val lightColorScheme = lightColorScheme(
     primary = Purple40,
     secondary = PurpleGrey40,
     tertiary = Pink40
@@ -33,32 +33,6 @@ private val LightColorScheme = lightColorScheme(
     onSurface = Color(0xFF1C1B1F),
     */
 )
-
-/**
- * @see [HarmonizedTheme]
- */
-@Composable
-fun RecipesTheme(
-    darkTheme: Boolean = isSystemInDarkTheme(),
-    // Dynamic color is available on Android 12+
-    dynamicColor: Boolean = true,
-    content: @Composable () -> Unit
-) {
-    val colorScheme = when {
-        dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
-            val context = LocalContext.current
-            if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
-        }
-        darkTheme -> DarkColorScheme
-        else -> LightColorScheme
-    }
-
-    MaterialTheme(
-        colorScheme = colorScheme,
-        typography = Typography,
-        content = content
-    )
-}
 
 // Igitt
 
@@ -155,7 +129,7 @@ fun HarmonizedTheme(
         val context = LocalContext.current
         if (useDarkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
     } else {
-        if (useDarkTheme) DarkColorScheme else LightColorScheme
+        if (useDarkTheme) darkColorScheme else lightColorScheme
     }
     val colorsWithHarmonizedError =
         if (errorHarmonize) setupErrorColors(colors, !useDarkTheme) else colors
