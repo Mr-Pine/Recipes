@@ -2,14 +2,16 @@ plugins {
     kotlin("multiplatform")
     id("org.jetbrains.compose")
     id("com.android.library")
-    kotlin("plugin.serialization") version "1.7.10"
+    kotlin("plugin.serialization") version "1.9.0"
 }
 
 group = "de.mr_pine.recipes"
 version = "1.0-SNAPSHOT"
 
 kotlin {
-    android()
+    android {
+
+    }
     jvm("desktop") {
         compilations.all {
             kotlinOptions.jvmTarget = "11"
@@ -41,11 +43,11 @@ kotlin {
                 api("androidx.compose.material3:material3:1.0.0-beta03")
             }
         }
-        val androidTest by getting {
+        /*val androidTest by getting {
             dependencies {
                 implementation("junit:junit:4.13.2")
             }
-        }
+        }*/
         val desktopMain by getting {
             dependencies {
                 api(compose.preview)
