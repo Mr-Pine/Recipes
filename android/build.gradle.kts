@@ -1,11 +1,11 @@
 plugins {
     id("com.android.application")
-    kotlin("plugin.serialization") version "1.9.0"
+    kotlin("plugin.serialization") version "1.9.10"
     kotlin("android")
 }
 
 val composeVersion = "1.6.0-alpha04"//extra["compose.version"] as String
-val composeCompilerVersion = "1.5.2"
+val composeCompilerVersion = "1.5.3"
 val lifecycleVersion = "2.6.1"
 
 android {

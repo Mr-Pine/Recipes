@@ -27,7 +27,7 @@ kotlin {
                 implementation(compose.foundation)
                 implementation(compose.runtime)
                 implementation(compose("org.jetbrains.compose.ui:ui-util"))
-                implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.4.0")
+                implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.1")
                 implementation("org.burnoutcrew.composereorderable:reorderable:0.9.2")
             }
         }

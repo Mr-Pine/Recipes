@@ -1,5 +1,5 @@
 {
-  "$schema": "https://json-schema.org/draft-07/schema",
+  "$schema": "https://json-schema.org/draft-08/schema",
   "$version": "1.0.0",
   "title": "RCP",
   "description": "rcp is a format for recipes based on JSON",
@@ -45,7 +45,7 @@
                 "type": "number"
               },
               "unit": {
-                "description": "The unit the amount is specipied in",
+                "description": "The unit the amount is specified in",
                 "type": "string",
                 "enum": [
                   "Gram",
@@ -100,7 +100,7 @@
                       "type": "object",
                       "properties": {
                         "ingredient_ID": {
-                          "desription": "The unique id of the ingredient referenced",
+                          "description": "The unique id of the ingredient referenced",
                           "type": "string"
                         },
                         "display": {
@@ -136,7 +136,7 @@
                       "type": "object",
                       "properties": {
                         "duration": {
-                          "descriotion": "The duration this timer runs for, formatted as ISO-8601-2",
+                          "description": "The duration this timer runs for, formatted as ISO-8601-2",
                           "type": "string"
                         }
                       },

@@ -14,7 +14,7 @@
         android:theme="@style/Theme.Recipes"
         android:hasFragileUserData="true"
         android:enableOnBackInvokedCallback="true"
-        tools:targetApi="31">
+        tools:targetApi="tiramisu">
         <activity
             android:name=".MainActivity"
             android:exported="true"
