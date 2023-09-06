@@ -71,4 +71,5 @@ android {
     buildFeatures {
         compose = true
     }
+    namespace = "de.mr_pine.recipes.common"
 }
